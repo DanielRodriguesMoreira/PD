@@ -1,6 +1,7 @@
 
 package server;
 
+import DataMessaging.ConfirmationMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,8 +11,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -21,6 +25,7 @@ import java.util.Calendar;
 public class Server {
 
     public static final int MAX_SIZE = 10000;
+    public static final int TIMEOUT = 10; //segundos
     
     public static void main(String[] args) {
         
@@ -47,11 +52,14 @@ public class Server {
             
             
             socket = new DatagramSocket();
+            socket.setSoTimeout(TIMEOUT*1000);
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
             
-            out.writeObject(new String(name));
+            ConfirmationMessage confirmation = new ConfirmationMessage(name);
+            
+            out.writeObject(confirmation);
             out.flush();
             
             //
@@ -63,15 +71,34 @@ public class Server {
             socket.receive(packet);
             
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
-            //time = (Calendar)in.readObject();
+            confirmation = (ConfirmationMessage)in.readObject();
+            if(confirmation.serverExists())
+            {
+                System.out.println("There is already a '" + name + "' server in the directory service");
+                socket.close();
+                return;
+            }
+            
+            //Só para testar
+            else{
+                System.out.println("Servidor não existe!");
+                System.out.println("Pumba! Toma la que isto ja bomba!");
+                return;
+            }
             
             
         } catch (UnknownHostException ex) {
             System.out.println("Can't find directory service " + name);
+        } catch(NumberFormatException e){
+            System.out.println("The server port must be a positive integer.");
+        } catch(SocketTimeoutException e){
+            System.out.println("Não foi recebida qualquer resposta:\n\t"+e);
         } catch (SocketException ex) {
             System.out.println("An error occurred with the UDP socket level:\n\t" + ex);
         } catch (IOException ex) {
             System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("The object received is not the expected type:\n\t" + ex);
         }
         
         
