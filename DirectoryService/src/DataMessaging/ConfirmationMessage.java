@@ -1,12 +1,14 @@
 package DataMessaging;
 
+import java.io.Serializable;
+
 /*
  * @author Daniel Moreira
  * @author Hugo Santos
  * @author Tiago Santos 
  */
 
-public class ConfirmationMessage {
+public class ConfirmationMessage implements Serializable{
 
     private String serverName;
     private Boolean exists;

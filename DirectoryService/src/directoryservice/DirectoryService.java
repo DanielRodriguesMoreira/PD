@@ -2,6 +2,7 @@ package directoryservice;
 
 import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,8 +21,9 @@ public class DirectoryService {
     public static void main(String[] args) {
         List<DataAddress> serverList;
         //List<DataAddress> clientList;
-        ServerSocket socketDirectory;
-        Socket socket;
+        DatagramSocket socketDirectory;
+        DatagramPacket packet;
+        DatagramSocket socket = null;
         ObjectInputStream in;
         Object obj;
         
@@ -33,13 +35,14 @@ public class DirectoryService {
         serverList = new ArrayList<>();
        
         try {
-            socketDirectory = new ServerSocket(Integer.parseInt(args[0]));
-            
+            socketDirectory = new DatagramSocket(Integer.parseInt(args[0]));
+            packet = new DatagramPacket(new byte[256], 256);
             while(true){
           
-                socket = socketDirectory.accept();
+               // socket = socketDirectory.accept();
+                socketDirectory.receive(packet);
                 
-                in = new ObjectInputStream(socket.getInputStream());
+                in = new ObjectInputStream(new ByteArrayInputStream(packet.getData()));
             
                 obj = in.readObject();
                 
