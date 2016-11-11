@@ -1,9 +1,14 @@
 package directoryservice;
 
+import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,28 +20,39 @@ public class DirectoryService {
     public static void main(String[] args) {
         List<DataAddress> serverList;
         //List<DataAddress> clientList;
-        DatagramPacket packet;
-        DatagramSocket socket = null;
+        ServerSocket socketDirectory;
+        Socket socket;
+        ObjectInputStream in;
+        Object obj;
         
-        serverList = new ArrayList<>();
-        packet = new DatagramPacket(new byte[256], 256);
-        try {
-            socket = new DatagramSocket(Integer.parseInt(args[0]));
-        } catch (SocketException ex) {
-            Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
+        if(args.length != 1){
+            System.out.println("Sintaxe: java DirectoryService portoDeEscuta");
+            return;
         }
         
-     
-        
-        while(true){
-            try {
-                socket.receive(packet);
-                
-            } catch (IOException ex) {
-                Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
+        serverList = new ArrayList<>();
+       
+        try {
+            socketDirectory = new ServerSocket(Integer.parseInt(args[0]));
             
+            while(true){
+          
+                socket = socketDirectory.accept();
+                
+                in = new ObjectInputStream(socket.getInputStream());
+            
+                obj = in.readObject();
+                
+                if( obj instanceof ConfirmationMessage){
+                    ConfirmationThread ct = new ConfirmationThread(serverList, (ConfirmationMessage) obj, socket);
+                    ct.start();
+                }
+                    
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
