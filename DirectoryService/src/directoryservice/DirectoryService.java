@@ -21,18 +21,11 @@ public class DirectoryService
         //Lista de servidores conectados
         List<DataAddress> serverList = new ArrayList<>();
         //List<DataAddress> clientList;
-<<<<<<< HEAD
-=======
-        DatagramSocket socketDirectory;
+
         DatagramPacket packet;
         DatagramSocket socket = null;
-        ObjectInputStream in;
         Object obj;
->>>>>>> origin/master
-        
-        DatagramSocket socket;
         try {
-<<<<<<< HEAD
             
             if(args.length != 1){
                 System.out.println("Sintaxe: DirectoryService port");
@@ -47,19 +40,9 @@ public class DirectoryService
             while(true) 
             {
                 //Receber resposta
-                DatagramPacket packet = new DatagramPacket(new byte[1000], 1000);
+                packet = new DatagramPacket(new byte[1000], 1000);
                 socket.receive(packet);
                 System.out.println("Recebi pacote");
-=======
-            socketDirectory = new DatagramSocket(Integer.parseInt(args[0]));
-            packet = new DatagramPacket(new byte[256], 256);
-            while(true){
-          
-               // socket = socketDirectory.accept();
-                socketDirectory.receive(packet);
-                
-                in = new ObjectInputStream(new ByteArrayInputStream(packet.getData()));
->>>>>>> origin/master
             
                 //Criar object inputStream
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
