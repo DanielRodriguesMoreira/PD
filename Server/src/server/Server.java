@@ -2,6 +2,7 @@
 package server;
 
 import DataMessaging.ConfirmationMessage;
+import DataMessaging.DataAddress;
 import Exceptions.ServerAlreadyExistsException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -76,19 +77,26 @@ public class Server {
             
             checkIfServerAlreadyExists(confirmation);
             
-        } catch (ServerAlreadyExistsException ex) {
+    //DANIEL - falta criares o new DataAddress para enviar para a thread
+    //DANIEL - tens que ver como se vai buscar o localAddress e o localPort
+            Thread t1 = new ImAliveThread(socket, directoryServiceAddress, 
+                    directoryServicePort, null);
+            t1.start();
+            
+            
+        } catch(ServerAlreadyExistsException ex) {
             System.out.println(ex.getError());
-        } catch (UnknownHostException ex) {
+        } catch(UnknownHostException ex) {
             System.out.println("Can't find directory service " + serverName);
         } catch(NumberFormatException e){
             System.out.println("The server port must be a positive integer.");
         } catch(SocketTimeoutException e){
             System.out.println("Não foi recebida qualquer resposta:\n\t"+e);
-        } catch (SocketException ex) {
+        } catch(SocketException ex) {
             System.out.println("An error occurred with the UDP socket level:\n\t" + ex);
-        } catch (IOException ex) {
+        } catch(IOException ex) {
             System.out.println("An error occurred in accessing the socket:\n\t" + ex);
-        } catch (ClassNotFoundException ex) {
+        } catch(ClassNotFoundException ex) {
             System.out.println("The object received is not the expected type:\n\t" + ex);
         }finally{
             if(socket != null)
