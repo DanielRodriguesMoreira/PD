@@ -10,6 +10,8 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,19 +21,21 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
-public class DirectoryService 
-{
-    
-    public static void main(String[] args) 
+public class DirectoryService {
+    DatagramPacket packet;
+    DatagramSocket socket = null;
+    Object obj;
+    int cont = 0;
+    Map<String,List<DataAddress>> mapServers;
+    List<DataAddress> serverList;
+            
+    public void main(String[] args) 
     {
         //Lista de servidores conectados
-        List<DataAddress> serverList = new ArrayList<>();
+        serverList = new ArrayList<>();
         //List<DataAddress> clientList;
-
-        DatagramPacket packet;
-        DatagramSocket socket = null;
-        Object obj;
-        int cont = 0;
+        //Mapa de Lista de Clientes com chave de Servidor
+        mapServers = new TreeMap();
         try {
             
             if(args.length != 1){
@@ -61,7 +65,7 @@ public class DirectoryService
                 
                 if( objecto instanceof ConfirmationMessage) {
                     ConfirmationMessage cm = (ConfirmationMessage) objecto;
-                    ServerThread ct = new ServerThread(serverList, cm, socket, packet);
+                    ServerThread ct = new ServerThread(serverList, mapServers, cm, socket, packet);
                     ct.start();
                 }       
             }
