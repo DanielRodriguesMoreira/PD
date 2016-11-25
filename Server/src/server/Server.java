@@ -2,6 +2,7 @@
 package server;
 
 import DataMessaging.ConfirmationMessage;
+import Exceptions.ServerAlreadyExistsException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class Server {
     
     public static void main(String[] args) {
         
-        String name = null;
+        String serverName = null;
         InetAddress directoryServiceAddress;
         int directoryServicePort;
         DatagramSocket socket = null;
@@ -44,18 +45,20 @@ public class Server {
         
         try {
             
-            name = args[0];
+            // <editor-fold defaultstate="collapsed" desc=" Fill serverName and directoryService Adress ">
+            serverName = args[0];
             directoryServiceAddress = InetAddress.getByName(args[1]);
             directoryServicePort = Integer.parseInt(args[2]);
-            
+            // </editor-fold>
             
             socket = new DatagramSocket();
             socket.setSoTimeout(TIMEOUT*1000);
             
+            //
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
             
-            ConfirmationMessage confirmation = new ConfirmationMessage(name);
+            ConfirmationMessage confirmation = new ConfirmationMessage(serverName);
             
             out.writeObject(confirmation);
             out.flush();
@@ -70,24 +73,13 @@ public class Server {
             
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
             confirmation = (ConfirmationMessage)in.readObject();
-            if(confirmation.serverExists())
-            {
-                System.out.println("There is already a '" + name + "' server in the directory service");
-                System.out.println("pot: "+packet.getPort());
-                socket.close();
-                return;
-            }
             
-            //Só para testar
-            else{
-                System.out.println("Servidor não existe!");
-                System.out.println("Pumba! Toma la que isto ja bomba!");
-                return;
-            }
+            checkIfServerAlreadyExists(confirmation);
             
-            
+        } catch (ServerAlreadyExistsException ex) {
+            System.out.println(ex.getError());
         } catch (UnknownHostException ex) {
-            System.out.println("Can't find directory service " + name);
+            System.out.println("Can't find directory service " + serverName);
         } catch(NumberFormatException e){
             System.out.println("The server port must be a positive integer.");
         } catch(SocketTimeoutException e){
@@ -98,9 +90,19 @@ public class Server {
             System.out.println("An error occurred in accessing the socket:\n\t" + ex);
         } catch (ClassNotFoundException ex) {
             System.out.println("The object received is not the expected type:\n\t" + ex);
+        }finally{
+            if(socket != null)
+                socket.close();
+        } 
+    }
+    
+    public static void checkIfServerAlreadyExists(ConfirmationMessage cm) throws ServerAlreadyExistsException{
+        if(cm.serverExists()) 
+            throw new ServerAlreadyExistsException(cm.getServerName());
+        else{
+            System.out.println("Servidor não existe!");
+            System.out.println("Pumba! Toma la que isto ja bomba!");
         }
-        
-        
     }
 
 }
