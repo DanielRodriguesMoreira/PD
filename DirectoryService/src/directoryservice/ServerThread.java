@@ -10,6 +10,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
 
+/**
+ * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
+ */
+
 public class ServerThread extends Thread {
     List<DataAddress> list;
     DatagramPacket packet;

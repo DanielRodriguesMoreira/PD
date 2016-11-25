@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
+ */
+
 public class DirectoryService 
 {
     
@@ -25,6 +31,7 @@ public class DirectoryService
         DatagramPacket packet;
         DatagramSocket socket = null;
         Object obj;
+        int cont = 0;
         try {
             
             if(args.length != 1){
@@ -39,6 +46,7 @@ public class DirectoryService
         
             while(true) 
             {
+                cont++;
                 //Receber resposta
                 packet = new DatagramPacket(new byte[1000], 1000);
                 socket.receive(packet);
@@ -49,10 +57,10 @@ public class DirectoryService
                 
                 //Ler objecto serializado
                 Object objecto = in.readObject();
+                DatagramSocket s = new DatagramSocket(port+cont);
                 
                 if( objecto instanceof ConfirmationMessage) {
                     ConfirmationMessage cm = (ConfirmationMessage) objecto;
-                    
                     ServerThread ct = new ServerThread(serverList, cm, socket, packet);
                     ct.start();
                 }       
