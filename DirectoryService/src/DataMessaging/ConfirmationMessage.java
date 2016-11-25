@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Tiago Santos 
  */
 
-public class ConfirmationMessage implements Serializable {
+public class ConfirmationMessage implements Serializable{
 
     private String serverName;
     private Boolean exists;
