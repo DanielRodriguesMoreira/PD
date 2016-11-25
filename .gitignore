@@ -24,3 +24,5 @@ hs_err_pid*
 /DirectoryService/dist/
 /Server/dist/
 /Server/build/
+/Aula07Exercicio1/nbproject/private/
+/DirectoryService/build/

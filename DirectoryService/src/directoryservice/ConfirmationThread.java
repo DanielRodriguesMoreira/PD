@@ -2,46 +2,52 @@ package directoryservice;
 
 import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class ConfirmationThread extends Thread{
+public class ConfirmationThread extends Thread {
     List<DataAddress> list;
-    Socket socket;
+    DatagramPacket packet;
+    DatagramSocket socket;
     ConfirmationMessage cm;
     ObjectOutputStream out;
+    ObjectInputStream in;
+    DataAddress dataAddress;
+    ByteArrayOutputStream bOut;
             
-    public ConfirmationThread(List<DataAddress> list, ConfirmationMessage cm, Socket socket ){
+    public ConfirmationThread(List<DataAddress> list, ConfirmationMessage cm, DatagramSocket socket, DatagramPacket packet) {
         this.list = list;
         this.cm = cm;
         this.socket = socket;
-        try {
-            out = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException ex) {
-            Logger.getLogger(ConfirmationThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.packet = packet;
     }
-    public void run(){
-        for(DataAddress i : list)
-            if(i.getName() == cm.getServerName()){
-                cm.setExists(true);
-                try {
-                    out.writeUnshared(cm);
-                } catch (IOException ex) {
-                    Logger.getLogger(ConfirmationThread.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                this.interrupt();
-            }
-        cm.setExists(false);
+    
+    @Override
+    public void run() {
         try {
-            out.writeUnshared(cm);
+            for(DataAddress i : list){
+                if(i.getName().equalsIgnoreCase(cm.getServerName()))
+                {
+                    cm.setExists(true);
+                }
+            }
+            cm.setExists(true);
+            bOut = new ByteArrayOutputStream(1000);
+            out = new ObjectOutputStream(bOut);
+            out.writeObject(cm);
+
+            packet.setData(bOut.toByteArray());
+            packet.setLength(bOut.size());
+            
+            socket.send(packet);
+            
         } catch (IOException ex) {
-            Logger.getLogger(ConfirmationThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("<DirectoryService> " + ex);
         }
-        this.interrupt();
     }
 }
