@@ -10,7 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
 
-public class ConfirmationThread extends Thread {
+public class ServerThread extends Thread {
     List<DataAddress> list;
     DatagramPacket packet;
     DatagramSocket socket;
@@ -20,34 +20,39 @@ public class ConfirmationThread extends Thread {
     DataAddress dataAddress;
     ByteArrayOutputStream bOut;
             
-    public ConfirmationThread(List<DataAddress> list, ConfirmationMessage cm, DatagramSocket socket, DatagramPacket packet) {
+    public ServerThread(List<DataAddress> list, ConfirmationMessage cm, DatagramSocket socket, DatagramPacket packet) {
         this.list = list;
         this.cm = cm;
         this.socket = socket;
         this.packet = packet;
     }
     
-    @Override
-    public void run() {
+    private <T> void sendMessage(T message){
         try {
-            for(DataAddress i : list){
-                if(i.getName().equalsIgnoreCase(cm.getServerName()))
-                {
-                    cm.setExists(true);
-
-                }
-            }
-            cm.setExists(true);
             bOut = new ByteArrayOutputStream(1000);
             out = new ObjectOutputStream(bOut);
-            out.writeObject(cm);
+            out.writeObject(message);
 
             packet.setData(bOut.toByteArray());
             packet.setLength(bOut.size());
-            
+
             socket.send(packet);
-        } catch (IOException ex) {
+         } catch (IOException ex) {
             System.out.println("<DirectoryService> " + ex);
         }
+    }
+    
+    @Override
+    public void run() {
+            for(DataAddress i : list){
+                if(i.getName().equalsIgnoreCase(cm.getServerName())){
+                    cm.setExists(true);
+                    sendMessage(cm); // Servidor já existe na lista.
+                    return;
+                }
+            }
+            dataAddress = new DataAddress(cm.getServerName(), packet.getAddress(), packet.getPort());
+            list.add(dataAddress);
+            sendMessage(cm); // Confirmar ao Servidor que entrou na lista.
     }
 }

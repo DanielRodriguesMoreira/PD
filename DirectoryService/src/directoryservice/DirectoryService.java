@@ -53,7 +53,7 @@ public class DirectoryService
                 if( objecto instanceof ConfirmationMessage) {
                     ConfirmationMessage cm = (ConfirmationMessage) objecto;
                     
-                    ConfirmationThread ct = new ConfirmationThread(serverList, cm, socket, packet);
+                    ServerThread ct = new ServerThread(serverList, cm, socket, packet);
                     ct.start();
                 }       
             }

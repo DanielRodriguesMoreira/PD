@@ -13,15 +13,13 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
  * @author Hugo Santos
  * @author Tiago Santos 
  */
+
 public class Server {
 
     public static final int MAX_SIZE = 10000;
@@ -75,6 +73,7 @@ public class Server {
             if(confirmation.serverExists())
             {
                 System.out.println("There is already a '" + name + "' server in the directory service");
+                System.out.println("pot: "+packet.getPort());
                 socket.close();
                 return;
             }
