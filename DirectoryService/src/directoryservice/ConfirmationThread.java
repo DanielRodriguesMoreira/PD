@@ -10,6 +10,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
 
+/**
+ * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
+ */
+
 public class ConfirmationThread extends Thread {
     List<DataAddress> list;
     DatagramPacket packet;
@@ -34,7 +40,6 @@ public class ConfirmationThread extends Thread {
                 if(i.getName().equalsIgnoreCase(cm.getServerName()))
                 {
                     cm.setExists(true);
-
                 }
             }
             cm.setExists(true);
