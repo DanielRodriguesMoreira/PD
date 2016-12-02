@@ -9,34 +9,34 @@ import java.util.List;
  */
 
 public class ServerMessage {
-    String name;
-    int port;
+    DataAddress server;
     List<DataAddress> users;
     boolean changes;
+    private Boolean exists;
 
-    public ServerMessage(String name, int port, List<DataAddress> users, boolean changes) {
-        this.name = name;
-        this.port = port;
+    public ServerMessage(DataAddress server, List<DataAddress> users, boolean changes, boolean exists) {
+        this.server = server;
         this.users = users;
         this.changes = changes;
+        this.exists = exists;
     }
 
-    public String getName() {
-        return name;
+    public DataAddress getServer() {
+        return server;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setServer(DataAddress server) {
+        this.server = server;
     }
 
-    public int getPort() {
-        return port;
+    public Boolean getExists() {
+        return exists;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setExists(Boolean exists) {
+        this.exists = exists;
     }
-
+    
     public List<DataAddress> getUsers() {
         return users;
     }

@@ -1,6 +1,5 @@
 package directoryservice;
 
-import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
@@ -30,7 +29,6 @@ public class ServerThread extends Thread {
     List<DataAddress> list;
     DatagramPacket packet;
     DatagramSocket socket;
-    ConfirmationMessage cm;
     ObjectOutputStream out;
     ObjectInputStream in;
     DataAddress dataAddress;
@@ -38,10 +36,10 @@ public class ServerThread extends Thread {
     ServerMessage sm;
     Map<String,List<DataAddress>> mapServers;
             
-    public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ConfirmationMessage cm, DatagramSocket socket, DatagramPacket packet) {
+    public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, DatagramSocket socket, DatagramPacket packet) {
         this.list = list;
         this.mapServers = mapServers;
-        this.cm = cm;
+        this.sm = sm;
         this.socket = socket;
         this.packet = packet;
     }
@@ -65,15 +63,15 @@ public class ServerThread extends Thread {
     public void run() {
         try {
             for(DataAddress i : list){
-                if(i.getName().equalsIgnoreCase(cm.getServerName())){
-                    cm.setExists(true);
-                    sendMessage(cm); // Servidor já existe na lista.
+                if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
+                    sm.setExists(true);
+                    sendMessage(sm); // Servidor já existe na lista.
                     return;
                 }
             }
-            dataAddress = new DataAddress(cm.getServerName(), packet.getAddress(), packet.getPort());
+            dataAddress = new DataAddress(sm.getServer().getName(), packet.getAddress(), packet.getPort());
             list.add(dataAddress);
-            sendMessage(cm); // Confirmar ao Servidor que entrou na lista.
+            sendMessage(sm); // Confirmar ao Servidor que entrou na lista.
             do{
                 socket.setSoTimeout(TIMEOUT);
                 socket.receive(packet);
@@ -85,12 +83,12 @@ public class ServerThread extends Thread {
                 sm = (ServerMessage) objecto;
                 
                 if(sm.isChanges())
-                    mapServers.put(sm.getName(), sm.getUsers());
+                    mapServers.put(sm.getServer().getName(), sm.getUsers());
             }while(true);
         }catch (SocketTimeoutException e){
-            mapServers.remove(sm.getName());
+            mapServers.remove(sm.getServer().getName());
             for(DataAddress i: list)
-                if(i.getName().equals(sm.getName())){
+                if(i.getName().equals(sm.getServer().getName())){
                     list.remove(i);
                     break;
                 }

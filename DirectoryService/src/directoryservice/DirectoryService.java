@@ -1,7 +1,7 @@
 package directoryservice;
 
-import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
+import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -63,8 +63,8 @@ public class DirectoryService {
                 Object objecto = in.readObject();
                 DatagramSocket s = new DatagramSocket(port+cont);
                 
-                if( objecto instanceof ConfirmationMessage) {
-                    ConfirmationMessage cm = (ConfirmationMessage) objecto;
+                if( objecto instanceof ServerMessage) {
+                    ServerMessage cm = (ServerMessage) objecto;
                     ServerThread ct = new ServerThread(serverList, mapServers, cm, socket, packet);
                     ct.start();
                 }       
