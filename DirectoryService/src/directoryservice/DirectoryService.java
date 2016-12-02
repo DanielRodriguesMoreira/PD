@@ -65,9 +65,14 @@ public class DirectoryService {
                 
                 if( objecto instanceof ConfirmationMessage) {
                     ConfirmationMessage cm = (ConfirmationMessage) objecto;
-                    ServerThread ct = new ServerThread(serverList, mapServers, cm, socket, packet);
+                    ServerThread st = new ServerThread(serverList, mapServers, cm, socket, packet);
+                    st.start();
+                } else if(objecto instanceof String) {
+                    //É porque é um cliente
+                    String clientMessage = (String) objecto; 
+                    ClientThread ct = new ClientThread(serverList, clientMessage, socket, packet);
                     ct.start();
-                }       
+                }
             }
         } catch (SocketException ex) {
             Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
