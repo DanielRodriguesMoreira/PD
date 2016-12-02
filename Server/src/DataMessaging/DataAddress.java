@@ -12,4 +12,16 @@ public class DataAddress {
         this.ip = ip;
         this.port = port;
     }
+    
+    public String getName(){
+        return this.name;
+    }
+    
+    public InetAddress getIP(){
+        return this.ip;
+    }
+    
+    public int getPort(){
+        return this.port;
+    }
 }
