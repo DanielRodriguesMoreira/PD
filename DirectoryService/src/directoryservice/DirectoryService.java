@@ -76,6 +76,8 @@ public class DirectoryService {
                     ClientMessage clientMessage = (ClientMessage) objecto; 
                     ClientThread ct = new ClientThread(listServers, listClients, clientMessage, socket, packet);
                     ct.start();
+                } else {
+                    System.out.println("Não sei que tipo e' a mensagem.");
                 }
             }
         } catch (SocketException ex) {
