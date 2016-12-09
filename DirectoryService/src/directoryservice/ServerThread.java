@@ -22,8 +22,6 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
-
-
 public class ServerThread extends Thread {
     public static final int TIMEOUT = 30000; // 30 segundos timeout
     List<DataAddress> list;

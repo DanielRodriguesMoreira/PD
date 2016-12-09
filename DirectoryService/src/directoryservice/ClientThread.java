@@ -1,6 +1,7 @@
 
 package directoryservice;
 
+import Constants.Constants;
 import DataMessaging.DataAddress;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -13,12 +14,8 @@ import java.util.List;
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-public class ClientThread extends Thread {
-    public static final int MAX_SIZE = 10000;
-    public static final String ONLINESERVERS = "OnlineServers";
-    public static final String ONLINECLIENTS = "OnlineClients";
-    public static final int TIMEOUT = 30000; // 30 segundos timeout
-    
+
+public class ClientThread extends Thread implements Constants {
     List<DataAddress> list;
     DatagramPacket packet;
     DatagramSocket socket;
@@ -38,9 +35,9 @@ public class ClientThread extends Thread {
     {
         System.out.println("<ClientThread> Recebi ->" + mensagemDoCliente);
 
-        if(mensagemDoCliente.equalsIgnoreCase(ONLINESERVERS)) {
+        if(mensagemDoCliente.equalsIgnoreCase(GETONLINESERVERS)) {
             System.out.println("<ClientThread> Vou mandar a lista de servidores");
-        } else if (mensagemDoCliente.equalsIgnoreCase(ONLINECLIENTS)){
+        } else if (mensagemDoCliente.equalsIgnoreCase(GETONLINECLIENTS)) {
             System.out.println("<ClientThread> Vou mandar a lista de clientes");
         }
     }

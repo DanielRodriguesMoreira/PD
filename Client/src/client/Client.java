@@ -1,6 +1,7 @@
 
 package client;
 
+import Constants.Constants;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,12 +20,8 @@ import java.util.logging.Logger;
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-public class Client {
-    public static final int MAX_SIZE = 10000;
-    public static final String GETONLINESERVERS = "GetOnlineServers";
-    public static final String GETONLINECLIENTS = "GetOnlineClients";
-    public static final String SENDMESSAGE = "SendMessage";
-    public static final int TIMEOUT = 30000; // 30 segundos timeout
+
+public class Client implements Constants {
 
     public static void main(String[] args) {
         DatagramSocket dataSocket = null;
@@ -46,7 +43,6 @@ public class Client {
             serverDirectoryAddr = InetAddress.getByName(args[0]);
             serverDirectoryPort = Integer.parseInt(args[1]);   
             dataSocket = new DatagramSocket();
-            dataSocket.setSoTimeout(TIMEOUT*1000);
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
@@ -58,7 +54,7 @@ public class Client {
             dataSocket.send(packet);
             
             /*  Receber a resposta da directory service  */
-            packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
             dataSocket.receive(packet);
             
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
