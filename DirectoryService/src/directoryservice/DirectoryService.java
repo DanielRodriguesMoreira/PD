@@ -22,20 +22,21 @@ import java.util.logging.Logger;
  */
 
 public class DirectoryService {
-    DatagramPacket packet;
-    DatagramSocket socket = null;
-    Object obj;
-    int cont = 0;
-    Map<String,List<DataAddress>> mapServers;
-    List<DataAddress> serverList;
+    
             
-    public void main(String[] args) 
+    public static void main(String[] args)
     {
+        //Mapa de Lista de Clientes com chave de Servidor 
+        // (Saber os clientes que estão ligados a um determinado servidor)
+        Map<String,List<DataAddress>> mapServers = new TreeMap();
         //Lista de servidores conectados
-        serverList = new ArrayList<>();
+        List<DataAddress> serverList = new ArrayList<>();
         //List<DataAddress> clientList;
-        //Mapa de Lista de Clientes com chave de Servidor
-        mapServers = new TreeMap();
+        DatagramPacket packet;
+        DatagramSocket socket = null;
+        Object obj;
+        int cont = 0;
+        
         try {
             
             if(args.length != 1){
@@ -54,7 +55,7 @@ public class DirectoryService {
                 //Receber resposta
                 packet = new DatagramPacket(new byte[1000], 1000);
                 socket.receive(packet);
-                System.out.println("Recebi pacote");
+                System.out.println("<DIR> Recebi um pacote");
             
                 //Criar object inputStream
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
@@ -67,7 +68,6 @@ public class DirectoryService {
                     ServerMessage cm = (ServerMessage) objecto;
                     ServerThread ct = new ServerThread(serverList, mapServers, cm, socket, packet);
                 } else if(objecto instanceof String) {
-                    //É porque é um cliente
                     String clientMessage = (String) objecto; 
                     ClientThread ct = new ClientThread(serverList, clientMessage, socket, packet);
                     ct.start();
