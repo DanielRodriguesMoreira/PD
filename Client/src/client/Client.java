@@ -2,6 +2,8 @@
 package client;
 
 import Constants.Constants;
+import DataMessaging.ClientMessage;
+import DataMessaging.DataAddress;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,8 +31,9 @@ public class Client implements Constants {
         ObjectOutputStream out = null;
         DatagramPacket packet;
         ObjectInputStream in;
+        ClientMessage message;
         
-        List<String> OnlineServers;
+        List<DataAddress> OnlineServers;
         InetAddress serverDirectoryAddr;
         int serverDirectoryPort;
         
@@ -46,8 +49,9 @@ public class Client implements Constants {
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-
-            out.writeObject(GETONLINESERVERS);
+            
+            message = new ClientMessage("Hugo", null, null, GETONLINESERVERS, null, null);
+            out.writeObject(message);
             out.flush();
             
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
@@ -60,9 +64,11 @@ public class Client implements Constants {
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
             
             /*  Ler a lista de servidores ligados   */
-            //OnlineServers = (List<String>) in.readObject();
             System.out.println("<Client> Packet received");
-            System.out.println("<Client> Recebi-> "+ in.readObject());
+            message = (ClientMessage) in.readObject();
+            for(int i = 0; i < message.getListServers().size(); i++) {
+                System.out.println(message.getListServers().get(i).getName());
+            }
             
         } catch (SocketException ex) {
             System.out.println("Erro ao criar o DatagramSocket\n");
