@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -57,6 +58,7 @@ public class ClientThread extends Thread implements Constants {
 
         if(messageFromClient.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
             System.out.println("<ClientThread> Vou mandar a lista de servidores");
+            listServers.add(new DataAddress("Daniel",null,1));
             messageFromClient.setListServers(listServers);
             sendMessage(messageFromClient);
         } else if (messageFromClient.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {

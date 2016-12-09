@@ -24,11 +24,11 @@ import java.util.logging.Logger;
 
 public class DirectoryService {
     
-    Map<String,List<DataAddress>> mapServers;
-    List<DataAddress> listServers;
-    List<String> listClients;
+    static Map<String,List<DataAddress>> mapServers;
+    static List<DataAddress> listServers;
+    static List<String> listClients;
             
-    public void main(String[] args)
+    public static void main(String[] args)
     {
         //Mapa de Lista de Clientes com chave de Servidor 
         // (Saber os clientes que estão ligados a um determinado servidor)
