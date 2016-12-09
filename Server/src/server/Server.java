@@ -1,6 +1,7 @@
 
 package server;
 
+import Threads.ImAliveThread;
 import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
 import Exceptions.ServerAlreadyExistsException;
@@ -12,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -37,6 +39,8 @@ public class Server {
         ByteArrayOutputStream bOut = null;
         ObjectOutputStream out = null;
         ObjectInputStream in;
+        ServerSocket serverSocket = null;
+        int socketTCPPort;
         
         if(args.length != 3){
             System.out.println("Sintaxe: java Server <name> <DirectoryServiceAddress> <DirectoryServicePort>");
@@ -52,9 +56,10 @@ public class Server {
             directoryServicePort = Integer.parseInt(args[2]);
             // </editor-fold>
             
+            // <editor-fold defaultstate="collapsed" desc=" Create UDP socket ">
             socket = new DatagramSocket();
             socket.setSoTimeout(TIMEOUT*1000);
-            
+            // </editor-fold>
             //
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
@@ -77,12 +82,20 @@ public class Server {
             
             checkIfServerAlreadyExists(confirmation);
             
-    //DANIEL - falta criares o new DataAddress para enviar para a thread
-    //DANIEL - tens que ver como se vai buscar o localAddress e o localPort
-            Thread t1 = new ImAliveThread(socket, directoryServiceAddress, 
-                    directoryServicePort, null);
-            t1.start();
+            //Criar socket TCP
+            serverSocket = new ServerSocket();
+            socketTCPPort = serverSocket.getLocalPort();
+            //Criar thread que vai estar a receber pedidos via TCP
             
+//DANIEL -> Tens que alterar isto porque o que queres mandar é o nome, o IP e o porto de escuta automático TCP
+            // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object with serverName, serverAddress and serverPort ">
+            DataAddress myAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socket.getLocalPort());
+            // </editor-fold>
+            // <editor-fold defaultstate="collapsed" desc=" Create and start ImAliveThread ">
+            Thread t1 = new ImAliveThread(socket, directoryServiceAddress, 
+                    directoryServicePort, myAddress);
+            t1.start();
+            // </editor-fold>
             
         } catch(ServerAlreadyExistsException ex) {
             System.out.println(ex.getError());

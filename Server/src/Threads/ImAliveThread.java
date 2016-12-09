@@ -1,5 +1,5 @@
 
-package server;
+package Threads;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -8,11 +8,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/*
+/**
  * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
  */
 
 public class ImAliveThread extends Thread{
@@ -60,6 +60,11 @@ public class ImAliveThread extends Thread{
             
                 while(true) {
                     socket.send(packetToSend);
+                    // <editor-fold defaultstate="collapsed" desc=" This is just a test ">
+                        System.out.println("Nome : " + serverName);
+                        System.out.println("IP : " + serverIP.getHostAddress());
+                        System.out.println("Port : " + serverPort);
+                    // </editor-fold>
                     Thread.sleep(HEARTBEAT);
                 }
             

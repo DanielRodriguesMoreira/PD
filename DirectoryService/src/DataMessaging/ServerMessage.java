@@ -8,6 +8,9 @@ import java.util.List;
  * @author Tiago Santos 
  */
 
+/**
+* Mensagem entre Server-DirectoryService
+*/
 public class ServerMessage {
     DataAddress server;
     List<DataAddress> users;
