@@ -21,8 +21,10 @@ import java.util.logging.Logger;
  */
 public class Client {
     public static final int MAX_SIZE = 10000;
-    public static final String CLIENTMESSAGE = "OnlineServers";
-    public static final int TIMEOUT = 10; //seconds
+    public static final String GETONLINESERVERS = "GetOnlineServers";
+    public static final String GETONLINECLIENTS = "GetOnlineClients";
+    public static final String SENDMESSAGE = "SendMessage";
+    public static final int TIMEOUT = 30000; // 30 segundos timeout
 
     public static void main(String[] args) {
         DatagramSocket dataSocket = null;
@@ -49,8 +51,7 @@ public class Client {
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
 
-            //Por numa constante !!!!
-            out.writeObject(CLIENTMESSAGE);
+            out.writeObject(GETONLINESERVERS);
             out.flush();
             
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
@@ -64,11 +65,10 @@ public class Client {
             
             /*  Ler a lista de servidores ligados   */
             //OnlineServers = (List<String>) in.readObject();
-            System.out.println("Packet received");
-            System.out.println("Recebi-> "+ in.readObject());
+            System.out.println("<Client> Packet received");
+            System.out.println("<Client> Recebi-> "+ in.readObject());
             
         } catch (SocketException ex) {
-            //Impossivel de criar o datagramSocket
             System.out.println("Erro ao criar o DatagramSocket\n");
         } catch (IOException ex) {
             //Erro a criar objecto serializado
