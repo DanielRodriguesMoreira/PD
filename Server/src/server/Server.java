@@ -1,9 +1,10 @@
 
 package server;
 
+import Constants.Constants;
 import Threads.ImAliveThread;
-import DataMessaging.ConfirmationMessage;
 import DataMessaging.DataAddress;
+import DataMessaging.ServerMessage;
 import Exceptions.ServerAlreadyExistsException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,9 +25,8 @@ import java.net.UnknownHostException;
  * @author Tiago Santos 
  */
 
-public class Server {
+public class Server implements Constants{
 
-    public static final int MAX_SIZE = 10000;
     public static final int TIMEOUT = 10; //segundos
     
     public static void main(String[] args) {
@@ -63,10 +63,11 @@ public class Server {
             //
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
+
+//DANIEL: Com que valores tens que preencher o dataAddress da serverMessage???
+            ServerMessage serverMessage = new ServerMessage(null, null, false, false);
             
-            ConfirmationMessage confirmation = new ConfirmationMessage(serverName);
-            
-            out.writeObject(confirmation);
+            out.writeObject(serverMessage);
             out.flush();
             
             //
@@ -74,13 +75,13 @@ public class Server {
             socket.send(packet);
             
             
-            packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
             socket.receive(packet);
             
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
-            confirmation = (ConfirmationMessage)in.readObject();
+            serverMessage = (ServerMessage)in.readObject();
             
-            checkIfServerAlreadyExists(confirmation);
+            checkIfServerAlreadyExists(serverMessage);
             
             //Criar socket TCP
             serverSocket = new ServerSocket();
@@ -117,9 +118,9 @@ public class Server {
         } 
     }
     
-    public static void checkIfServerAlreadyExists(ConfirmationMessage cm) throws ServerAlreadyExistsException{
-        if(cm.serverExists()) 
-            throw new ServerAlreadyExistsException(cm.getServerName());
+    public static void checkIfServerAlreadyExists(ServerMessage serverMessage) throws ServerAlreadyExistsException{
+        if(serverMessage.getExists()) 
+            throw new ServerAlreadyExistsException(serverMessage.getServerName());
         else{
             System.out.println("Servidor não existe!");
             System.out.println("Pumba! Toma la que isto ja bomba!");

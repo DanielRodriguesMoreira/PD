@@ -1,6 +1,7 @@
 
 package Threads;
 
+import Constants.Constants;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import DataMessaging.DataAddress;
@@ -15,9 +16,8 @@ import java.net.DatagramPacket;
  * @author Tiago Santos 
  */
 
-public class ImAliveThread extends Thread{
+public class ImAliveThread extends Thread implements Constants{
 
-    public static final int HEARTBEAT = 30 * 1000; //30 segundos
     String serverName;
     InetAddress serverIP;
     int serverPort;

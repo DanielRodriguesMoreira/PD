@@ -11,5 +11,6 @@ public interface Constants {
     public static final String GETONLINESERVERS = "GetOnlineServers";
     public static final String GETONLINECLIENTS = "GetOnlineClients";
     public static final String SENDMESSAGE = "SendMessage";
+    public static final int HEARTBEAT = 30 * 1000; //30 segundos
     
 }
