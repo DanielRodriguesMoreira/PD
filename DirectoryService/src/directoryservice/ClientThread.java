@@ -1,11 +1,15 @@
 
 package directoryservice;
 
+import Constants.Constants;
+import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -13,34 +17,51 @@ import java.util.List;
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-public class ClientThread extends Thread {
-    public static final int MAX_SIZE = 10000;
-    public static final String ONLINESERVERS = "OnlineServers";
-    public static final String ONLINECLIENTS = "OnlineClients";
-    public static final int TIMEOUT = 30000; // 30 segundos timeout
-    
-    List<DataAddress> list;
+
+public class ClientThread extends Thread implements Constants {
+    List<DataAddress> listServers;
+    List<String> listClients;
     DatagramPacket packet;
     DatagramSocket socket;
     ByteArrayOutputStream bOut;
     ObjectOutputStream out;
-    String mensagemDoCliente;
+    ClientMessage messageFromClient;           // Messangem do Cliente
     
-    public ClientThread(List<DataAddress> list, String message, DatagramSocket socket, DatagramPacket packet) {
-        this.list = list;
+    public ClientThread(List<DataAddress> listServers, List<String> listClients, ClientMessage message, DatagramSocket socket, DatagramPacket packet) {
+        this.listServers = listServers;
+        this.listClients = listClients;
         this.packet = packet;
         this.socket = socket;
-        this.mensagemDoCliente = message;
+        this.messageFromClient = message;
+    }
+    
+        private <T> void sendMessage(T message){
+        try {
+            bOut = new ByteArrayOutputStream(1000);
+            out = new ObjectOutputStream(bOut);
+            out.writeObject(message);
+
+            packet.setData(bOut.toByteArray());
+            packet.setLength(bOut.size());
+
+            socket.send(packet);
+         } catch (IOException ex) {
+            System.out.println("<DirectoryService> " + ex);
+        }
     }
 
     @Override
     public void run() 
     {
-        System.out.println("<ClientThread> Recebi ->" + mensagemDoCliente);
+        
+        System.out.println("<ClientThread> Recebi mensagem do " + messageFromClient.getUser());
 
-        if(mensagemDoCliente.equalsIgnoreCase(ONLINESERVERS)) {
+        if(messageFromClient.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
             System.out.println("<ClientThread> Vou mandar a lista de servidores");
-        } else if (mensagemDoCliente.equalsIgnoreCase(ONLINECLIENTS)){
+            listServers.add(new DataAddress("Daniel",null,1));
+            messageFromClient.setListServers(listServers);
+            sendMessage(messageFromClient);
+        } else if (messageFromClient.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
             System.out.println("<ClientThread> Vou mandar a lista de clientes");
         }
     }

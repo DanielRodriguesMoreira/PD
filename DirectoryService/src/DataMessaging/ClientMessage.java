@@ -1,5 +1,6 @@
 package DataMessaging;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  * @author Tiago Santos 
  */
 
-public class ClientMessage {
+public class ClientMessage implements Serializable {
     String user;                    // Nome do Cliente que envia
     String usernameToSend;          // Nome do Cliente que quer enviar a mensagem
     String message;                 // Mensagem para um Cliente

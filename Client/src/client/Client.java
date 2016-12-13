@@ -1,6 +1,9 @@
 
 package client;
 
+import Constants.Constants;
+import DataMessaging.ClientMessage;
+import DataMessaging.DataAddress;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,12 +22,8 @@ import java.util.logging.Logger;
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-public class Client {
-    public static final int MAX_SIZE = 10000;
-    public static final String GETONLINESERVERS = "GetOnlineServers";
-    public static final String GETONLINECLIENTS = "GetOnlineClients";
-    public static final String SENDMESSAGE = "SendMessage";
-    public static final int TIMEOUT = 30000; // 30 segundos timeout
+
+public class Client implements Constants {
 
     public static void main(String[] args) {
         DatagramSocket dataSocket = null;
@@ -32,8 +31,9 @@ public class Client {
         ObjectOutputStream out = null;
         DatagramPacket packet;
         ObjectInputStream in;
+        ClientMessage message;
         
-        List<String> OnlineServers;
+        List<DataAddress> OnlineServers;
         InetAddress serverDirectoryAddr;
         int serverDirectoryPort;
         
@@ -46,27 +46,29 @@ public class Client {
             serverDirectoryAddr = InetAddress.getByName(args[0]);
             serverDirectoryPort = Integer.parseInt(args[1]);   
             dataSocket = new DatagramSocket();
-            dataSocket.setSoTimeout(TIMEOUT*1000);
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-
-            out.writeObject(GETONLINESERVERS);
+            
+            message = new ClientMessage("Hugo", null, null, GETONLINESERVERS, null, null);
+            out.writeObject(message);
             out.flush();
             
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
             
             /*  Receber a resposta da directory service  */
-            packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
             dataSocket.receive(packet);
             
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
             
             /*  Ler a lista de servidores ligados   */
-            //OnlineServers = (List<String>) in.readObject();
             System.out.println("<Client> Packet received");
-            System.out.println("<Client> Recebi-> "+ in.readObject());
+            message = (ClientMessage) in.readObject();
+            for(int i = 0; i < message.getListServers().size(); i++) {
+                System.out.println(message.getListServers().get(i).getName());
+            }
             
         } catch (SocketException ex) {
             System.out.println("Erro ao criar o DatagramSocket\n");

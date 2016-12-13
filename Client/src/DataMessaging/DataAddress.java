@@ -1,8 +1,9 @@
 package DataMessaging;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 
-public class DataAddress {
+public class DataAddress implements Serializable{
     String name;
     InetAddress ip;
     int port;

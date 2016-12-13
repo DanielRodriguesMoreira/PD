@@ -1,5 +1,6 @@
 package directoryservice;
 
+import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
@@ -23,15 +24,19 @@ import java.util.logging.Logger;
 
 public class DirectoryService {
     
+    static Map<String,List<DataAddress>> mapServers;
+    static List<DataAddress> listServers;
+    static List<String> listClients;
             
     public static void main(String[] args)
     {
         //Mapa de Lista de Clientes com chave de Servidor 
         // (Saber os clientes que estão ligados a um determinado servidor)
-        Map<String,List<DataAddress>> mapServers = new TreeMap();
+        mapServers = new TreeMap();
         //Lista de servidores conectados
-        List<DataAddress> serverList = new ArrayList<>();
+        listServers = new ArrayList<>();
         //List<DataAddress> clientList;
+         listClients = new ArrayList<>();
         DatagramPacket packet;
         DatagramSocket socket = null;
         Object obj;
@@ -66,11 +71,13 @@ public class DirectoryService {
                 
                 if( objecto instanceof ServerMessage) {
                     ServerMessage cm = (ServerMessage) objecto;
-                    ServerThread ct = new ServerThread(serverList, mapServers, cm, socket, packet);
-                } else if(objecto instanceof String) {
-                    String clientMessage = (String) objecto; 
-                    ClientThread ct = new ClientThread(serverList, clientMessage, socket, packet);
+                    ServerThread ct = new ServerThread(listServers, mapServers, cm, socket, packet);
+                } else if(objecto instanceof ClientMessage) {
+                    ClientMessage clientMessage = (ClientMessage) objecto; 
+                    ClientThread ct = new ClientThread(listServers, listClients, clientMessage, socket, packet);
                     ct.start();
+                } else {
+                    System.out.println("Não sei que tipo e' a mensagem.");
                 }
             }
         } catch (SocketException ex) {
