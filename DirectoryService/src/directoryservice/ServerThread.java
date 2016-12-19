@@ -37,13 +37,14 @@ public class ServerThread extends Thread {
     ByteArrayOutputStream bOut;
     ServerMessage sm;
     Map<String,List<DataAddress>> mapServers;
+    int port;
             
     public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, int port, DatagramPacket packet) {
         this.list = list;
         this.mapServers = mapServers;
         this.sm = sm;
         this.packet = packet;
-        this.packet.setPort(port);
+        this.port = packet.getPort();
         //this.socket = socket;
         try {
             socket = new DatagramSocket(port);
@@ -76,6 +77,7 @@ public class ServerThread extends Thread {
                 if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
                     sm.setExists(true);
                     sendMessage(sm); // Servidor já existe na lista.
+                    System.out.println("Server ja existe."+port);
                     return;
                 }
             }
@@ -86,14 +88,16 @@ public class ServerThread extends Thread {
                 socket.setSoTimeout(HEARTBEAT);
                 socket.receive(packet);
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
-                
+                System.out.println("Recebi o segundo pacote "+port);
                 //Ler objecto serializado
-                Object objecto = in.readObject();
                 
-                sm = (ServerMessage) objecto;
+                sm = (ServerMessage) in.readObject();
                 
-                if(sm.isChanges())
+                if(sm.isChanges()){
+                    System.out.println("Houve alteracoes");
                     mapServers.put(sm.getServer().getName(), sm.getUsers());
+                }else
+                     System.out.println("Acabei");
             }while(true);
         }catch (SocketTimeoutException e){
             mapServers.remove(sm.getServer().getName());
@@ -103,11 +107,11 @@ public class ServerThread extends Thread {
                     break;
                 }
         }catch (SocketException ex) {
-            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Socket "+ ex);
         }catch (IOException ex) {
-            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("IOException "+ ex);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ClassNotFound "+ ex);
         }finally{
             if(socket != null)
                 socket.close();
