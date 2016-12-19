@@ -23,6 +23,9 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
+/**
+ *  Cada Thread vai tratar de um servidor especifico, logo tem que ter um porto especifico
+ */
 public class ServerThread extends Thread {
     public static final int TIMEOUT = 30000; // 30 segundos timeout
     List<DataAddress> list;
@@ -67,7 +70,6 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         try {
-    
             for(DataAddress i : list){
                 if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
                     sm.setExists(true);
