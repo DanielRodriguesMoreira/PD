@@ -20,6 +20,10 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -32,6 +36,18 @@ public class Server implements Constants, Runnable{
     private static final int TIMEOUT = 10; //segundos
     private ServerSocket serverSocketTCP = null;
     private Socket toClientSocket = null;
+    private InetAddress directoryServiceIP = null;
+    private int directoryServicePort = -1;
+    private DataAddress myAddress = null;
+    private List<DataAddress> usersLoggedIn = null;
+    
+    public Server(ServerSocket serverSocket, InetAddress dsIP, int dsPort, DataAddress myTCPAddress){
+        this.serverSocketTCP = serverSocket;
+        this.directoryServiceIP = dsIP;
+        this.directoryServicePort = dsPort;
+        this.myAddress = myTCPAddress;
+        this.usersLoggedIn = new ArrayList<>();
+    }
     
     public static void main(String[] args) {
         
@@ -50,7 +66,6 @@ public class Server implements Constants, Runnable{
             System.out.println("Sintaxe: java Server <name> <DirectoryServiceAddress> <DirectoryServicePort>");
             return;
         }
-        
         
         try {
             
@@ -82,33 +97,44 @@ public class Server implements Constants, Runnable{
             // </editor-fold>
             
             // <editor-fold defaultstate="collapsed" desc=" Receive ServerMessage from Directory Service (by UDP) ">
-            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
-            socket.receive(packet);
+            do{
             
-            in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
-            serverMessage = (ServerMessage)in.readObject();
+                packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
+                socket.receive(packet);
+                        
+                in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
+                serverMessage = (ServerMessage)in.readObject();
+            }while(!packet.getAddress().equals(directoryServiceAddress));
+            
+            //Update directoryServicePort
+            directoryServicePort = packet.getPort();
+            
             // </editor-fold>
             
             checkIfServerAlreadyExists(serverMessage);
             
-            //Criar socket TCP
+            // <editor-fold defaultstate="collapsed" desc=" Create TCP Socket ">
             serverSocket = new ServerSocket();
             socketTCPPort = serverSocket.getLocalPort();
-            //Criar thread que vai estar a receber pedidos via TCP
+            // </editor-fold>
             
 //DANIEL -> Tens que alterar isto porque o que queres mandar é o nome, o IP e o porto de escuta automático TCP
-            // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object with serverName, serverAddress and serverPort ">
-            DataAddress myAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
+            // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object with serverName, serverAddress and serverPort TCP">
+            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
             // </editor-fold>
             // <editor-fold defaultstate="collapsed" desc=" Create and start ImAliveThread ">
-            Thread t1 = new ImAliveThread(socket, directoryServiceAddress, 
-                    directoryServicePort, myAddress);
-            t1.start();
+            Thread threadImAlive = new ImAliveThread(socket, directoryServiceAddress, 
+                    directoryServicePort, myTCPAddress);
+            threadImAlive.start();
             // </editor-fold>
             
             
 //Depois de verificar que não existe e de criar a thread ImAliveThread temos que começar a aceitar clientes
-            
+            // <editor-fold defaultstate="collapsed" desc=" Create and start Accept Clients Thread (this) ">
+            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
+            Thread threadAcceptClients = new Thread(run);
+            threadAcceptClients.start();
+            // </editor-fold>
             
         } catch(ServerAlreadyExistsException ex) {
             System.out.println(ex.getError());
@@ -127,6 +153,13 @@ public class Server implements Constants, Runnable{
         }finally{
             if(socket != null)
                 socket.close();
+            if(serverSocket != null){
+                try {
+                    serverSocket.close();
+                } catch (IOException ex) {
+                    System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+                }
+            }
         } 
     }
     
@@ -137,10 +170,6 @@ public class Server implements Constants, Runnable{
             System.out.println("Servidor não existe!");
             System.out.println("Pumba! Toma la que isto ja bomba!");
         }
-    }
-
-    public Server(ServerSocket serverSocket){
-        this.serverSocketTCP = serverSocket;
     }
     
     @Override
@@ -153,13 +182,13 @@ public class Server implements Constants, Runnable{
                 this.toClientSocket = this.serverSocketTCP.accept();
                 
                 //Start thread to attend the client
-                Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket);
+                Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
+                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn);
                 attendClientThread.start();
                 
             } catch (IOException ex) {
                 System.out.println("An error occurred in accessing the socket:\n\t" + ex);
             } 
         }
-    }
-
+    } 
 }
