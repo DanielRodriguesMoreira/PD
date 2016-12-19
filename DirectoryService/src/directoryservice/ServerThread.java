@@ -15,8 +15,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -28,7 +26,6 @@ import java.util.logging.Logger;
  *  Cada Thread vai tratar de um servidor especifico, logo tem que ter um porto especifico
  */
 public class ServerThread extends Thread implements Constants {
-    public static final int TIMEOUT = 30000; // 30 segundos timeout
     List<DataAddress> list;
     DatagramPacket packet;
     DatagramSocket socket;
@@ -76,7 +73,7 @@ public class ServerThread extends Thread implements Constants {
     @Override
     public void run() {
         try {
-            // <editor-fold defaultstate="collapsed" desc=" Verifica se o Server existe, senão existir adiciona.">
+            // <editor-fold defaultstate="collapsed" desc=" Verifica se o Servido existe, senão existir adiciona.">
             for(DataAddress i : list){
                 if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
                     sm.setExists(true);
@@ -84,7 +81,7 @@ public class ServerThread extends Thread implements Constants {
                     return;
                 }
             }
-            dataAddress = new DataAddress(sm.getServer().getName(), packet.getAddress(), packet.getPort());
+            dataAddress = new DataAddress(sm.getServer().getName(), packet.getAddress(), packet.getPort(), -1);
             list.add(dataAddress);
             sendMessage(sm); // Confirmar ao Servidor que entrou na lista.
             // </editor-fold>
@@ -93,9 +90,8 @@ public class ServerThread extends Thread implements Constants {
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
-                System.out.println("Recebi o segundo pacote "+port);
-                //Ler objecto serializado
                 
+                //Ler objecto serializado
                 sm = (ServerMessage) in.readObject();
                 
                 if(sm.isChanges()){

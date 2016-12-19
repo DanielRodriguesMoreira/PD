@@ -8,11 +8,20 @@ public class DataAddress implements Serializable{
     String name;
     InetAddress ip;
     int port;
+    long time;
     
-    public DataAddress(String name, InetAddress ip, int port){
+    public DataAddress(String name, InetAddress ip, int port, long time){
         this.name = name;
         this.ip = ip;
         this.port = port;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public String getName() {

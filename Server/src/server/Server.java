@@ -81,17 +81,17 @@ public class Server implements Constants, Runnable{
             // <editor-fold defaultstate="collapsed" desc=" Create TCP Socket ">
             serverSocket = new ServerSocket(0);
             socketTCPPort = serverSocket.getLocalPort();
-            System.out.println("TCP port = " + socketTCPPort);
             // </editor-fold>
             
             // <editor-fold defaultstate="collapsed" desc=" Create ServerMessage and send it to Directory Service (by UDP) ">
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-
+            
             // Create DataAddress object with serverName, serverAddress and serverPort TCP
-            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
+            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort, -1);
             ServerMessage serverMessage = new ServerMessage(myTCPAddress, null, false, false);
+
             
             out.writeObject(serverMessage);
             out.flush();
@@ -109,9 +109,6 @@ public class Server implements Constants, Runnable{
                 in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
                 serverMessage = (ServerMessage)in.readObject();
             }while(!packet.getAddress().equals(directoryServiceAddress));
-            
-            //Update directoryServicePort
-            directoryServicePort = packet.getPort();
             // </editor-fold>
             
             checkIfServerAlreadyExists(serverMessage);

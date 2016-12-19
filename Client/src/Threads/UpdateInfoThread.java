@@ -23,6 +23,5 @@ public class UpdateInfoThread extends Thread {
     public UpdateInfoThread() {
         
     }
-}
     
 }
