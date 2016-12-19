@@ -13,6 +13,7 @@ import java.util.List;
 * Mensagem entre Server-DirectoryService
 */
 public class ServerMessage implements Serializable{
+    static final long serialVersionUID = 1L;
     DataAddress server;
     List<DataAddress> users;
     boolean changes;

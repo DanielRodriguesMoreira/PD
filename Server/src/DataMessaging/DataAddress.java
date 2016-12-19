@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 
 public class DataAddress implements Serializable {
+    static final long serialVersionUID = 1L;
     String name;
     InetAddress ip;
     int port;

@@ -1,5 +1,6 @@
 package DataMessaging;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,7 +12,8 @@ import java.util.List;
 /**
 * Mensagem entre Server-DirectoryService
 */
-public class ServerMessage {
+public class ServerMessage implements Serializable{
+    static final long serialVersionUID = 1L;
     DataAddress server;
     List<DataAddress> users;
     boolean changes;
