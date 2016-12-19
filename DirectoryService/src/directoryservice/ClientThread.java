@@ -15,6 +15,8 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -31,12 +33,16 @@ public class ClientThread extends Thread implements Constants {
     ObjectOutputStream out;
     ClientMessage message;           // Messangem do Cliente
     
-    public ClientThread(List<DataAddress> listServers, List<String> listClients, ClientMessage message, DatagramSocket socket, DatagramPacket packet) {
+    public ClientThread(List<DataAddress> listServers, List<String> listClients, ClientMessage message, int port, DatagramPacket packet) {
         this.listServers = listServers;
         this.listClients = listClients;
         this.packet = packet;
-        this.socket = socket;
         this.message = message;
+        try {
+            this.socket = new DatagramSocket(port);
+        } catch (SocketException ex) {
+            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private <T> void sendMessage(T message){
