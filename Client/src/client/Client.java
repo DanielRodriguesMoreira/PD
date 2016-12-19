@@ -4,6 +4,7 @@ package client;
 import Constants.Constants;
 import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
+import Threads.ImAliveThread;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class Client implements Constants {
         DatagramPacket packet;
         ObjectInputStream in;
         ClientMessage message;
+        DataAddress dataAddress = null;
         
         List<DataAddress> OnlineServers;
         InetAddress serverDirectoryAddr;
@@ -49,8 +51,8 @@ public class Client implements Constants {
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-            
-            message = new ClientMessage("Hugo", null, null, GETONLINESERVERS, null, null, false);
+            dataAddress = new DataAddress("Hugo", null, -1);
+            message = new ClientMessage(dataAddress, null, null, GETONLINESERVERS, null, null, false);
             out.writeObject(message);
             out.flush();
             
@@ -67,15 +69,20 @@ public class Client implements Constants {
             System.out.println("<Client> Packet received");
             message = (ClientMessage) in.readObject();
             
-            if (message.isExists()) {
-            /* Listar lista de sevidores activos */
-            for(int i = 0; i < message.getListServers().size(); i++) {
-                System.out.println(message.getListServers().get(i).getName());
-            }
+            //mandar para a thread o porto em condicoes
+            serverDirectoryPort = packet.getPort();
+            
+            if (!message.isExists()) {
+                Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
+                t1.start();
+                
+                /* Listar lista de sevidores activos 
+                for(int i = 0; i < message.getListServers().size(); i++) {
+                    System.out.println(message.getListServers().get(i).getName());
+                }*/
             }
             
             /*  Pedir uma nova conta ou fazer login num servidor ligado */
-            
         } catch (SocketException ex) {
             System.out.println("Erro ao criar o DatagramSocket\n");
         } catch (IOException ex) {
@@ -84,12 +91,7 @@ public class Client implements Constants {
         } catch (ClassNotFoundException ex) {
             //Erro ao ler o objecto serializado
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } finally{
-            if(dataSocket != null){
-                dataSocket.close();
-            }
         }
-        
     }
 
 }
