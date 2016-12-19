@@ -10,6 +10,7 @@ import java.util.List;
  */
 
 public class ClientMessage implements Serializable {
+    static final long serialVersionUID = 1L;
     String user;                    // Nome do Cliente que envia
     String usernameToSend;          // Nome do Cliente que quer enviar a mensagem
     String message;                 // Mensagem para um Cliente
