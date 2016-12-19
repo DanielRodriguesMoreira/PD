@@ -2,20 +2,32 @@ package DataMessaging;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.Objects;
+
+/**
+ * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
+ */
 
 public class DataAddress implements Serializable{
+    // <editor-fold defaultstate="collapsed" desc=" Variáveis ">
     static final long serialVersionUID = 1L;
     String name;
     InetAddress ip;
     int port;
     long time;
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" Construtor ">
     public DataAddress(String name, InetAddress ip, int port, long time){
         this.name = name;
         this.ip = ip;
         this.port = port;
     }
-
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Gets & Sets ">
     public long getTime() {
         return time;
     }
@@ -47,4 +59,31 @@ public class DataAddress implements Serializable{
     public void setPort(int port) {
         this.port = port;
     }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" equals() ">
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DataAddress other = (DataAddress) obj;
+        if (this.port != other.port) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.ip, other.ip)) {
+            return false;
+        }
+        return true;
+    }
+    // </editor-fold>
 }

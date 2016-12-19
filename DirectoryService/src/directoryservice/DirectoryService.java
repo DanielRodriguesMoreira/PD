@@ -7,8 +7,6 @@ import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -29,12 +27,12 @@ import java.util.TreeMap;
  */
 public class DirectoryService implements Constants {
     
-    static Map<String,List<DataAddress>> mapServers;    // Mapa de Lista de Clientes com chave de Servidor 
+    static Map<DataAddress,List<DataAddress>> mapServers;    // Mapa de Lista de Clientes com chave de Servidor 
     static List<DataAddress> listServers;               // Lista de servidores conectados
     static List<DataAddress> listClients;                    // Lista de Clients Ativos
-    static PipedOutputStream updateClientsPOut;         // Pipe de escrita para o UpdateClientsThread
-    static PipedInputStream updateClientsPInp;          // Pipe de leitura do UpdateClientsThread
-    
+    static DatagramPacket packet;
+    static DatagramSocket socket = null;
+    static Object obj;
             
     public static void main(String[] args)
     {
@@ -42,12 +40,6 @@ public class DirectoryService implements Constants {
         mapServers = new TreeMap();
         listServers = new ArrayList<>();
         listClients = new ArrayList<>();
-         
-       // serverPipe = new PipedOutputStream();
-        DatagramPacket packet;
-        DatagramSocket socket = null;
-        Object obj;
-        int cont = 6000;
         
         try {
             
@@ -63,7 +55,6 @@ public class DirectoryService implements Constants {
         
             while(true) 
             {
-                cont++;
                 //Receber resposta
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
@@ -77,12 +68,12 @@ public class DirectoryService implements Constants {
                 
                 
                 if( objecto instanceof ServerMessage) {
-                    ServerMessage sm = (ServerMessage) objecto;
-                    
+                    ServerMessage serverMessage = (ServerMessage) objecto;
                 } else if(objecto instanceof ClientMessage) {
-                    ClientMessage clientMessage = (ClientMessage) objecto; 
-                    ClientThread ct = new ClientThread(listServers, listClients, clientMessage, cont, packet);
-                    ct.start();
+                    ClientMessage clientMessage = (ClientMessage) objecto;
+                    switch(clientMessage.getRequest()){
+                        case ""
+                    }
                 } else {
                     System.out.println("Não sei que tipo e' a mensagem.");
                 }
