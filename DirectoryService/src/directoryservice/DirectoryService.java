@@ -5,8 +5,10 @@ import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -29,18 +31,18 @@ import java.util.TreeMap;
 public class DirectoryService implements Constants {
     // <editor-fold defaultstate="collapsed" desc=" Variáveis ">
     static Map<DataAddress,List<DataAddress>> mapServers;    // Mapa de Lista de Clientes com chave de Servidor 
-    static List<DataAddress> listServers;               // Lista de servidores conectados
     static List<DataAddress> listClients;                    // Lista de Clients Ativos
     static DatagramPacket packet;
     static DatagramSocket socket = null;
     static Object obj;
+    static ByteArrayOutputStream bOut;
+    static ObjectOutputStream out;
     // </editor-fold>
     
     public static void main(String[] args)
     {
         // (Saber os clientes que estão ligados a um determinado servidor)
         mapServers = new TreeMap();
-        listServers = new ArrayList<>();
         listClients = new ArrayList<>();
         
         try {
@@ -72,9 +74,26 @@ public class DirectoryService implements Constants {
                 if( objecto instanceof ServerMessage) {
                     ServerMessage serverMessage = (ServerMessage) objecto;
                     switch(serverMessage.getRequest()){
+                        // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_CHECK_USERNAME ">
                         case SERVER_MSG_CHECK_USERNAME:
                             cleanListServers();
+                            if(checkExistsServer(serverMessage.getServer()))
+                                serverMessage.setExists(true);
+                            sendMessage(serverMessage);
                             break;
+                        // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_HEARTBEAT ">
+                        case SERVER_MSG_HEARTBEAT:
+                            mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            cleanListServers();
+                            break;
+                        // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_UPDATE_LIST ">
+                        case SERVER_MSG_UPDATE_LIST:
+                            mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            cleanListServers();
+                            break;
+                        // </editor-fold>
                     }
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" ClientMessage ">
@@ -107,8 +126,32 @@ public class DirectoryService implements Constants {
     
     private static void cleanListServers(){
         long currentTime = getCurrentTime();
+        List<DataAddress> listServers = (ArrayList) mapServers.keySet();
         for(DataAddress i : listServers)
             if((currentTime - i.getTime()) > HEARTBEAT)
-                listServers.remove(i);
+                mapServers.remove(i);
+    }
+    
+    private static <T> void sendMessage(T message){
+        try {
+            bOut = new ByteArrayOutputStream(1000);
+            out = new ObjectOutputStream(bOut);
+            out.writeObject(message);
+
+            packet.setData(bOut.toByteArray());
+            packet.setLength(bOut.size());
+
+            socket.send(packet);
+         } catch (IOException ex) {
+            System.out.println("IOException >> " + ex);
+        }
+    }
+
+    private static boolean checkExistsServer(DataAddress addr){
+        List<DataAddress> listServers = (ArrayList) mapServers.keySet();
+        for(DataAddress i : listServers)
+            if(addr.equals(i))
+                return true;
+        return false;
     }
 }
