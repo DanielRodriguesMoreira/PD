@@ -90,9 +90,8 @@ public class Server implements Constants, Runnable{
             
             // Create DataAddress object with serverName, serverAddress and serverPort TCP
             DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort, -1);
-            ServerMessage serverMessage = new ServerMessage(myTCPAddress, null, false, false);
+            ServerMessage serverMessage = new ServerMessage(myTCPAddress, null, SERVER_MSG_CHECK_USERNAME, false);
 
-            
             out.writeObject(serverMessage);
             out.flush();
             
@@ -145,10 +144,6 @@ public class Server implements Constants, Runnable{
     private static void checkIfServerAlreadyExists(ServerMessage serverMessage) throws ServerAlreadyExistsException{
         if(serverMessage.getExists()) 
             throw new ServerAlreadyExistsException(serverMessage.getServerName());
-        else{
-            System.out.println("Servidor nao existe!");
-            System.out.println("Pumba! Toma la que isto ja bomba!");
-        }
     }
     
     @Override

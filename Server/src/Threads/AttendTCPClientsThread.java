@@ -1,6 +1,7 @@
 
 package Threads;
 
+import Constants.Constants;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.ByteArrayOutputStream;
@@ -19,7 +20,7 @@ import java.util.List;
  * @author Tiago Santos 
  */
 
-public class AttendTCPClientsThread extends Thread{
+public class AttendTCPClientsThread extends Thread implements Constants{
 
     private Socket toClientSocket = null;
     private DataAddress myAddress = null;
@@ -64,7 +65,7 @@ public class AttendTCPClientsThread extends Thread{
             ByteArrayOutputStream bOut = new ByteArrayOutputStream();            
             ObjectOutputStream out = new ObjectOutputStream(bOut);
 
-            ServerMessage serverMessage = new ServerMessage(this.myAddress, this.usersLoggedIn, true, false);
+            ServerMessage serverMessage = new ServerMessage(this.myAddress, this.usersLoggedIn, SERVER_MSG_UPDATE_LIST, false);
             
             out.writeObject(serverMessage);
             out.flush();

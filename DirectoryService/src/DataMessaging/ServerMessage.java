@@ -16,14 +16,22 @@ public class ServerMessage implements Serializable{
     static final long serialVersionUID = 1L;
     DataAddress server;
     List<DataAddress> users;
-    boolean changes;
+    String request;
     private Boolean exists;
 
-    public ServerMessage(DataAddress server, List<DataAddress> users, boolean changes, boolean exists) {
-        this.server = server;
-        this.users = users;
-        this.changes = changes;
-        this.exists = exists;
+    public ServerMessage(DataAddress server, List<DataAddress> users, String request, boolean exists) {
+        this.setServer(server);
+        this.setUsers(users);
+        this.setRequest(request);
+        this.setExists(exists);
+    }
+
+    public String getRequest() {
+        return request;
+    }
+
+    public void setRequest(String request) {
+        this.request = request;
     }
 
     public DataAddress getServer() {
@@ -48,14 +56,6 @@ public class ServerMessage implements Serializable{
 
     public void setUsers(List<DataAddress> users) {
         this.users = users;
-    }
-
-    public boolean isChanges() {
-        return changes;
-    }
-
-    public void setChanges(boolean changes) {
-        this.changes = changes;
     }
     
     public String getServerName(){
