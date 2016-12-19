@@ -25,14 +25,14 @@ public class ClientThread extends Thread implements Constants {
     DatagramSocket socket;
     ByteArrayOutputStream bOut;
     ObjectOutputStream out;
-    ClientMessage messageFromClient;           // Messangem do Cliente
+    ClientMessage message;           // Messangem do Cliente
     
     public ClientThread(List<DataAddress> listServers, List<String> listClients, ClientMessage message, DatagramSocket socket, DatagramPacket packet) {
         this.listServers = listServers;
         this.listClients = listClients;
         this.packet = packet;
         this.socket = socket;
-        this.messageFromClient = message;
+        this.message = message;
     }
     
         private <T> void sendMessage(T message){
@@ -54,14 +54,13 @@ public class ClientThread extends Thread implements Constants {
     public void run() 
     {
         
-        System.out.println("<ClientThread> Recebi mensagem do " + messageFromClient.getUser());
+        System.out.println("<ClientThread> Recebi mensagem do " + message.getUser());
 
-        if(messageFromClient.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
+        if(message.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
             System.out.println("<ClientThread> Vou mandar a lista de servidores");
-            listServers.add(new DataAddress("Daniel",null,1));
-            messageFromClient.setListServers(listServers);
-            sendMessage(messageFromClient);
-        } else if (messageFromClient.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
+            message.setListServers(listServers);
+            sendMessage(message);
+        } else if (message.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
             System.out.println("<ClientThread> Vou mandar a lista de clientes");
         }
     }

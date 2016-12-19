@@ -1,5 +1,6 @@
 package directoryservice;
 
+import static Constants.Constants.HEARTBEAT;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
@@ -34,12 +35,18 @@ public class ServerThread extends Thread {
     ServerMessage sm;
     Map<String,List<DataAddress>> mapServers;
             
-    public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, DatagramSocket socket, DatagramPacket packet) {
+    public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, int port, DatagramPacket packet) {
         this.list = list;
         this.mapServers = mapServers;
         this.sm = sm;
-        this.socket = socket;
         this.packet = packet;
+        this.packet.setPort(port);
+        //this.socket = socket;
+        try {
+            socket = new DatagramSocket(port);
+        } catch (SocketException ex) {
+            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private <T> void sendMessage(T message){
@@ -60,6 +67,7 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         try {
+    
             for(DataAddress i : list){
                 if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
                     sm.setExists(true);
@@ -71,7 +79,7 @@ public class ServerThread extends Thread {
             list.add(dataAddress);
             sendMessage(sm); // Confirmar ao Servidor que entrou na lista.
             do{
-                socket.setSoTimeout(TIMEOUT);
+                socket.setSoTimeout(HEARTBEAT);
                 socket.receive(packet);
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
                 
