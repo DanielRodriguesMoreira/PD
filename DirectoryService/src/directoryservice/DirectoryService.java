@@ -1,5 +1,6 @@
 package directoryservice;
 
+import Constants.Constants;
 import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
@@ -28,7 +29,7 @@ import java.util.logging.Logger;
  * Está sempre à escuta, dependendo do tipo de mensagem cria uma thread para tratar da tarefa.
  * Criação de Pipes para haver comunicação entre as threads; ServerThread -> UpdateClientsThread; ClientThread -> UpdateClientsThread; ClientThread -> ClientThread;
  */
-public class DirectoryService {
+public class DirectoryService implements Constants {
     
     static Map<String,List<DataAddress>> mapServers;    // Mapa de Lista de Clientes com chave de Servidor 
     static List<DataAddress> listServers;               // Lista de servidores conectados
@@ -66,7 +67,7 @@ public class DirectoryService {
             {
                 cont++;
                 //Receber resposta
-                packet = new DatagramPacket(new byte[1000], 1000);
+                packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
                 System.out.println("<DIR> Recebi um pacote");
             

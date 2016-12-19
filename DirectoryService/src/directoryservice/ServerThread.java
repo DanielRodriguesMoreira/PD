@@ -1,5 +1,6 @@
 package directoryservice;
 
+import Constants.Constants;
 import static Constants.Constants.HEARTBEAT;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
 /**
  *  Cada Thread vai tratar de um servidor especifico, logo tem que ter um porto especifico
  */
-public class ServerThread extends Thread {
+public class ServerThread extends Thread implements Constants {
     public static final int TIMEOUT = 30000; // 30 segundos timeout
     List<DataAddress> list;
     DatagramPacket packet;
@@ -55,7 +56,7 @@ public class ServerThread extends Thread {
     
     private <T> void sendMessage(T message){
         try {
-            bOut = new ByteArrayOutputStream(1000);
+            bOut = new ByteArrayOutputStream(DATAGRAM_MAX_SIZE);
             out = new ObjectOutputStream(bOut);
             out.writeObject(message);
 
