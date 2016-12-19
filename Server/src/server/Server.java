@@ -2,14 +2,17 @@
 package server;
 
 import Constants.Constants;
+import Constants.ServerRequestsConstants;
 import Threads.ImAliveThread;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import Exceptions.ServerAlreadyExistsException;
 import Threads.AttendTCPClientsThread;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
@@ -30,7 +33,7 @@ import java.util.List;
  * @author Tiago Santos 
  */
 
-public class Server implements Constants, Runnable{
+public class Server implements Constants, Runnable, ServerRequestsConstants{
 
     private static final int TIMEOUT = 10; //segundos
     private ServerSocket serverSocketTCP = null;
@@ -60,6 +63,7 @@ public class Server implements Constants, Runnable{
         ObjectInputStream in = null;
         ServerSocket serverSocket = null;
         int socketTCPPort = -1;
+        String localRequest = null;
 
         if(args.length != 3){
             System.out.println("Sintaxe: java Server <name> <DirectoryServiceAddress> <DirectoryServicePort>");
@@ -125,6 +129,32 @@ public class Server implements Constants, Runnable{
             threadAcceptClients.start();
             // </editor-fold>
             
+            BufferedReader bufferReaderIn = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Command: ");
+            while(true){
+                localRequest = bufferReaderIn.readLine();
+                switch(localRequest.toUpperCase()){
+                    case SERVER_GET_REQUEST_LIST:
+                        showCommandList();
+                        break;
+                    case SERVER_GET_USERNAME: 
+                        System.out.println(serverName); 
+                        break;
+                    case SERVER_GET_DIRECTORYSERVICE_ADDRESS:
+                        System.out.println("Directory Service address: " + directoryServiceAddress +
+                                ":" + directoryServicePort);
+                        break;
+                    case SERVER_GET_MYADDRESS:
+                        System.out.println("My address: " + InetAddress.getLocalHost());
+                        System.out.println("UDP port: " + socket.getLocalPort());
+                        System.out.println("TCP port: " + socketTCPPort);
+                        break;
+                    default:
+                        System.out.println("Command not found.");
+                }
+             System.out.println("\nCommand: ");   
+            }
+            
         } catch(ServerAlreadyExistsException ex) {
             System.out.println(ex.getError());
         } catch(UnknownHostException ex) {
@@ -145,6 +175,14 @@ public class Server implements Constants, Runnable{
     private static void checkIfServerAlreadyExists(ServerMessage serverMessage) throws ServerAlreadyExistsException{
         if(serverMessage.getExists()) 
             throw new ServerAlreadyExistsException(serverMessage.getServerName());
+    }
+    
+    private static void showCommandList(){
+        System.out.println("Commands list:");
+        System.out.println("GetUsername\t-\tGet server username");
+        System.out.println("GetDirectoryServiceAddress\t-\tGet directory service address");
+        System.out.println("GetMyAddress\t-\tGet server address");
+        System.out.println("GetList\t-\tGet commands list");
     }
     
     @Override
