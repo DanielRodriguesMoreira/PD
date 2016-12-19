@@ -44,7 +44,7 @@ public class ImAliveThread extends Thread implements Constants{
                 ByteArrayOutputStream bOut = new ByteArrayOutputStream();            
                 ObjectOutputStream out = new ObjectOutputStream(bOut);
                 
-                this.clientMessage = new ClientMessage(dataAddress, null, null, IAMALIVE, null, null, false);
+                this.clientMessage = new ClientMessage(dataAddress, null, null, CLIENT_MSG_HEARTBEAT, null, null, false);
                 
                 out.writeUnshared(clientMessage);
                 out.flush();
