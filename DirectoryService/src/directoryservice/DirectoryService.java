@@ -83,16 +83,16 @@ public class DirectoryService implements Constants {
                     st.start();
                 } else if(objecto instanceof ClientMessage) {
                     ClientMessage clientMessage = (ClientMessage) objecto; 
-                    ClientThread ct = new ClientThread(listServers, listClients, clientMessage, socket, packet);
+                    ClientThread ct = new ClientThread(listServers, listClients, clientMessage, cont, packet);
                     ct.start();
                 } else {
                     System.out.println("Não sei que tipo e' a mensagem.");
                 }
             }
         } catch (SocketException ex) {
-            Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("SocketException >> " + ex);
         } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(DirectoryService.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("IOException >> " + ex);
         }
     }
 }
