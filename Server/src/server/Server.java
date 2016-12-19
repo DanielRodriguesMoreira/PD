@@ -179,10 +179,10 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     
     private static void showCommandList(){
         System.out.println("Commands list:");
-        System.out.println("GetUsername\t-\tGet server username");
-        System.out.println("GetDirectoryServiceAddress\t-\tGet directory service address");
-        System.out.println("GetMyAddress\t-\tGet server address");
-        System.out.println("GetList\t-\tGet commands list");
+        System.out.println("GetUsername - Get server username");
+        System.out.println("GetDirectoryServiceAddress - Get directory service address");
+        System.out.println("GetMyAddress - Get server address");
+        System.out.println("GetList - Get commands list");
     }
     
     @Override

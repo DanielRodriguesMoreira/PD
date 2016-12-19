@@ -79,17 +79,23 @@ public class DirectoryService implements Constants {
                             cleanListServers();
                             if(checkExistsServer(serverMessage.getServer()))
                                 serverMessage.setExists(true);
+                            else{
+                                serverMessage.getServer().setTime(getCurrentTime());
+                                mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            }
                             sendMessage(serverMessage);
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_HEARTBEAT ">
                         case SERVER_MSG_HEARTBEAT:
+                            serverMessage.getServer().setTime(getCurrentTime());
                             mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
                             cleanListServers();
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_UPDATE_LIST ">
                         case SERVER_MSG_UPDATE_LIST:
+                            serverMessage.getServer().setTime(getCurrentTime());
                             mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
                             cleanListServers();
                             break;

@@ -87,9 +87,6 @@ public class DataAddress implements Serializable, Comparable<DataAddress>{
         if (!Objects.equals(this.ip, other.ip)) {
             return false;
         }
-        if (this.port != other.port) {
-            return false;
-        }
         return true;
     }
     // </editor-fold>    
