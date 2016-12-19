@@ -101,7 +101,7 @@ public class Server implements Constants, Runnable{
             
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
-                        
+                System.out.println("Recebi de: " + packet.getAddress().getHostName() + " : " + packet.getPort());
                 in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
                 serverMessage = (ServerMessage)in.readObject();
             }while(!packet.getAddress().equals(directoryServiceAddress));

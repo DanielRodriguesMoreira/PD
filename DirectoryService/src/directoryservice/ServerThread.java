@@ -62,6 +62,7 @@ public class ServerThread extends Thread {
             packet.setLength(bOut.size());
 
             socket.send(packet);
+            System.out.println("Enviei para: " + packet.getAddress().getHostName() + " : " + packet.getPort());
          } catch (IOException ex) {
             System.out.println("<DirectoryService> " + ex);
         }
@@ -70,6 +71,7 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         try {
+            System.out.println("entrei na thread");
             for(DataAddress i : list){
                 if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
                     sm.setExists(true);
