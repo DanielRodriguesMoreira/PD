@@ -64,19 +64,19 @@ public class ClientThread extends Thread implements Constants {
     public void run()
     {
         
-        System.out.println("<ClientThread> Recebi mensagem do " + message.getUser());
+        System.out.println("<ClientThread> Recebi mensagem do " + message.getDataAddress().getName());
         
         try {
             System.out.println("entrei na thread client");
             for(DataAddress i : listClients){
-                if(i.getName().equalsIgnoreCase(message.getUser())){
+                if(i.getName().equalsIgnoreCase(message.getDataAddress().getName())){
                     message.setExists(true);
                     sendMessage(message); // Cliente já existe na lista.
                     System.out.println("Cliente ja existe.");
                     return;
                 }
             }
-            //listClients.add(message.getUser());
+            listClients.add(message.getDataAddress());
             sendMessage(message); // Confirmar ao Servidor que entrou na lista.
             do{
                 socket.setSoTimeout(HEARTBEAT);
@@ -101,7 +101,7 @@ public class ClientThread extends Thread implements Constants {
                 } else if (message.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
                     System.out.println("<ClientThread> Vou mandar a lista de clientes");
                 } else if (message.getRequest().equalsIgnoreCase(IAMALIVE)) {
-                    System.out.println("<ClientThread> O cliente" + message.getUser() + " esta vivo!");
+                    System.out.println("<ClientThread> O cliente" + message.getDataAddress().getName() + " esta vivo!");
                 }
                 
                 System.out.println("Recebi mensagem");

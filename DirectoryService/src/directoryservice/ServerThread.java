@@ -41,20 +41,22 @@ public class ServerThread extends Thread implements Constants {
     int port;
             
     public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, int port, DatagramPacket packet) {
+        // <editor-fold defaultstate="collapsed" desc=" Iniciar variáveis.">
         this.list = list;
         this.mapServers = mapServers;
         this.sm = sm;
         this.packet = packet;
         this.port = packet.getPort();
-        //this.socket = socket;
         try {
             socket = new DatagramSocket(port);
         } catch (SocketException ex) {
-            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("SocketException >> " + ex);
         }
+        // </editor-fold>
     }
     
     private <T> void sendMessage(T message){
+        // <editor-fold defaultstate="collapsed" desc=" Enviar Mensagem.">
         try {
             bOut = new ByteArrayOutputStream(DATAGRAM_MAX_SIZE);
             out = new ObjectOutputStream(bOut);
@@ -68,23 +70,24 @@ public class ServerThread extends Thread implements Constants {
          } catch (IOException ex) {
             System.out.println("<DirectoryService> " + ex);
         }
+        // </editor-fold>
     }
     
     @Override
     public void run() {
         try {
-            System.out.println("entrei na thread");
+            // <editor-fold defaultstate="collapsed" desc=" Verifica se o Server existe, senão existir adiciona.">
             for(DataAddress i : list){
                 if(i.getName().equalsIgnoreCase(sm.getServer().getName())){
                     sm.setExists(true);
                     sendMessage(sm); // Servidor já existe na lista.
-                    System.out.println("Server ja existe."+port);
                     return;
                 }
             }
             dataAddress = new DataAddress(sm.getServer().getName(), packet.getAddress(), packet.getPort());
             list.add(dataAddress);
             sendMessage(sm); // Confirmar ao Servidor que entrou na lista.
+            // </editor-fold>
             do{
                 socket.setSoTimeout(HEARTBEAT);
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
