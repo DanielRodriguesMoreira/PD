@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -35,7 +34,7 @@ public class ClientThread extends Thread implements Constants {
         this.messageFromClient = message;
     }
     
-        private <T> void sendMessage(T message){
+    private <T> void sendMessage(T message){
         try {
             bOut = new ByteArrayOutputStream(1000);
             out = new ObjectOutputStream(bOut);
@@ -52,10 +51,8 @@ public class ClientThread extends Thread implements Constants {
 
     @Override
     public void run() 
-    {
-        
+    {   
         System.out.println("<ClientThread> Recebi mensagem do " + messageFromClient.getUser());
-
         if(messageFromClient.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
             System.out.println("<ClientThread> Vou mandar a lista de servidores");
             listServers.add(new DataAddress("Daniel",null,1));

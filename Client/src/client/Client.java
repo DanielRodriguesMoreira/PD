@@ -66,9 +66,13 @@ public class Client implements Constants {
             /*  Ler a lista de servidores ligados   */
             System.out.println("<Client> Packet received");
             message = (ClientMessage) in.readObject();
+            
+            /* Listar lista de sevidores activos */
             for(int i = 0; i < message.getListServers().size(); i++) {
                 System.out.println(message.getListServers().get(i).getName());
             }
+            
+            /*  Pedir uma nova conta ou fazer login num servidor ligado */
             
         } catch (SocketException ex) {
             System.out.println("Erro ao criar o DatagramSocket\n");
