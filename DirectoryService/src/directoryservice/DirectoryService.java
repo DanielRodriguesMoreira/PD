@@ -6,6 +6,8 @@ import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -22,21 +24,27 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
+/**
+ * Está sempre à escuta, dependendo do tipo de mensagem cria uma thread para tratar da tarefa.
+ * Criação de Pipes para haver comunicação entre as threads; ServerThread -> UpdateClientsThread; ClientThread -> UpdateClientsThread; ClientThread -> ClientThread;
+ */
 public class DirectoryService {
     
-    static Map<String,List<DataAddress>> mapServers;
-    static List<DataAddress> listServers;
-    static List<String> listClients;
+    static Map<String,List<DataAddress>> mapServers;    // Mapa de Lista de Clientes com chave de Servidor 
+    static List<DataAddress> listServers;               // Lista de servidores conectados
+    static List<String> listClients;                    // Lista de Clients Ativos
+    static PipedOutputStream updateClientsPOut;         // Pipe de escrita para o UpdateClientsThread
+    static PipedInputStream updateClientsPInp;          // Pipe de leitura do UpdateClientsThread
+    
             
     public static void main(String[] args)
     {
-        //Mapa de Lista de Clientes com chave de Servidor 
         // (Saber os clientes que estão ligados a um determinado servidor)
         mapServers = new TreeMap();
-        //Lista de servidores conectados
         listServers = new ArrayList<>();
-        //List<DataAddress> clientList;
-         listClients = new ArrayList<>();
+        listClients = new ArrayList<>();
+         
+       // serverPipe = new PipedOutputStream();
         DatagramPacket packet;
         DatagramSocket socket = null;
         Object obj;
@@ -67,11 +75,11 @@ public class DirectoryService {
                 
                 //Ler objecto serializado
                 Object objecto = in.readObject();
-                DatagramSocket s = new DatagramSocket(port+cont);
                 
                 if( objecto instanceof ServerMessage) {
-                    ServerMessage cm = (ServerMessage) objecto;
-                    ServerThread ct = new ServerThread(listServers, mapServers, cm, socket, packet);
+                    ServerMessage sm = (ServerMessage) objecto;
+                    ServerThread st = new ServerThread(listServers, mapServers, sm, cont, packet);
+                    st.start();
                 } else if(objecto instanceof ClientMessage) {
                     ClientMessage clientMessage = (ClientMessage) objecto; 
                     ClientThread ct = new ClientThread(listServers, listClients, clientMessage, socket, packet);

@@ -1,5 +1,6 @@
 package directoryservice;
 
+import static Constants.Constants.HEARTBEAT;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.ByteArrayInputStream;
@@ -22,6 +23,9 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
+/**
+ *  Cada Thread vai tratar de um servidor especifico, logo tem que ter um porto especifico
+ */
 public class ServerThread extends Thread {
     public static final int TIMEOUT = 30000; // 30 segundos timeout
     List<DataAddress> list;
@@ -34,12 +38,18 @@ public class ServerThread extends Thread {
     ServerMessage sm;
     Map<String,List<DataAddress>> mapServers;
             
-    public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, DatagramSocket socket, DatagramPacket packet) {
+    public ServerThread(List<DataAddress> list, Map<String,List<DataAddress>> mapServers, ServerMessage sm, int port, DatagramPacket packet) {
         this.list = list;
         this.mapServers = mapServers;
         this.sm = sm;
-        this.socket = socket;
         this.packet = packet;
+        this.packet.setPort(port);
+        //this.socket = socket;
+        try {
+            socket = new DatagramSocket(port);
+        } catch (SocketException ex) {
+            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private <T> void sendMessage(T message){
@@ -71,7 +81,7 @@ public class ServerThread extends Thread {
             list.add(dataAddress);
             sendMessage(sm); // Confirmar ao Servidor que entrou na lista.
             do{
-                socket.setSoTimeout(TIMEOUT);
+                socket.setSoTimeout(HEARTBEAT);
                 socket.receive(packet);
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
                 
