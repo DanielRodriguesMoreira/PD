@@ -126,6 +126,11 @@ public class Server implements Constants, Runnable{
             
             
 //Depois de verificar que não existe e de criar a thread ImAliveThread temos que começar a aceitar clientes
+            
+            
+            
+            
+//Não fazer isto por thread mas sim numa função como o prof tem
             // <editor-fold defaultstate="collapsed" desc=" Create and start Accept Clients Thread (this) ">
 //            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
 //            Thread threadAcceptClients = new Thread(run);

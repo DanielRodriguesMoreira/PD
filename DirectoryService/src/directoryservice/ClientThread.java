@@ -100,6 +100,8 @@ public class ClientThread extends Thread implements Constants {
                     sendMessage(message);
                 } else if (message.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
                     System.out.println("<ClientThread> Vou mandar a lista de clientes");
+                } else if (message.getRequest().equalsIgnoreCase(IAMALIVE)) {
+                    System.out.println("<ClientThread> O cliente" + message.getUser() + " esta vivo!");
                 }
                 
                 System.out.println("Recebi mensagem");

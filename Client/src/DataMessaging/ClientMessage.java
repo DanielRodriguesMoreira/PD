@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ClientMessage implements Serializable {
     static final long serialVersionUID = 1L;
-    String user;                    // Nome do Cliente que envia
+    DataAddress dataAddress;         //DataAddress para fazer comunicação
     String usernameToSend;          // Nome do Cliente que quer enviar a mensagem
     String message;                 // Mensagem para um Cliente
     String request;                 // Pedido ({"sendMessage","sendMessageToAll","imAlive"}) para Directoria; ({"updateLists","recieveMessage"}) para o Cliente;
@@ -19,8 +19,8 @@ public class ClientMessage implements Serializable {
     List<String> listClients;       // Lista dos Clientes Ativos
     boolean exists;                 // Ver se cliente já existe
 
-    public ClientMessage(String user, String usernameToSend, String message, String request, List<DataAddress> listServers, List<String> listClients, boolean exists) {
-        this.user = user;
+    public ClientMessage(DataAddress dataAddress, String usernameToSend, String message, String request, List<DataAddress> listServers, List<String> listClients, boolean exists) {
+        this.dataAddress = dataAddress;
         this.usernameToSend = usernameToSend;
         this.message = message;
         this.request = request;
@@ -37,12 +37,12 @@ public class ClientMessage implements Serializable {
         this.exists = exists;
     }
 
-    public String getUser() {
-        return user;
+    public DataAddress getDataAddress() {
+        return dataAddress;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setDataAddress(DataAddress dataAddress) {
+        this.dataAddress = dataAddress;
     }
 
     public String getUsernameToSend() {
