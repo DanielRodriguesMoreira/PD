@@ -126,7 +126,7 @@ public class DirectoryService implements Constants {
     
     private static void cleanListServers(){
         long currentTime = getCurrentTime();
-        List<DataAddress> listServers = (ArrayList) mapServers.keySet();
+        List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
         for(DataAddress i : listServers)
             if((currentTime - i.getTime()) > HEARTBEAT)
                 mapServers.remove(i);
@@ -148,7 +148,7 @@ public class DirectoryService implements Constants {
     }
 
     private static boolean checkExistsServer(DataAddress addr){
-        List<DataAddress> listServers = (ArrayList) mapServers.keySet();
+        List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
         for(DataAddress i : listServers)
             if(addr.equals(i))
                 return true;
