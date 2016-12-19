@@ -59,26 +59,12 @@ public class ClientThread extends Thread implements Constants {
     {
         
         System.out.println("<ClientThread> Recebi mensagem do " + message.getUser());
-
-        if(message.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
-            System.out.println("<ClientThread> Vou mandar a lista de servidores");
-            DataAddress servidor = new DataAddress("Daniel", null, 1);
-            DataAddress servidor2 = new DataAddress("Hugo", null, 1);
-            DataAddress servidor3 = new DataAddress("Tiago", null, 1);
-            listServers.add(servidor);
-            listServers.add(servidor2);
-            listServers.add(servidor3);
-            message.setListServers(listServers);
-            sendMessage(message);
-        } else if (message.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
-            System.out.println("<ClientThread> Vou mandar a lista de clientes");
-        }
         
         try {
             System.out.println("entrei na thread client");
             for(String i : listClients){
                 if(i.equalsIgnoreCase(message.getUser())){
-                    //.setExists(true);
+                    message.setExists(true);
                     sendMessage(message); // Cliente já existe na lista.
                     System.out.println("Cliente ja existe.");
                     return;
@@ -96,11 +82,21 @@ public class ClientThread extends Thread implements Constants {
                 
                 message = (ClientMessage) in.readObject();
                 
-               /* if(message.isChanges()){
-                    System.out.println("Houve alteracoes");
-                    mapServers.put(sm.getServer().getName(), sm.getUsers());
-                }else
-                     System.out.println("Acabei");*/
+                 if(message.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
+                    System.out.println("<ClientThread> Vou mandar a lista de servidores");
+                    DataAddress servidor = new DataAddress("Daniel", null, 1);
+                    DataAddress servidor2 = new DataAddress("Hugo", null, 1);
+                    DataAddress servidor3 = new DataAddress("Tiago", null, 1);
+                    listServers.add(servidor);
+                    listServers.add(servidor2);
+                    listServers.add(servidor3);
+                    message.setListServers(listServers);
+                    sendMessage(message);
+                } else if (message.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
+                    System.out.println("<ClientThread> Vou mandar a lista de clientes");
+                }
+                
+                System.out.println("Recebi mensagem");
             }while(true);
         }catch (SocketTimeoutException e){
             for(String i: listClients)
