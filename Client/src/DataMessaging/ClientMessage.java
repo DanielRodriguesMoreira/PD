@@ -17,14 +17,24 @@ public class ClientMessage implements Serializable {
     String request;                 // Pedido ({"sendMessage","sendMessageToAll","imAlive"}) para Directoria; ({"updateLists","recieveMessage"}) para o Cliente;
     List<DataAddress> listServers;  // Lista dos servidores
     List<String> listClients;       // Lista dos Clientes Ativos
+    boolean exists;                 // Ver se cliente já existe
 
-    public ClientMessage(String user, String usernameToSend, String message, String request, List<DataAddress> listServers, List<String> listClients) {
+    public ClientMessage(String user, String usernameToSend, String message, String request, List<DataAddress> listServers, List<String> listClients, boolean exists) {
         this.user = user;
         this.usernameToSend = usernameToSend;
         this.message = message;
         this.request = request;
         this.listServers = listServers;
         this.listClients = listClients;
+        this.exists = exists;
+    }
+
+    public boolean isExists() {
+        return exists;
+    }
+
+    public void setExists(boolean exists) {
+        this.exists = exists;
     }
 
     public String getUser() {
