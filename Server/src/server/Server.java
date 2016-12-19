@@ -6,6 +6,7 @@ import Threads.ImAliveThread;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import Exceptions.ServerAlreadyExistsException;
+import Threads.AttendTCPClientsThread;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -77,14 +78,20 @@ public class Server implements Constants, Runnable{
             socket.setSoTimeout(TIMEOUT*1000);
             // </editor-fold>
             
+            // <editor-fold defaultstate="collapsed" desc=" Create TCP Socket ">
+            serverSocket = new ServerSocket(0);
+            socketTCPPort = serverSocket.getLocalPort();
+            System.out.println("TCP port = " + socketTCPPort);
+            // </editor-fold>
+            
             // <editor-fold defaultstate="collapsed" desc=" Create ServerMessage and send it to Directory Service (by UDP) ">
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-            
-            //Only interests the username because this message is to confirm if this serverName already exists
-            DataAddress dataAddress = new DataAddress(serverName, null, -1);
-            ServerMessage serverMessage = new ServerMessage(dataAddress, null, false, false);
+
+            // Create DataAddress object with serverName, serverAddress and serverPort TCP
+            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
+            ServerMessage serverMessage = new ServerMessage(myTCPAddress, null, false, false);
             
             out.writeObject(serverMessage);
             out.flush();
@@ -108,33 +115,17 @@ public class Server implements Constants, Runnable{
             // </editor-fold>
             
             checkIfServerAlreadyExists(serverMessage);
-            
-            // <editor-fold defaultstate="collapsed" desc=" Create TCP Socket ">
-            serverSocket = new ServerSocket();
-            socketTCPPort = serverSocket.getLocalPort();
-            // </editor-fold>
-            
-//DANIEL -> Tens que alterar isto porque o que queres mandar é o nome, o IP e o porto de escuta automático TCP
-            // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object with serverName, serverAddress and serverPort TCP">
-            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
-            // </editor-fold>
+
             // <editor-fold defaultstate="collapsed" desc=" Create and start ImAliveThread ">
             Thread threadImAlive = new ImAliveThread(socket, directoryServiceAddress, 
                     directoryServicePort, myTCPAddress);
             threadImAlive.start();
             // </editor-fold>
-            
-            
-//Depois de verificar que não existe e de criar a thread ImAliveThread temos que começar a aceitar clientes
-            
-            
-            
-            
-//Não fazer isto por thread mas sim numa função como o prof tem
+
             // <editor-fold defaultstate="collapsed" desc=" Create and start Accept Clients Thread (this) ">
-//            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
-//            Thread threadAcceptClients = new Thread(run);
-//            threadAcceptClients.start();
+            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
+            Thread threadAcceptClients = new Thread(run);
+            threadAcceptClients.start();
             // </editor-fold>
             
         } catch(ServerAlreadyExistsException ex) {
@@ -151,21 +142,10 @@ public class Server implements Constants, Runnable{
             System.out.println("An error occurred in accessing the socket:\n\t" + ex);
         } catch(ClassNotFoundException ex) {
             System.out.println("The object received is not the expected type:\n\t" + ex);
-        }finally{
-            /*if(socket != null)
-                socket.close();
-            if(serverSocket != null){
-                try {
-                    serverSocket.close();
-                } catch (IOException ex) {
-                    System.out.println("[Fechar serverSocket]An error occurred in accessing the socket:\n\t" + ex);
-                }
-            }
-                    */
-        } 
+        }
     }
     
-    public static void checkIfServerAlreadyExists(ServerMessage serverMessage) throws ServerAlreadyExistsException{
+    private static void checkIfServerAlreadyExists(ServerMessage serverMessage) throws ServerAlreadyExistsException{
         if(serverMessage.getExists()) 
             throw new ServerAlreadyExistsException(serverMessage.getServerName());
         else{
@@ -176,23 +156,20 @@ public class Server implements Constants, Runnable{
     
     @Override
     public void run() {
-        boolean continuar = true;
         
-         while(continuar){     
-             System.out.println("Estou no run do Server");
+         while(true){     
              try {
                 //Accept Client
                 this.toClientSocket = this.serverSocketTCP.accept();
                 
                 //Start thread to attend the client
-                //Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
-                //this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn);
-                //attendClientThread.start();
+                Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
+                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn);
+                attendClientThread.start();
                 
             } catch (IOException ex) {
-                continuar = false;
-                System.out.println("[HuGO]An error occurred in accessing the socket:\n\t" + ex);
-            } 
+                System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+            }
         }
     } 
 }
