@@ -67,11 +67,11 @@ public class DirectoryService {
                 
                 //Ler objecto serializado
                 Object objecto = in.readObject();
-                DatagramSocket s = new DatagramSocket(port+cont);
                 
                 if( objecto instanceof ServerMessage) {
-                    ServerMessage cm = (ServerMessage) objecto;
-                    ServerThread ct = new ServerThread(listServers, mapServers, cm, socket, packet);
+                    ServerMessage sm = (ServerMessage) objecto;
+                    ServerThread st = new ServerThread(listServers, mapServers, sm, cont, packet);
+                    st.start();
                 } else if(objecto instanceof ClientMessage) {
                     ClientMessage clientMessage = (ClientMessage) objecto; 
                     ClientThread ct = new ClientThread(listServers, listClients, clientMessage, socket, packet);

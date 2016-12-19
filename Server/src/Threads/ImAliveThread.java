@@ -5,6 +5,7 @@ import Constants.Constants;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import DataMessaging.DataAddress;
+import DataMessaging.ServerMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -18,14 +19,12 @@ import java.net.DatagramPacket;
 
 public class ImAliveThread extends Thread implements Constants{
 
-    String serverName;
-    InetAddress serverIP;
-    int serverPort;
-    DatagramSocket socket;
-    InetAddress serviceDirectoryAddress;
-    int serviceDirectoryPort;
-    DataAddress dataAddress;
-    DatagramPacket packetToSend;
+    DatagramSocket socket = null;
+    InetAddress serviceDirectoryAddress = null;
+    int serviceDirectoryPort = -1;
+    DataAddress dataAddress = null;
+    DatagramPacket packetToSend = null;
+    ServerMessage serverMessage = null;
     
     public ImAliveThread(DatagramSocket socket, InetAddress serviceDirectoryAddress, 
             int serviceDirectoryPort, DataAddress serverAdress){
@@ -34,22 +33,20 @@ public class ImAliveThread extends Thread implements Constants{
         this.socket                     = socket;
         this.serviceDirectoryAddress    = serviceDirectoryAddress;
         this.serviceDirectoryPort       = serviceDirectoryPort;
-        this.serverName                 = serverAdress.getName();
-        this.serverIP                   = serverAdress.getIP();
-        this.serverPort                 = serverAdress.getPort();
+        this.dataAddress                = serverAdress;
         // </editor-fold>
     }
     
     @Override
     public void run(){
         try {
-                // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object and write it on OutputStream ">
+                // <editor-fold defaultstate="collapsed" desc=" Create ServerMessage object and write it on OutputStream ">
                 ByteArrayOutputStream bOut = new ByteArrayOutputStream();            
                 ObjectOutputStream out = new ObjectOutputStream(bOut);
                 
-                dataAddress = new DataAddress(serverName, serverIP, serverPort);
+                this.serverMessage = new ServerMessage(dataAddress, null, true, false);
                 
-                out.writeUnshared(dataAddress);
+                out.writeUnshared(serverMessage);
                 out.flush();
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Create and setup packetToSend ">
@@ -61,9 +58,9 @@ public class ImAliveThread extends Thread implements Constants{
                 while(true) {
                     socket.send(packetToSend);
                     // <editor-fold defaultstate="collapsed" desc=" This is just a test ">
-                        System.out.println("Nome : " + serverName);
-                        System.out.println("IP : " + serverIP.getHostAddress());
-                        System.out.println("Port : " + serverPort);
+                        System.out.println("Nome : " + dataAddress.getName());
+                        System.out.println("IP : " + dataAddress.getIP());
+                        System.out.println("Port : " + dataAddress.getPort());
                     // </editor-fold>
                     Thread.sleep(HEARTBEAT);
                 }

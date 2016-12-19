@@ -6,6 +6,7 @@ import Threads.ImAliveThread;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import Exceptions.ServerAlreadyExistsException;
+import Threads.AttendTCPClientsThread;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -25,23 +27,25 @@ import java.net.UnknownHostException;
  * @author Tiago Santos 
  */
 
-public class Server implements Constants{
+public class Server implements Constants, Runnable{
 
-    public static final int TIMEOUT = 10; //segundos
+    private static final int TIMEOUT = 10; //segundos
+    private ServerSocket serverSocketTCP = null;
+    private Socket toClientSocket = null;
     
     public static void main(String[] args) {
         
         String serverName = null;
-        InetAddress directoryServiceAddress;
-        int directoryServicePort;
+        InetAddress directoryServiceAddress = null;
+        int directoryServicePort = -1;
         DatagramSocket socket = null;
         DatagramPacket packet = null;
         ByteArrayOutputStream bOut = null;
         ObjectOutputStream out = null;
-        ObjectInputStream in;
+        ObjectInputStream in = null;
         ServerSocket serverSocket = null;
-        int socketTCPPort;
-        
+        int socketTCPPort = -1;
+
         if(args.length != 3){
             System.out.println("Sintaxe: java Server <name> <DirectoryServiceAddress> <DirectoryServicePort>");
             return;
@@ -60,26 +64,30 @@ public class Server implements Constants{
             socket = new DatagramSocket();
             socket.setSoTimeout(TIMEOUT*1000);
             // </editor-fold>
-            //
+            
+            // <editor-fold defaultstate="collapsed" desc=" Create ServerMessage and send it to Directory Service (by UDP) ">
+            
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-
-//DANIEL: Com que valores tens que preencher o dataAddress da serverMessage???
-            ServerMessage serverMessage = new ServerMessage(null, null, false, false);
+            
+            //Only interests the username because this message is to confirm if this serverName already exists
+            DataAddress dataAddress = new DataAddress(serverName, null, -1);
+            ServerMessage serverMessage = new ServerMessage(dataAddress, null, false, false);
             
             out.writeObject(serverMessage);
             out.flush();
             
-            //
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), directoryServiceAddress, directoryServicePort);
             socket.send(packet);
+            // </editor-fold>
             
-            
+            // <editor-fold defaultstate="collapsed" desc=" Receive ServerMessage from Directory Service (by UDP) ">
             packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
             socket.receive(packet);
             
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
             serverMessage = (ServerMessage)in.readObject();
+            // </editor-fold>
             
             checkIfServerAlreadyExists(serverMessage);
             
@@ -90,13 +98,17 @@ public class Server implements Constants{
             
 //DANIEL -> Tens que alterar isto porque o que queres mandar é o nome, o IP e o porto de escuta automático TCP
             // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object with serverName, serverAddress and serverPort ">
-            DataAddress myAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socket.getLocalPort());
+            DataAddress myAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
             // </editor-fold>
             // <editor-fold defaultstate="collapsed" desc=" Create and start ImAliveThread ">
             Thread t1 = new ImAliveThread(socket, directoryServiceAddress, 
                     directoryServicePort, myAddress);
             t1.start();
             // </editor-fold>
+            
+            
+//Depois de verificar que não existe e de criar a thread ImAliveThread temos que começar a aceitar clientes
+            
             
         } catch(ServerAlreadyExistsException ex) {
             System.out.println(ex.getError());
@@ -124,6 +136,29 @@ public class Server implements Constants{
         else{
             System.out.println("Servidor não existe!");
             System.out.println("Pumba! Toma la que isto ja bomba!");
+        }
+    }
+
+    public Server(ServerSocket serverSocket){
+        this.serverSocketTCP = serverSocket;
+    }
+    
+    @Override
+    public void run() {
+        
+         while(true){     
+            
+             try {
+                //Accept Client
+                this.toClientSocket = this.serverSocketTCP.accept();
+                
+                //Start thread to attend the client
+                Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket);
+                attendClientThread.start();
+                
+            } catch (IOException ex) {
+                System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+            } 
         }
     }
 
