@@ -15,8 +15,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -25,73 +23,76 @@ import java.util.logging.Logger;
  */
 
 public class Client implements Constants {
+    String username;
+    String directoryServiceIP;
+    String directoryServicePort;
+    DatagramSocket dataSocket = null;
+    DataAddress dataAddress = null;
 
-    public static void main(String[] args) {
-        DatagramSocket dataSocket = null;
-        ByteArrayOutputStream bOut = null;
-        ObjectOutputStream out = null;
-        DatagramPacket packet;
-        ObjectInputStream in;
-        ClientMessage message;
-        DataAddress dataAddress = null;
+    ByteArrayOutputStream bOut = null;
+    ObjectOutputStream out = null;
+    ObjectInputStream in;
+    DatagramPacket packet;
+    ClientMessage message;
+
+    InetAddress serverDirectoryAddr;
+    int serverDirectoryPort;
+    List<DataAddress> OnlineServers;
+    List<DataAddress> OnlineClients;
         
-        List<DataAddress> OnlineServers;
-        InetAddress serverDirectoryAddr;
-        int serverDirectoryPort;
-        
-        if(args.length != 2){
-            System.out.println("Sintax: java Client serverAddress serverUdpPort");
-            return;
-        }
-        
+    public Client (String username, String directoryServiceIP, String directoryServicePort) {
+        this.username = username;
+        this.directoryServiceIP = directoryServiceIP;
+        this.directoryServicePort = directoryServicePort;
+    }    
+
+    public void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
         try {
-            serverDirectoryAddr = InetAddress.getByName(args[0]);
-            serverDirectoryPort = Integer.parseInt(args[1]);   
+            serverDirectoryAddr = InetAddress.getByName(this.directoryServiceIP);
+            serverDirectoryPort = Integer.parseInt(this.directoryServicePort);   
             dataSocket = new DatagramSocket();
-            
+
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-            //dataAddress = new DataAddress("Hugo", null, -1);
-            message = new ClientMessage(dataAddress, null, null, GETONLINESERVERS, null, null, false);
+
+
+            /*  Criar o datagramAddress para enviar para o Service directory    */
+            dataAddress = new DataAddress("Hugo", null, -1, -1);
+            message = new ClientMessage(dataAddress, null, null, tipoPedidoAExecutar, null, null, false);
             out.writeObject(message);
             out.flush();
-            
+
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
-            
+
             /*  Receber a resposta da directory service  */
             packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
             dataSocket.receive(packet);
-            
+
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
-            
+
             /*  Ler a lista de servidores ligados   */
             System.out.println("<Client> Packet received");
             message = (ClientMessage) in.readObject();
-            
+
             //mandar para a thread o porto em condicoes
             serverDirectoryPort = packet.getPort();
-            
+
             if (!message.isExists()) {
                 Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
                 t1.start();
-                
-                /* Listar lista de sevidores activos 
+
+                /* Listar lista de sevidores activos */
                 for(int i = 0; i < message.getListServers().size(); i++) {
                     System.out.println(message.getListServers().get(i).getName());
-                }*/
+                }
             }
-            
-            /*  Pedir uma nova conta ou fazer login num servidor ligado */
         } catch (SocketException ex) {
             System.out.println("Erro ao criar o DatagramSocket\n");
         } catch (IOException ex) {
-            //Erro a criar objecto serializado
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Erro ao criar objecto serializado\n");
         } catch (ClassNotFoundException ex) {
-            //Erro ao ler o objecto serializado
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Erro ao ler o objecto serialiazado\n");
         }
     }
-
 }

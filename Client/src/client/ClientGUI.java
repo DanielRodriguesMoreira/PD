@@ -1,22 +1,27 @@
 package client;
 
+import Constants.Constants;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 /**
  * @author Daniel Moreira
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-public class ClientGUI extends JFrame {
+public class ClientGUI extends JFrame implements Constants {
 
+    static String username;
+    static String ipAddress;
+    static String portAddress;
+    static int option;
     /**
      * Creates new form ClientGUI
      */
-    static String name = null;
     public ClientGUI() {
         initComponents();
-        this.setTitle(name);
+        this.setTitle(username);
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -134,8 +139,29 @@ public class ClientGUI extends JFrame {
         
         /*  Mostrar InputDialog para escolher o nome   */
         do {
-            name = JOptionPane.showInputDialog("What's your name?");
-        } while(name == null);
+            JTextField field1 = new JTextField();
+            JTextField field2 = new JTextField();
+            JTextField field3 = new JTextField();
+
+            Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
+            option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_OPTION);
+            if (option == JOptionPane.OK_OPTION)
+            {
+                username = field1.getText();
+                ipAddress = field2.getText();
+                portAddress = field3.getText();
+            }
+        } while(username == null || option != JOptionPane.OK_OPTION);
+        
+        Client client = new Client(username, ipAddress, portAddress);
+        /*  2º  Verificar se posso utilizar o username */
+        client.sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
+        /*  3º GetOnlineServers()   
+        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
+        /*  4º GetOnlineClients()   
+        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_CLIENTS);
+        /*  5º GetAllLists()    
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
