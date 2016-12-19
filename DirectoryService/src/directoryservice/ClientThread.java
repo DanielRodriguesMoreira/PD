@@ -90,9 +90,9 @@ public class ClientThread extends Thread implements Constants {
                 
                  if(message.getRequest().equalsIgnoreCase(GETONLINESERVERS)) {
                     System.out.println("<ClientThread> Vou mandar a lista de servidores");
-                    DataAddress servidor = new DataAddress("Daniel", null, 1);
-                    DataAddress servidor2 = new DataAddress("Hugo", null, 1);
-                    DataAddress servidor3 = new DataAddress("Tiago", null, 1);
+                    DataAddress servidor = new DataAddress("Daniel", null, 1, -1);
+                    DataAddress servidor2 = new DataAddress("Hugo", null, 1, -1);
+                    DataAddress servidor3 = new DataAddress("Tiago", null, 1, -1);
                     listServers.add(servidor);
                     listServers.add(servidor2);
                     listServers.add(servidor3);

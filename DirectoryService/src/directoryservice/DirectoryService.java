@@ -75,10 +75,10 @@ public class DirectoryService implements Constants {
                 //Ler objecto serializado
                 Object objecto = in.readObject();
                 
+                
                 if( objecto instanceof ServerMessage) {
                     ServerMessage sm = (ServerMessage) objecto;
-                    ServerThread st = new ServerThread(listServers, mapServers, sm, cont, packet);
-                    st.start();
+                    
                 } else if(objecto instanceof ClientMessage) {
                     ClientMessage clientMessage = (ClientMessage) objecto; 
                     ClientThread ct = new ClientThread(listServers, listClients, clientMessage, cont, packet);
@@ -92,5 +92,12 @@ public class DirectoryService implements Constants {
         } catch (IOException | ClassNotFoundException ex) {
             System.out.println("IOException >> " + ex);
         }
+        if(socket != null)
+            socket.close();
+    }
+    
+    private void cleanListServers(){
+        for(DataAddress i : listServers)
+            ;
     }
 }

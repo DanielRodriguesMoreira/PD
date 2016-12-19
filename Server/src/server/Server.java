@@ -83,7 +83,7 @@ public class Server implements Constants, Runnable{
             out = new ObjectOutputStream(bOut);
             
             //Only interests the username because this message is to confirm if this serverName already exists
-            DataAddress dataAddress = new DataAddress(serverName, null, -1);
+            DataAddress dataAddress = new DataAddress(serverName, null, -1, -1);
             ServerMessage serverMessage = new ServerMessage(dataAddress, null, false, false);
             
             out.writeObject(serverMessage);
@@ -116,7 +116,7 @@ public class Server implements Constants, Runnable{
             
 //DANIEL -> Tens que alterar isto porque o que queres mandar é o nome, o IP e o porto de escuta automático TCP
             // <editor-fold defaultstate="collapsed" desc=" Create DataAddress object with serverName, serverAddress and serverPort TCP">
-            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort);
+            DataAddress myTCPAddress = new DataAddress(serverName, InetAddress.getLocalHost(), socketTCPPort, -1);
             // </editor-fold>
             // <editor-fold defaultstate="collapsed" desc=" Create and start ImAliveThread ">
             Thread threadImAlive = new ImAliveThread(socket, directoryServiceAddress, 

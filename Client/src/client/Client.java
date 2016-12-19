@@ -51,7 +51,7 @@ public class Client implements Constants {
             
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-            dataAddress = new DataAddress("Hugo", null, -1);
+            //dataAddress = new DataAddress("Hugo", null, -1);
             message = new ClientMessage(dataAddress, null, null, GETONLINESERVERS, null, null, false);
             out.writeObject(message);
             out.flush();
