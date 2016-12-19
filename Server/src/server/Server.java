@@ -6,7 +6,6 @@ import Threads.ImAliveThread;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import Exceptions.ServerAlreadyExistsException;
-import Threads.AttendTCPClientsThread;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,8 +21,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -101,14 +98,13 @@ public class Server implements Constants, Runnable{
             
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
-                System.out.println("Recebi de: " + packet.getAddress().getHostName() + " : " + packet.getPort());
+                
                 in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));                
                 serverMessage = (ServerMessage)in.readObject();
             }while(!packet.getAddress().equals(directoryServiceAddress));
             
             //Update directoryServicePort
             directoryServicePort = packet.getPort();
-            
             // </editor-fold>
             
             checkIfServerAlreadyExists(serverMessage);
@@ -131,9 +127,9 @@ public class Server implements Constants, Runnable{
             
 //Depois de verificar que não existe e de criar a thread ImAliveThread temos que começar a aceitar clientes
             // <editor-fold defaultstate="collapsed" desc=" Create and start Accept Clients Thread (this) ">
-            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
-            Thread threadAcceptClients = new Thread(run);
-            threadAcceptClients.start();
+//            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
+//            Thread threadAcceptClients = new Thread(run);
+//            threadAcceptClients.start();
             // </editor-fold>
             
         } catch(ServerAlreadyExistsException ex) {
@@ -151,15 +147,16 @@ public class Server implements Constants, Runnable{
         } catch(ClassNotFoundException ex) {
             System.out.println("The object received is not the expected type:\n\t" + ex);
         }finally{
-            if(socket != null)
+            /*if(socket != null)
                 socket.close();
             if(serverSocket != null){
                 try {
                     serverSocket.close();
                 } catch (IOException ex) {
-                    System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+                    System.out.println("[Fechar serverSocket]An error occurred in accessing the socket:\n\t" + ex);
                 }
             }
+                    */
         } 
     }
     
@@ -167,27 +164,29 @@ public class Server implements Constants, Runnable{
         if(serverMessage.getExists()) 
             throw new ServerAlreadyExistsException(serverMessage.getServerName());
         else{
-            System.out.println("Servidor não existe!");
+            System.out.println("Servidor nao existe!");
             System.out.println("Pumba! Toma la que isto ja bomba!");
         }
     }
     
     @Override
     public void run() {
+        boolean continuar = true;
         
-         while(true){     
-            
+         while(continuar){     
+             System.out.println("Estou no run do Server");
              try {
                 //Accept Client
                 this.toClientSocket = this.serverSocketTCP.accept();
                 
                 //Start thread to attend the client
-                Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
-                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn);
-                attendClientThread.start();
+                //Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
+                //this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn);
+                //attendClientThread.start();
                 
             } catch (IOException ex) {
-                System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+                continuar = false;
+                System.out.println("[HuGO]An error occurred in accessing the socket:\n\t" + ex);
             } 
         }
     } 

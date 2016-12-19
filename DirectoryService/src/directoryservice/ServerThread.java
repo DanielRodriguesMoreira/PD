@@ -62,7 +62,7 @@ public class ServerThread extends Thread {
             packet.setLength(bOut.size());
 
             socket.send(packet);
-            System.out.println("Enviei para: " + packet.getAddress().getHostName() + " : " + packet.getPort());
+            System.out.println("Enviei para: " + packet.getAddress().getHostAddress() + " : " + packet.getPort());
          } catch (IOException ex) {
             System.out.println("<DirectoryService> " + ex);
         }

@@ -44,7 +44,7 @@ public class ImAliveThread extends Thread implements Constants{
                 ByteArrayOutputStream bOut = new ByteArrayOutputStream();            
                 ObjectOutputStream out = new ObjectOutputStream(bOut);
                 
-                this.serverMessage = new ServerMessage(dataAddress, null, true, false);
+                this.serverMessage = new ServerMessage(dataAddress, null, false, false);
                 
                 out.writeUnshared(serverMessage);
                 out.flush();
@@ -56,17 +56,19 @@ public class ImAliveThread extends Thread implements Constants{
                 // </editor-fold>
             
                 while(true) {
-                    socket.send(packetToSend);
-                    // <editor-fold defaultstate="collapsed" desc=" This is just a test ">
-                        System.out.println("Nome : " + dataAddress.getName());
-                        System.out.println("IP : " + dataAddress.getIP());
-                        System.out.println("Port : " + dataAddress.getPort());
+                                    
+                // <editor-fold defaultstate="collapsed" desc=" This is just a test ">
+                        //System.out.println("Nome : " + dataAddress.getName());
+                    System.out.println("\nMandei para aqui:");
+                        System.out.println("IP : " + serviceDirectoryAddress.getHostAddress());
+                        System.out.println("Port : " + serviceDirectoryPort);
                     // </editor-fold>
+                    socket.send(packetToSend);
                     Thread.sleep(HEARTBEAT);
                 }
             
         } catch (IOException ex) {
-            System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+            System.out.println("[ImAliveThread]An error occurred in accessing the socket:\n\t" + ex);
         } catch (InterruptedException ex) {
             System.out.println("ImAliveThread was been interrupted:\n\t" + ex);
         }
