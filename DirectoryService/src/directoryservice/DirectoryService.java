@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -33,7 +31,7 @@ public class DirectoryService implements Constants {
     
     static Map<String,List<DataAddress>> mapServers;    // Mapa de Lista de Clientes com chave de Servidor 
     static List<DataAddress> listServers;               // Lista de servidores conectados
-    static List<String> listClients;                    // Lista de Clients Ativos
+    static List<DataAddress> listClients;                    // Lista de Clients Ativos
     static PipedOutputStream updateClientsPOut;         // Pipe de escrita para o UpdateClientsThread
     static PipedInputStream updateClientsPInp;          // Pipe de leitura do UpdateClientsThread
     

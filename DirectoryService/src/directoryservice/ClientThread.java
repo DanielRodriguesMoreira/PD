@@ -26,14 +26,14 @@ import java.util.logging.Logger;
 
 public class ClientThread extends Thread implements Constants {
     List<DataAddress> listServers;
-    List<String> listClients;
+    List<DataAddress> listClients;
     DatagramPacket packet;
     DatagramSocket socket;
     ByteArrayOutputStream bOut;
     ObjectOutputStream out;
     ClientMessage message;           // Messangem do Cliente
     
-    public ClientThread(List<DataAddress> listServers, List<String> listClients, ClientMessage message, int port, DatagramPacket packet) {
+    public ClientThread(List<DataAddress> listServers, List<DataAddress> listClients, ClientMessage message, int port, DatagramPacket packet) {
         this.listServers = listServers;
         this.listClients = listClients;
         this.packet = packet;
@@ -68,15 +68,15 @@ public class ClientThread extends Thread implements Constants {
         
         try {
             System.out.println("entrei na thread client");
-            for(String i : listClients){
-                if(i.equalsIgnoreCase(message.getUser())){
+            for(DataAddress i : listClients){
+                if(i.getName().equalsIgnoreCase(message.getUser())){
                     message.setExists(true);
                     sendMessage(message); // Cliente já existe na lista.
                     System.out.println("Cliente ja existe.");
                     return;
                 }
             }
-            listClients.add(message.getUser());
+            //listClients.add(message.getUser());
             sendMessage(message); // Confirmar ao Servidor que entrou na lista.
             do{
                 socket.setSoTimeout(HEARTBEAT);
@@ -105,11 +105,11 @@ public class ClientThread extends Thread implements Constants {
                 System.out.println("Recebi mensagem");
             }while(true);
         }catch (SocketTimeoutException e){
-            for(String i: listClients)
+            /*for(String i: listClients)
                 if(i.equals(message.getUser())){
                     listClients.remove(i);
                     break;
-                }
+                }*/
         }catch (SocketException ex) {
             System.out.println("Socket "+ ex);
         }catch (IOException ex) {
