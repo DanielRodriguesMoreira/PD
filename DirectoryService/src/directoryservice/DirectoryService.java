@@ -48,7 +48,7 @@ public class DirectoryService {
         DatagramPacket packet;
         DatagramSocket socket = null;
         Object obj;
-        int cont = 0;
+        int cont = 6000;
         
         try {
             
