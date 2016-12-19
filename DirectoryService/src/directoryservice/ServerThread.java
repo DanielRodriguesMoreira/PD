@@ -87,6 +87,7 @@ public class ServerThread extends Thread implements Constants {
             sendMessage(sm); // Confirmar ao Servidor que entrou na lista.
             do{
                 socket.setSoTimeout(HEARTBEAT);
+                packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
                 System.out.println("Recebi o segundo pacote "+port);

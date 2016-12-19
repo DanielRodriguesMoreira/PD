@@ -2,13 +2,18 @@
 package directoryservice;
 
 import Constants.Constants;
+import static Constants.Constants.HEARTBEAT;
 import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 /**
@@ -67,6 +72,51 @@ public class ClientThread extends Thread implements Constants {
             sendMessage(message);
         } else if (message.getRequest().equalsIgnoreCase(GETONLINECLIENTS)) {
             System.out.println("<ClientThread> Vou mandar a lista de clientes");
+        }
+        
+        try {
+            System.out.println("entrei na thread client");
+            for(String i : listClients){
+                if(i.equalsIgnoreCase(message.getUser())){
+                    //.setExists(true);
+                    sendMessage(message); // Cliente já existe na lista.
+                    System.out.println("Cliente ja existe.");
+                    return;
+                }
+            }
+            listClients.add(message.getUser());
+            sendMessage(message); // Confirmar ao Servidor que entrou na lista.
+            do{
+                socket.setSoTimeout(HEARTBEAT);
+                packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
+                socket.receive(packet);
+                ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
+                System.out.println("Recebi o segundo pacote ");
+                //Ler objecto serializado
+                
+                message = (ClientMessage) in.readObject();
+                
+               /* if(message.isChanges()){
+                    System.out.println("Houve alteracoes");
+                    mapServers.put(sm.getServer().getName(), sm.getUsers());
+                }else
+                     System.out.println("Acabei");*/
+            }while(true);
+        }catch (SocketTimeoutException e){
+            for(String i: listClients)
+                if(i.equals(message.getUser())){
+                    listClients.remove(i);
+                    break;
+                }
+        }catch (SocketException ex) {
+            System.out.println("Socket "+ ex);
+        }catch (IOException ex) {
+            System.out.println("IOException "+ ex);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("ClassNotFound "+ ex);
+        }finally{
+            if(socket != null)
+                socket.close();
         }
     }
 }
