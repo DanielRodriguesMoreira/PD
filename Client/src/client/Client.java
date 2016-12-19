@@ -50,7 +50,7 @@ public class Client implements Constants {
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
             
-            message = new ClientMessage("Hugo", null, null, GETONLINESERVERS, null, null);
+            message = new ClientMessage("Hugo", null, null, GETONLINESERVERS, null, null, false);
             out.writeObject(message);
             out.flush();
             
@@ -67,9 +67,11 @@ public class Client implements Constants {
             System.out.println("<Client> Packet received");
             message = (ClientMessage) in.readObject();
             
+            if (message.isExists()) {
             /* Listar lista de sevidores activos */
             for(int i = 0; i < message.getListServers().size(); i++) {
                 System.out.println(message.getListServers().get(i).getName());
+            }
             }
             
             /*  Pedir uma nova conta ou fazer login num servidor ligado */
