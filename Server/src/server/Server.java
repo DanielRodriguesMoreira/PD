@@ -21,6 +21,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class Server implements Constants, Runnable{
         this.directoryServiceIP = dsIP;
         this.directoryServicePort = dsPort;
         this.myAddress = myTCPAddress;
-        this.usersLoggedIn = new ArrayList<>();
+        this.usersLoggedIn = Collections.synchronizedList(new ArrayList<DataAddress>());
     }
     
     public static void main(String[] args) {

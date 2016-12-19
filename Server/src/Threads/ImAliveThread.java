@@ -56,13 +56,6 @@ public class ImAliveThread extends Thread implements Constants{
                 // </editor-fold>
             
                 while(true) {
-                                    
-                // <editor-fold defaultstate="collapsed" desc=" This is just a test ">
-                        //System.out.println("Nome : " + dataAddress.getName());
-                    System.out.println("\nMandei para aqui:");
-                        System.out.println("IP : " + serviceDirectoryAddress.getHostAddress());
-                        System.out.println("Port : " + serviceDirectoryPort);
-                    // </editor-fold>
                     socket.send(packetToSend);
                     Thread.sleep(HEARTBEAT);
                 }

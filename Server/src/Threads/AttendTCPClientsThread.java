@@ -50,11 +50,25 @@ public class AttendTCPClientsThread extends Thread implements Constants{
         
     }
    
+    private void addUserToList(DataAddress userAddress){
+        this.usersLoggedIn.add(userAddress);
+        this.notifyDirectoryServiceAboutUsersList();
+    }
+    
+    private void removeUserFromList(DataAddress userAddress){
+        for(DataAddress dataAddress : this.usersLoggedIn){
+            if(dataAddress.equals(userAddress)){
+                this.usersLoggedIn.remove(userAddress);
+                this.notifyDirectoryServiceAboutUsersList();
+                return;
+            }
+        }
+    }
+    
     /**
-     * Este método vai ser chamado em 3 situações:
-     *      -   Login
-     *      -   Logout
-     *      -   Criar conta
+     * Este método vai ser chamado em 2 situações:
+     *      -   adduserToList
+     *      -   removeUserFromList
      */
     private void notifyDirectoryServiceAboutUsersList(){
         
@@ -79,4 +93,5 @@ public class AttendTCPClientsThread extends Thread implements Constants{
             System.out.println("An error occurred in accessing the socket:\n\t" + ex);
         }
     }
+    
 }
