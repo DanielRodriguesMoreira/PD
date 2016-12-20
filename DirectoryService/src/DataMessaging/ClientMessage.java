@@ -17,7 +17,7 @@ public class ClientMessage implements Serializable {
     String message;                 // Mensagem para um Cliente
     String request;                 // Pedido ({"sendMessage","sendMessageToAll","imAlive"}) para Directoria; ({"updateLists","recieveMessage"}) para o Cliente;
     List<DataAddress> listServers;  // Lista dos servidores
-    List<DataAddress> listClients;       // Lista dos Clientes Ativos
+    List<DataAddress> listClients;  // Lista dos Clientes Ativos
     boolean exists;                 // Ver se cliente já existe
     // </editor-fold>
     

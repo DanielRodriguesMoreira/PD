@@ -155,7 +155,9 @@ public class ClientGUI extends JFrame implements Constants {
         
         Client client = new Client(username, ipAddress, portAddress);
         /*  2º  Verificar se posso utilizar o username */
-        client.sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
+        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
+        System.out.println("Cliente GUI ->");
+        System.out.println(client.OnlineServerstoString());
         /*  3º GetOnlineServers()   
         client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
         /*  4º GetOnlineClients()   
