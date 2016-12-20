@@ -208,7 +208,7 @@ public class DirectoryService implements Constants {
             Iterator iterator = listClients.iterator();
             while (iterator.hasNext()) {
                 DataAddress item = (DataAddress) iterator.next();
-                if((currentTime - item.getTime()) > HEARTBEAT) {
+                if((currentTime - item.getTime()) > HEARTBEAT + 1000) {
                    iterator.remove();
                 }
             }
