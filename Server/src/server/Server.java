@@ -6,11 +6,17 @@ import Constants.ServerRequestsConstants;
 import Threads.ImAliveThread;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
+import Exceptions.DirectoryNotExistsException;
+import Exceptions.DirectoryPermissionsDeniedException;
+import Exceptions.ItsNotADirectoryException;
 import Exceptions.ServerAlreadyExistsException;
 import Threads.AttendTCPClientsThread;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -26,6 +32,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author Daniel Moreira
@@ -42,17 +49,25 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     private int directoryServicePort = -1;
     private DataAddress myAddress = null;
     private List<DataAddress> usersLoggedIn = null;
+    private String loginFile = null;
+    private List<Login> loginsList = null;
+    private File rootDirectory = null;
     
-    public Server(ServerSocket serverSocket, InetAddress dsIP, int dsPort, DataAddress myTCPAddress){
+    public Server(ServerSocket serverSocket, InetAddress dsIP, int dsPort, DataAddress myTCPAddress, String loginFile, File rootDirectory){
         this.serverSocketTCP = serverSocket;
         this.directoryServiceIP = dsIP;
         this.directoryServicePort = dsPort;
         this.myAddress = myTCPAddress;
         this.usersLoggedIn = Collections.synchronizedList(new ArrayList<DataAddress>());
+        this.loginFile = loginFile;
+        this.loginsList = Collections.synchronizedList(new ArrayList<Login>());
+        this.rootDirectory = rootDirectory;
+        this.fillLoginsList(loginFile);
     }
     
     public static void main(String[] args) {
-        
+        // <editor-fold defaultstate="collapsed" desc=" Variables ">
+
         String serverName = null;
         InetAddress directoryServiceAddress = null;
         int directoryServicePort = -1;
@@ -64,19 +79,27 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
         ServerSocket serverSocket = null;
         int socketTCPPort = -1;
         String localRequest = null;
-
-        if(args.length != 3){
-            System.out.println("Sintaxe: java Server <name> <DirectoryServiceAddress> <DirectoryServicePort>");
+        String loginFile = null;
+        File rootDirectory = null;
+        
+        // </editor-fold>
+        
+        if(args.length != 5){
+            System.out.println("Sintaxe: java Server <username> <DirectoryServiceAddress> <DirectoryServicePort> <user/pass file> <root directory>");
             return;
         }
         
         try {
             
-            // <editor-fold defaultstate="collapsed" desc=" Fill serverName and directoryService Adress ">
+            // <editor-fold defaultstate="collapsed" desc=" Fill serverName, directoryService Adress and loginFile">
             serverName = args[0];
             directoryServiceAddress = InetAddress.getByName(args[1]);
             directoryServicePort = Integer.parseInt(args[2]);
+            loginFile = args[3];
+            rootDirectory = new File(args[4].trim());
             // </editor-fold>
+            
+            checkDirectoryAccess(rootDirectory);
             
             // <editor-fold defaultstate="collapsed" desc=" Create UDP socket ">
             socket = new DatagramSocket();
@@ -124,11 +147,12 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" Create and start Accept Clients Thread (this) ">
-            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress);
+            Runnable run = new Server(serverSocket, directoryServiceAddress, directoryServicePort, myTCPAddress, loginFile, rootDirectory);
             Thread threadAcceptClients = new Thread(run);
             threadAcceptClients.start();
             // </editor-fold>
             
+            // <editor-fold defaultstate="collapsed" desc=" Accept commands from System.in ">
             BufferedReader bufferReaderIn = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Command: ");
             while(true){
@@ -154,27 +178,44 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                 }
              System.out.println("\nCommand: ");   
             }
-            
+            // </editor-fold>
         } catch(ServerAlreadyExistsException ex) {
-            System.out.println(ex.getError());
+            System.err.println(ex.getError());
         } catch(UnknownHostException ex) {
-            System.out.println("Can't find directory service " + serverName);
+            System.err.println("Can't find directory service " + serverName);
         } catch(NumberFormatException e){
-            System.out.println("The server port must be a positive integer.");
+            System.err.println("The server port must be a positive integer.");
         } catch(SocketTimeoutException e){
-            System.out.println("Não foi recebida qualquer resposta:\n\t"+e);
+            System.err.println("Não foi recebida qualquer resposta:\n\t"+e);
         } catch(SocketException ex) {
-            System.out.println("An error occurred with the UDP socket level:\n\t" + ex);
+            System.err.println("An error occurred with the UDP socket level:\n\t" + ex);
         } catch(IOException ex) {
-            System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
         } catch(ClassNotFoundException ex) {
-            System.out.println("The object received is not the expected type:\n\t" + ex);
+            System.err.println("The object received is not the expected type:\n\t" + ex);
+        } catch (DirectoryNotExistsException | ItsNotADirectoryException | DirectoryPermissionsDeniedException ex) {
+            System.err.println(ex);
         }
     }
     
     private static void checkIfServerAlreadyExists(ServerMessage serverMessage) throws ServerAlreadyExistsException{
         if(serverMessage.getExists()) 
             throw new ServerAlreadyExistsException(serverMessage.getServerName());
+    }
+    
+    private static void checkDirectoryAccess(File rootDirectory) throws DirectoryNotExistsException, ItsNotADirectoryException, DirectoryPermissionsDeniedException {
+        
+        if(!rootDirectory.exists()){
+            throw new DirectoryNotExistsException(rootDirectory);
+        }
+        
+        if(!rootDirectory.isDirectory()){
+            throw new ItsNotADirectoryException(rootDirectory);
+        }
+        if(!rootDirectory.canWrite()){
+            throw new DirectoryPermissionsDeniedException(rootDirectory);
+        }                
+        
     }
     
     private static void showCommandList(){
@@ -195,7 +236,8 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                 
                 //Start thread to attend the client
                 Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
-                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn);
+                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn, this.loginsList,
+                this.rootDirectory, this.loginFile);
                 attendClientThread.start();
                 
             } catch (IOException ex) {
@@ -203,4 +245,50 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
             }
         }
     } 
+
+    private void fillLoginsList(String loginFile) {
+        String linha = null;
+        String username = null;
+        String password = null;
+        BufferedReader inFile = null;
+        
+        try {
+            inFile = new BufferedReader(new FileReader(loginFile));
+             
+            while((linha = inFile.readLine())!=null){
+                
+                linha = linha.trim();
+                if(linha.length() == 0){
+                    continue;
+                }
+                
+                Scanner scan = new Scanner(linha);
+                
+                try{                    
+                    username = scan.next();
+                    password = scan.next();
+                    
+                    this.loginsList.add(new Login(username, password));
+                    
+                }catch(Exception e){
+                    System.err.print("> Incorrect entry in file ");
+                    System.err.println(loginFile + ": \"" + linha + "\"");
+                    continue;
+                }
+            }
+            
+        } catch (FileNotFoundException ex) {
+            System.err.println();
+            System.err.println("File impossible to open: " + loginFile + "\n\t" + ex);
+        } catch (IOException ex) {
+            System.err.println(); 
+            System.err.println(ex);
+        } finally{
+            try {
+                if(inFile != null){
+                    inFile.close();
+                }
+            } catch (IOException ex) { }
+        }
+    }
 }
