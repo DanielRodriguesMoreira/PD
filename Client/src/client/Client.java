@@ -1,4 +1,3 @@
-
 package client;
 
 import Constants.Constants;
@@ -15,6 +14,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,14 +51,18 @@ public class Client implements Constants {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
-        this.dataAddress = new DataAddress(username, null, -1, -1);
+        try {
+            this.dataSocket = new DatagramSocket();
+            this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
+        } catch (SocketException | UnknownHostException ex) {
+            System.out.println("Error trying to create the DatagramSocket\n");
+        }
     }    
 
     public void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
         try {
             serverDirectoryAddr = InetAddress.getByName(this.directoryServiceIP);
             serverDirectoryPort = Integer.parseInt(this.directoryServicePort);   
-            dataSocket = new DatagramSocket();
 
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
@@ -72,39 +76,10 @@ public class Client implements Constants {
 
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
-            System.out.println("<Client> Enviei mensagem\n");
-
-        } catch (SocketException ex) {
-            System.out.println("Erro ao criar o DatagramSocket\n");
+            System.out.println("<Client> Message Sended\n");
         } catch (IOException ex) {
-            System.out.println("Erro ao criar objecto serializado\n");
+            System.out.println("DirectoryServiceIP/Port IOException\n");
         }
-    }
-
-    public String OnlineServerstoString() {
-        String teste = null;
-        if(OnlineServers != null)
-        {
-            for(int i = 0; i < OnlineServers.size(); i++) {
-                teste += this.OnlineServers.get(i).getName();
-            }
-        }
-        if(teste == null)
-            teste = "No Servers Active\n";
-        return teste;
-    }
-    
-    public String OnlineClientstoString() {
-        String teste = null;
-        if(OnlineClients != null)
-        {
-            for(int i = 0; i < OnlineClients.size(); i++) {
-                teste += this.OnlineClients.get(i).getName();
-            }
-        }
-        if(teste == null)
-            teste = "No Clients Active\n";
-        return teste;
     }
     
     public void receiveMessage() {
@@ -118,7 +93,12 @@ public class Client implements Constants {
             message = (ClientMessage) in.readObject();
             
             switch(message.getRequest()) {
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
                 case CLIENT_GET_ALL_LISTS:
+                    this.OnlineServers = message.getListServers();
+                    this.OnlineClients = message.getListClients();
+                    break;
+                // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
                 case CLIENT_MSG_CHECK_USERNAME:
                     this.OnlineServers = message.getListServers();
@@ -137,7 +117,7 @@ public class Client implements Constants {
                 // </editor-fold>
             }
         } catch (IOException ex) {
-            System.out.println("Erro ao criar objecto serializado\n");
+            System.out.println("Error trying to create a ObjectInputStream\n");
         } catch (ClassNotFoundException ex) {
             System.out.println("Class not found\n");
         }
@@ -153,7 +133,15 @@ public class Client implements Constants {
         Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
         t1.start();
     }
-   
+
+    public List<DataAddress> getOnlineServers() {
+        return this.OnlineServers;
+    }
+    
+    public List<DataAddress> getOnlineClients() {
+        return this.OnlineClients;
+    }
+    
     public boolean connectServer(DataAddress serverAddress){
 
         try {

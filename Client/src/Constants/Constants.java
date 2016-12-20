@@ -16,7 +16,5 @@ public interface Constants {
     public static final String CLIENT_MSG_CHECK_USERNAME = "ClientCheckUsername";
     public static final String CLIENT_MSG_HEARTBEAT = "ClientHeartbeat";
     public static final String CLIENT_SENDMESSAGE = "SendMessage";
-    public static final String SERVER_MSG_HEARTBEAT = "ServerHeartbeat";
-    public static final String SERVER_MSG_CHECK_USERNAME = "ServerCheckUsername";
-    public static final String SERVER_MSG_UPDATE_LIST = "ServerUpdateList";
+    public static final String CLIENT_SENDMESSAGE_TOALL = "SendMessageToAll";
 }

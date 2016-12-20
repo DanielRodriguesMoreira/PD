@@ -1,11 +1,16 @@
-    package client;
+package client;
 
 import Constants.Constants;
 import DataMessaging.DataAddress;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import java.util.ArrayList;
+import javax.swing.DefaultListModel;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -21,11 +26,12 @@ public class ClientGUI extends JFrame implements Constants {
     static String ipAddress;
     static String portAddress;
     static int option;
+    Client client;
+    ArrayList<DataAddress> onlineServer = null;
+    ArrayList<DataAddress> onlineClient = null;
     
     public ClientGUI() {
         initComponents();
-        this.setTitle(username);
-        Client client;
         
         // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
         do {
@@ -48,13 +54,16 @@ public class ClientGUI extends JFrame implements Constants {
         client.createHeartbeatThread();        
         // </editor-fold>
         
-        //atualizar a lista
+        // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        client.receiveMessage();
+        fillServersList();
+        fillClientsList();
+        // </editor-fold>
         
-        //client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
-        jTextArea1.append(client.OnlineServerstoString());
-        
+        this.setTitle(username);
         this.setVisible(true);
+
        
         try {
             client.connectServer(new DataAddress("daniel",InetAddress.getByName(ipAddress), 51126, -1));
@@ -69,6 +78,7 @@ public class ClientGUI extends JFrame implements Constants {
             client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
         
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -78,33 +88,25 @@ public class ClientGUI extends JFrame implements Constants {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        jLabelServers = new javax.swing.JLabel();
+        jLabelClients = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextArea3 = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
+        jButtonBroadcast = new javax.swing.JButton();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jListServers = new javax.swing.JList<>();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jListClients = new javax.swing.JList<>();
+        jButtonRefreshLists = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(MAXIMIZED_BOTH);
 
-        jLabel1.setText("Servers:");
+        jLabelServers.setText("Servers:");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
-        jTextArea1.getAccessibleContext().setAccessibleName("listServersTextArea");
-
-        jLabel2.setText("Clients:");
-
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        jLabelClients.setText("Clients:");
 
         jScrollPane3.setViewportView(jTree1);
 
@@ -112,21 +114,58 @@ public class ClientGUI extends JFrame implements Constants {
         jTextArea3.setRows(5);
         jScrollPane4.setViewportView(jTextArea3);
 
-        jButton1.setText("Broadcast Message");
+        jButtonBroadcast.setText("Broadcast Message");
+
+        jListServers.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jListServers.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListServersMouseClicked(evt);
+            }
+        });
+        jScrollPane5.setViewportView(jListServers);
+
+        jListClients.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane6.setViewportView(jListClients);
+
+        jButtonRefreshLists.setText("Refresh Lists");
+        jButtonRefreshLists.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonRefreshListsMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(63, 63, 63)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addGap(38, 38, 38)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(51, 51, 51)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButtonBroadcast)
+                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(38, 38, 38))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(63, 63, 63)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabelServers)
+                                    .addComponent(jLabelClients)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(23, 23, 23)
+                                .addComponent(jButtonRefreshLists)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane3)
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE))
@@ -135,21 +174,23 @@ public class ClientGUI extends JFrame implements Constants {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(47, 47, 47)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addGap(12, 12, 12)
+                .addComponent(jButtonRefreshLists)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelServers)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(11, 11, 11)
+                .addComponent(jLabelClients)
+                .addGap(7, 7, 7)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonBroadcast)
+                .addContainerGap(114, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37))
         );
@@ -157,17 +198,57 @@ public class ClientGUI extends JFrame implements Constants {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
+        // TODO add your handling code here:
+        if(evt.getClickCount() == 2) {
+            System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getIp());
+            System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getName());
+            System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getPort());
+        }
+    }//GEN-LAST:event_jListServersMouseClicked
+
+    private void jButtonRefreshListsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonRefreshListsMouseClicked
+        // TODO add your handling code here:
+        // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        client.receiveMessage();
+        fillServersList();
+        fillClientsList();
+        // </editor-fold>
+    }//GEN-LAST:event_jButtonRefreshListsMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton jButtonBroadcast;
+    private javax.swing.JButton jButtonRefreshLists;
+    private javax.swing.JLabel jLabelClients;
+    private javax.swing.JLabel jLabelServers;
+    private javax.swing.JList<String> jListClients;
+    private javax.swing.JList<String> jListServers;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
+
+    public void fillServersList() {
+        this.onlineServer = new ArrayList<>(client.getOnlineServers());
+        
+        DefaultListModel<String> listServersModel = new DefaultListModel<String>();
+        for(DataAddress da : onlineServer) {
+            listServersModel.addElement(da.getName());
+        }
+        jListServers.setModel(listServersModel);
+    }
+    
+    private void fillClientsList() {
+        this.onlineClient = new ArrayList<>(client.getOnlineClients());
+        
+        DefaultListModel<String> listClientsModel = new DefaultListModel<String>();
+        for(DataAddress da : onlineClient) {
+            listClientsModel.addElement(da.getName());
+        }
+        jListClients.setModel(listClientsModel);
+    }
 }

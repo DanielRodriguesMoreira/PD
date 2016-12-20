@@ -116,20 +116,19 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
                         case CLIENT_MSG_CHECK_USERNAME:
                             cleanListClients();
-                            addr = new DataAddress(clientMessage.getDataAddress().getName(),packet.getAddress(),packet.getPort(),-1);
-                            addr.setTime(getCurrentTime());
-                            if(checkExistsClient(addr))
+                            if(checkExistsClient(clientMessage.getDataAddress()))
                                 clientMessage.setExists(true);
-                            else
-                                listClients.add(addr);
+                            else{
+                                clientMessage.getDataAddress().setTime(getCurrentTime());
+                                listClients.add(clientMessage.getDataAddress());
+                            }
                             sendMessage(clientMessage);
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_HEARTBEAT ">
                         case CLIENT_MSG_HEARTBEAT:
-                            addr = new DataAddress(clientMessage.getDataAddress().getName(),packet.getAddress(),packet.getPort(),-1);
-                            addr.setTime(getCurrentTime());
-                            updateTimeClient(addr);
+                            clientMessage.getDataAddress().setTime(getCurrentTime());
+                            updateTimeClient(clientMessage.getDataAddress());
                             cleanListClients();
                             break;
                         // </editor-fold>
@@ -148,6 +147,8 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
                         case CLIENT_GET_ALL_LISTS:
+                            cleanListServers();
+                            cleanListClients();
                             listServers = new ArrayList<>( mapServers.keySet());
                             clientMessage.setListServers(listServers);
                             clientMessage.setListClients(listClients);
@@ -162,6 +163,12 @@ public class DirectoryService implements Constants {
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
                                 sendMessage(clientMessage);
                             }
+                            break;
+                        // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE_TOALL ">
+                        case CLIENT_SENDMESSAGE_TOALL:
+                            cleanListServers();
+                            sendMessageToAllLogged(clientMessage);
                             break;
                         // </editor-fold>
                     }
@@ -200,7 +207,7 @@ public class DirectoryService implements Constants {
             Iterator iterator = listClients.iterator();
             while (iterator.hasNext()) {
                 DataAddress item = (DataAddress) iterator.next();
-                if((currentTime - item.getTime()) > HEARTBEAT) {
+                if((currentTime - item.getTime()) > HEARTBEAT + 1000) {
                    iterator.remove();
                 }
             }
@@ -247,9 +254,23 @@ public class DirectoryService implements Constants {
     private static boolean checkLoggedClient(DataAddress addr){
         List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
         for(DataAddress i : listServers)
+            if(mapServers.get(i).contains(addr))
             for(DataAddress j : mapServers.get(i))
                 if(addr.equals(j))
                     return true;
         return false;
+    }
+    
+    private static void sendMessageToAllLogged(ClientMessage clientMessage){
+        List<DataAddress> listLogged = new ArrayList<>();
+        List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
+        for(DataAddress i : listServers)
+            for(DataAddress j : mapServers.get(i))
+                if(!listLogged.contains(j)){
+                    packet.setAddress(j.getIp());
+                    packet.setPort(j.getPort());
+                    sendMessage(clientMessage);
+                    listLogged.add(j);
+                }
     }
 }
