@@ -13,7 +13,7 @@ public class ClientMessage implements Serializable {
     // <editor-fold defaultstate="collapsed" desc=" Variáveis ">
     static final long serialVersionUID = 1L;
     DataAddress dataAddress;         //DataAddress para fazer comunicação
-    String usernameToSend;          // Nome do Cliente que quer enviar a mensagem
+    DataAddress usernameToSend;          // Nome do Cliente que quer enviar a mensagem
     String message;                 // Mensagem para um Cliente
     String request;                 // Pedido ({"sendMessage","sendMessageToAll","imAlive"}) para Directoria; ({"updateLists","recieveMessage"}) para o Cliente;
     List<DataAddress> listServers;  // Lista dos servidores
@@ -22,7 +22,7 @@ public class ClientMessage implements Serializable {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Construtor ">
-    public ClientMessage(DataAddress dataAddress, String usernameToSend, String message, String request, List<DataAddress> listServers, List<DataAddress> listClients, boolean exists) {
+    public ClientMessage(DataAddress dataAddress, DataAddress usernameToSend, String message, String request, List<DataAddress> listServers, List<DataAddress> listClients, boolean exists) {
         this.dataAddress = dataAddress;
         this.usernameToSend = usernameToSend;
         this.message = message;
@@ -50,11 +50,11 @@ public class ClientMessage implements Serializable {
         this.dataAddress = dataAddress;
     }
 
-    public String getUsernameToSend() {
+    public DataAddress getUsernameToSend() {
         return usernameToSend;
     }
 
-    public void setUsernameToSend(String usernameToSend) {
+    public void setUsernameToSend(DataAddress usernameToSend) {
         this.usernameToSend = usernameToSend;
     }
 
