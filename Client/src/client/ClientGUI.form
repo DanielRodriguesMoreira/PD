@@ -87,6 +87,9 @@
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>
           </Properties>
+          <AccessibilityProperties>
+            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="listServersTextArea"/>
+          </AccessibilityProperties>
         </Component>
       </SubComponents>
     </Container>

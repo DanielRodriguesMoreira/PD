@@ -79,7 +79,7 @@ public class DataAddress implements Serializable, Comparable<DataAddress>{
             return false;
         }
         final DataAddress other = (DataAddress) obj;
-        if (!Objects.equals(this.name, other.name)) {
+        if (!Objects.equals(this.name.toUpperCase(), other.name.toUpperCase())) {
             return false;
         }
         if (!Objects.equals(this.ip, other.ip)) {
