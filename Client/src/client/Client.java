@@ -57,13 +57,14 @@ public class Client implements Constants {
 
 
             /*  Criar o datagramAddress para enviar para o Service directory    */
-            dataAddress = new DataAddress("Hugo", null, -1, -1);
+            dataAddress = new DataAddress(this.username, null, -1, -1);
             message = new ClientMessage(dataAddress, null, null, tipoPedidoAExecutar, null, null, false);
             out.writeObject(message);
             out.flush();
 
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
+            System.out.println("<Client> Enviei mensagem\n");
 
             /*  Receber a resposta da directory service  */
             packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
@@ -84,7 +85,8 @@ public class Client implements Constants {
 
                 /* Listar lista de sevidores activos */
                 for(int i = 0; i < message.getListServers().size(); i++) {
-                    System.out.println(message.getListServers().get(i).getName());
+                    this.OnlineServers.add(message.getDataAddress());
+                    //System.out.println(message.getListServers().get(i).getName());
                 }
             }
         } catch (SocketException ex) {
@@ -94,5 +96,14 @@ public class Client implements Constants {
         } catch (ClassNotFoundException ex) {
             System.out.println("Erro ao ler o objecto serialiazado\n");
         }
+    }
+
+    public String OnlineServerstoString() {
+        String teste = null;
+        for(int i = 0; i < OnlineServers.size(); i++) {
+                    teste += this.OnlineServers.get(i).getName();
+                    System.out.println(this.OnlineServers.get(i).getName());
+                }
+        return teste;
     }
 }

@@ -2,7 +2,6 @@ package DataMessaging;
 
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -68,7 +67,6 @@ public class DataAddress implements Serializable, Comparable<DataAddress>{
         int hash = 3;
         hash = 79 * hash + Objects.hashCode(this.name);
         hash = 79 * hash + Objects.hashCode(this.ip);
-        hash = 79 * hash + this.port;
         return hash;
     }
 
@@ -89,8 +87,9 @@ public class DataAddress implements Serializable, Comparable<DataAddress>{
         }
         return true;
     }
-    // </editor-fold>    
-
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" compraTo(DataAddress t) ">
     @Override
     public int compareTo(DataAddress t) {
         if(this.equals(t)) 
@@ -98,4 +97,5 @@ public class DataAddress implements Serializable, Comparable<DataAddress>{
         else 
             return 1;
     }
+    // </editor-fold>
 }

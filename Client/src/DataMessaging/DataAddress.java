@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author Tiago Santos 
  */
 
-public class DataAddress implements Serializable{
+public class DataAddress implements Serializable, Comparable<DataAddress>{
     // <editor-fold defaultstate="collapsed" desc=" Variáveis ">
     static final long serialVersionUID = 1L;
     String name;
@@ -63,10 +63,15 @@ public class DataAddress implements Serializable{
     
     // <editor-fold defaultstate="collapsed" desc=" equals() ">
     @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + Objects.hashCode(this.name);
+        hash = 79 * hash + Objects.hashCode(this.ip);
+        return hash;
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if (obj == null) {
             return false;
         }
@@ -74,9 +79,6 @@ public class DataAddress implements Serializable{
             return false;
         }
         final DataAddress other = (DataAddress) obj;
-        if (this.port != other.port) {
-            return false;
-        }
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
@@ -84,6 +86,16 @@ public class DataAddress implements Serializable{
             return false;
         }
         return true;
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" compraTo(DataAddress t) ">
+    @Override
+    public int compareTo(DataAddress t) {
+        if(this.equals(t)) 
+            return 0;
+        else 
+            return 1;
     }
     // </editor-fold>
 }
