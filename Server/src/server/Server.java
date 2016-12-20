@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -50,7 +52,6 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     private DataAddress myAddress = null;
     private List<DataAddress> usersLoggedIn = null;
     private String loginFile = null;
-    private List<Login> loginsList = null;
     private File rootDirectory = null;
     
     public Server(ServerSocket serverSocket, InetAddress dsIP, int dsPort, DataAddress myTCPAddress, String loginFile, File rootDirectory){
@@ -60,9 +61,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
         this.myAddress = myTCPAddress;
         this.usersLoggedIn = Collections.synchronizedList(new ArrayList<DataAddress>());
         this.loginFile = loginFile;
-        this.loginsList = Collections.synchronizedList(new ArrayList<Login>());
         this.rootDirectory = rootDirectory;
-        this.fillLoginsList(loginFile);
     }
     
     public static void main(String[] args) {
@@ -230,65 +229,26 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     public void run() {
         
          while(true){     
-             try {
+             //try {
                 //Accept Client
-                this.toClientSocket = this.serverSocketTCP.accept();
+                //this.toClientSocket = this.serverSocketTCP.accept();
                 
                 //Start thread to attend the client
                 Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
-                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn, this.loginsList,
+                this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn,
                 this.rootDirectory, this.loginFile);
                 attendClientThread.start();
                 
+                 try {
+                     Thread.sleep(HEARTBEAT);
+                 } catch (InterruptedException ex) {
+                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                 }
+            /*    
             } catch (IOException ex) {
                 System.out.println("An error occurred in accessing the socket:\n\t" + ex);
             }
+            */
         }
     } 
-
-    private void fillLoginsList(String loginFile) {
-        String linha = null;
-        String username = null;
-        String password = null;
-        BufferedReader inFile = null;
-        
-        try {
-            inFile = new BufferedReader(new FileReader(loginFile));
-             
-            while((linha = inFile.readLine())!=null){
-                
-                linha = linha.trim();
-                if(linha.length() == 0){
-                    continue;
-                }
-                
-                Scanner scan = new Scanner(linha);
-                
-                try{                    
-                    username = scan.next();
-                    password = scan.next();
-                    
-                    this.loginsList.add(new Login(username, password));
-                    
-                }catch(Exception e){
-                    System.err.print("> Incorrect entry in file ");
-                    System.err.println(loginFile + ": \"" + linha + "\"");
-                    continue;
-                }
-            }
-            
-        } catch (FileNotFoundException ex) {
-            System.err.println();
-            System.err.println("File impossible to open: " + loginFile + "\n\t" + ex);
-        } catch (IOException ex) {
-            System.err.println(); 
-            System.err.println(ex);
-        } finally{
-            try {
-                if(inFile != null){
-                    inFile.close();
-                }
-            } catch (IOException ex) { }
-        }
-    }
 }

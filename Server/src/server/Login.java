@@ -28,6 +28,10 @@ public class Login {
     public String toString(){
         return "Username: " + this.getUsername() + "\nPassword: " + this.getPassword();
     }
+    
+    public String toStringLoginFormat(){
+        return (this.getUsername() + " " + this.getPassword() + "\n");
+    }
 
     @Override
     public int hashCode() {
