@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -19,7 +20,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -43,6 +43,8 @@ public class AttendTCPClientsThread extends Thread implements Constants, FilesIn
     private List<Login> loginsList = null;
     private File rootDirectory = null;
     private String loginFile = null;
+    private ObjectInputStream in = null;
+    private ObjectOutputStream out = null;
     
     public AttendTCPClientsThread(Socket socket, DataAddress myAddress, InetAddress dsIP, int dsPort,
             List<DataAddress> users, File rootDirectory, String loginFile){
@@ -60,22 +62,26 @@ public class AttendTCPClientsThread extends Thread implements Constants, FilesIn
     @Override
     public void run(){
         
-        
         while(true){
-            //Vou recebendo pedidos
-            
-            //se for x faz x
-            //se for y faz y
-            //....
-            File f = new File(rootDirectory + File.separator + "Hugo");
-            f.renameTo(new File(rootDirectory + File.separator + "Huguinho"));
-            
             try {
-                Thread.sleep(HEARTBEAT);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(AttendTCPClientsThread.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                
+                out = new ObjectOutputStream(toClientSocket.getOutputStream());
+                in = new ObjectInputStream(toClientSocket.getInputStream());
 
+                String request = (String)in.readObject();
+                
+                System.out.println("Request - " + request);
+                
+                out.writeUnshared(new String("OI HUGO"));
+                out.flush();
+                
+            } catch (ClassNotFoundException ex) {
+                System.err.println(ex);
+            } catch (IOException ex) {
+                System.out.println("Erro na comunicacao como o cliente " + 
+                        toClientSocket.getInetAddress().getHostAddress() + ":" + 
+                            toClientSocket.getPort()+"\n\t" + ex);
+            }
         }
         
     }
