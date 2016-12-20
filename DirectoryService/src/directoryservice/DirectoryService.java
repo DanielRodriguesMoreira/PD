@@ -47,8 +47,8 @@ public class DirectoryService implements Constants {
         List<DataAddress> listServers;
         DataAddress addr;
         
-        CommandThread ct = new CommandThread();
-        ct.start();
+        //CommandThread ct = new CommandThread();
+        //ct.start();
         
         try {
             // <editor-fold defaultstate="collapsed" desc=" Args ">

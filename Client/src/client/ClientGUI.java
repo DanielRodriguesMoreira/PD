@@ -1,7 +1,6 @@
-package client;
+    package client;
 
 import Constants.Constants;
-import DataMessaging.DataAddress;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -39,6 +38,11 @@ public class ClientGUI extends JFrame implements Constants {
             client = new Client(username, ipAddress, portAddress);
         } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
         // </editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc=" Enviar HeartBeat para o serviceDirectory saber que estou vivo ">
+        client.createHeartbeatThread();        
+        // </editor-fold>
+        
         
         //client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
         jTextArea1.append(client.OnlineServerstoString());

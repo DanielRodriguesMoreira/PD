@@ -15,8 +15,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -46,6 +44,7 @@ public class Client implements Constants {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
+        this.dataAddress = new DataAddress(username, null, -1, -1);
     }    
 
     public void sendMessageToServiceDirectory(ClientMessage messageToDirectory,String tipoPedidoAExecutar) {
@@ -57,10 +56,10 @@ public class Client implements Constants {
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
 
-            /*  Criar o datagramAddress para enviar para o Service directory    */
-            dataAddress = new DataAddress(username, null, -1, -1);
+            // <editor-fold defaultstate="collapsed" desc=" Criar o datagramAddress para enviar para o Service directory ">
             message = new ClientMessage(dataAddress, null, null, tipoPedidoAExecutar, null, null, false);
-            
+            // </editor-fold>
+           
             out.writeObject(message);
             out.flush();
 
@@ -90,30 +89,37 @@ public class Client implements Constants {
     
     public void receiveMessage() {
         try {
-            /*  Receber a resposta da directory service  */
             packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
             dataSocket.receive(packet);
 
             in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
 
-            /*  Ler a lista de servidores ligados   */
             System.out.println("<Client> Packet received");
             message = (ClientMessage) in.readObject();
             
-
-            //mandar para a thread o porto em condicoes
-            //serverDirectoryPort = packet.getPort();
-
-            /*if (!message.isExists()) {
-            Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
-            t1.start();
-            
-            this.OnlineServers = message.getListServers();
-            }*/
+            switch(message.getRequest()) {
+                case CLIENT_GET_ALL_LISTS:
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
+                case CLIENT_MSG_CHECK_USERNAME:
+                    this.OnlineServers = message.getListServers();
+                    this.OnlineClients = message.getListClients();
+                    break;
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
+                case CLIENT_GET_ONLINE_SERVERS:
+                    this.OnlineServers = message.getListServers();
+                    break;
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
+                case CLIENT_GET_ONLINE_CLIENTS:
+                    this.OnlineClients = message.getListClients();
+                    break;
+                // </editor-fold>
+            }
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Erro ao criar objecto serializado\n");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Class not found\n");
         }
     }
     
@@ -121,5 +127,10 @@ public class Client implements Constants {
         sendMessageToServiceDirectory(message, CLIENT_MSG_CHECK_USERNAME);
         receiveMessage();
         return message.isExists();
+    }
+    
+    public void createHeartbeatThread() {
+        Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
+        t1.start();
     }
 }
