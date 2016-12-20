@@ -113,12 +113,12 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
                         case CLIENT_MSG_CHECK_USERNAME:
                             cleanListClients();
-                            if(checkExistsClient(clientMessage.getDataAddress()))
+                            DataAddress addr = new DataAddress(clientMessage.getDataAddress().getName(),packet.getAddress(),packet.getPort(),-1);
+                            addr.setTime(getCurrentTime());
+                            if(checkExistsClient(addr))
                                 clientMessage.setExists(true);
-                            else{
-                                clientMessage.getDataAddress().setTime(getCurrentTime());
-                                listClients.add(clientMessage.getDataAddress());
-                            }
+                            else
+                                listClients.add(addr);
                             sendMessage(clientMessage);
                             break;
                         // </editor-fold>
