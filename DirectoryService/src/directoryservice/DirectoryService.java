@@ -156,6 +156,12 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
                         case CLIENT_SENDMESSAGE:
+                            cleanListServers();
+                            if(checkLoggedClient(clientMessage.getUsernameToSend())){
+                                packet.setAddress(clientMessage.getUsernameToSend().getIp());
+                                packet.setPort(clientMessage.getUsernameToSend().getPort());
+                                sendMessage(clientMessage);
+                            }
                             break;
                         // </editor-fold>
                     }
@@ -238,11 +244,12 @@ public class DirectoryService implements Constants {
                 i = addr;
     }
     
-    public static Map<DataAddress, List<DataAddress>> getMapServers() {
-        return mapServers;
-    }
-
-    public static List<DataAddress> getListClients() {
-        return listClients;
+    private static boolean checkLoggedClient(DataAddress addr){
+        List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
+        for(DataAddress i : listServers)
+            for(DataAddress j : mapServers.get(i))
+                if(addr.equals(j))
+                    return true;
+        return false;
     }
 }
