@@ -33,7 +33,7 @@ public class CommandThread extends Thread{
                     if(listServers.size() > 0){
                          System.out.println("List of Servers:");
                         for(DataAddress i : listServers)
-                            System.out.println("Name: " + i.getName() + " IP: " + i.getIp().getHostName() + " Port: " + i.getPort() +" Time: " + i.getTime());
+                            System.out.println("Name: " + i.getName() + " IP: " + i.getIp().getHostAddress()+ " Port: " + i.getPort() +" Time: " + i.getTime());
                     } else 
                         System.out.println("No Server Active.");
                     break;

@@ -49,8 +49,8 @@ public class DirectoryService implements Constants {
         List<DataAddress> listServers;
         DataAddress addr;
         
-        //CommandThread ct = new CommandThread();
-        //ct.start();
+        CommandThread ct = new CommandThread();
+        ct.start();
         
         try {
             // <editor-fold defaultstate="collapsed" desc=" Args ">
@@ -198,11 +198,6 @@ public class DirectoryService implements Constants {
                    iterator.remove();
                 }
             }
-            /*
-            for(DataAddress i : listClients)
-                if((currentTime - i.getTime()) > HEARTBEAT)
-                    listClients.remove(i);
-            */
         }
     }
     
