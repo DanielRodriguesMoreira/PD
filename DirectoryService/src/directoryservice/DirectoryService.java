@@ -148,6 +148,8 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
                         case CLIENT_GET_ALL_LISTS:
+                            cleanListServers();
+                            cleanListClients();
                             listServers = new ArrayList<>( mapServers.keySet());
                             clientMessage.setListServers(listServers);
                             clientMessage.setListClients(listClients);
@@ -162,6 +164,12 @@ public class DirectoryService implements Constants {
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
                                 sendMessage(clientMessage);
                             }
+                            break;
+                        // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE_TOALL ">
+                        case CLIENT_SENDMESSAGE_TOALL:
+                            cleanListServers();
+                            sendMessageToAllLogged(clientMessage);
                             break;
                         // </editor-fold>
                     }
@@ -247,9 +255,23 @@ public class DirectoryService implements Constants {
     private static boolean checkLoggedClient(DataAddress addr){
         List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
         for(DataAddress i : listServers)
+            if(mapServers.get(i).contains(addr))
             for(DataAddress j : mapServers.get(i))
                 if(addr.equals(j))
                     return true;
         return false;
+    }
+    
+    private static void sendMessageToAllLogged(ClientMessage clientMessage){
+        List<DataAddress> listLogged = new ArrayList<>();
+        List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
+        for(DataAddress i : listServers)
+            for(DataAddress j : mapServers.get(i))
+                if(!listLogged.contains(j)){
+                    packet.setAddress(j.getIp());
+                    packet.setPort(j.getPort());
+                    sendMessage(clientMessage);
+                    listLogged.add(j);
+                }
     }
 }
