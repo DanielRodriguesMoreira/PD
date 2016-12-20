@@ -47,7 +47,7 @@ public class Client implements Constants {
         this.dataAddress = new DataAddress(username, null, -1, -1);
     }    
 
-    public void sendMessageToServiceDirectory(ClientMessage messageToDirectory,String tipoPedidoAExecutar) {
+    public void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
         try {
             serverDirectoryAddr = InetAddress.getByName(this.directoryServiceIP);
             serverDirectoryPort = Integer.parseInt(this.directoryServicePort);   
@@ -83,7 +83,20 @@ public class Client implements Constants {
             }
         }
         if(teste == null)
-            teste = "No Server Active\n";
+            teste = "No Servers Active\n";
+        return teste;
+    }
+    
+    public String OnlineClientstoString() {
+        String teste = null;
+        if(OnlineClients != null)
+        {
+            for(int i = 0; i < OnlineClients.size(); i++) {
+                teste += this.OnlineClients.get(i).getName();
+            }
+        }
+        if(teste == null)
+            teste = "No Clients Active\n";
         return teste;
     }
     
@@ -124,7 +137,7 @@ public class Client implements Constants {
     }
     
     public boolean checkClientExists() {
-        sendMessageToServiceDirectory(message, CLIENT_MSG_CHECK_USERNAME);
+        sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
         receiveMessage();
         return message.isExists();
     }
