@@ -45,6 +45,7 @@ public class DirectoryService implements Constants {
         mapServers = new TreeMap();
         listClients = new ArrayList<>();
         List<DataAddress> listServers;
+        DataAddress addr;
         
         CommandThread ct = new CommandThread();
         ct.start();
@@ -113,7 +114,7 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
                         case CLIENT_MSG_CHECK_USERNAME:
                             cleanListClients();
-                            DataAddress addr = new DataAddress(clientMessage.getDataAddress().getName(),packet.getAddress(),packet.getPort(),-1);
+                            addr = new DataAddress(clientMessage.getDataAddress().getName(),packet.getAddress(),packet.getPort(),-1);
                             addr.setTime(getCurrentTime());
                             if(checkExistsClient(addr))
                                 clientMessage.setExists(true);
@@ -124,8 +125,9 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_HEARTBEAT ">
                         case CLIENT_MSG_HEARTBEAT:
-                            clientMessage.getDataAddress().setTime(getCurrentTime());
-                            updateTimeClient(clientMessage.getDataAddress());
+                            addr = new DataAddress(clientMessage.getDataAddress().getName(),packet.getAddress(),packet.getPort(),-1);
+                            addr.setTime(getCurrentTime());
+                            updateTimeClient(addr);
                             cleanListClients();
                             break;
                         // </editor-fold>
