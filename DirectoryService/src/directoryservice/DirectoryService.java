@@ -95,15 +95,21 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_HEARTBEAT ">
                         case SERVER_MSG_HEARTBEAT:
-                            serverMessage.getServer().setTime(getCurrentTime());
-                            mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            if(checkExistsServer(serverMessage.getServer())){
+                                mapServers.remove(serverMessage.getServer());
+                                serverMessage.getServer().setTime(getCurrentTime());
+                                mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            }
                             cleanListServers();
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_UPDATE_LIST ">
                         case SERVER_MSG_UPDATE_LIST:
-                            serverMessage.getServer().setTime(getCurrentTime());
-                            mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            if(checkExistsServer(serverMessage.getServer())){
+                                mapServers.remove(serverMessage.getServer());
+                                serverMessage.getServer().setTime(getCurrentTime());
+                                mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                            }
                             cleanListServers();
                             break;
                         // </editor-fold>
@@ -196,9 +202,12 @@ public class DirectoryService implements Constants {
     private static void cleanListServers(){
         long currentTime = getCurrentTime();
         List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
-        for(DataAddress i : listServers)
-            if((currentTime - i.getTime()) > HEARTBEAT)
-                mapServers.remove(i);
+        Iterator iterator = listServers.iterator();
+        while (iterator.hasNext()) {
+            DataAddress item = (DataAddress) iterator.next();
+            if((currentTime - item.getTime()) > HEARTBEAT + 1000)
+                mapServers.remove(item);
+        }
     }
     
     private static void cleanListClients(){
