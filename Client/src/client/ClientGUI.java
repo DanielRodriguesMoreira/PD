@@ -43,6 +43,8 @@ public class ClientGUI extends JFrame implements Constants {
         client.createHeartbeatThread();        
         // </editor-fold>
         
+        //atualizar a lista
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
         
         //client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
         jTextArea1.append(client.OnlineServerstoString());
