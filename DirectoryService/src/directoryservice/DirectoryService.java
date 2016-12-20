@@ -152,6 +152,10 @@ public class DirectoryService implements Constants {
                             sendMessage(clientMessage);
                             break;
                         // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
+                        case CLIENT_SENDMESSAGE:
+                            break;
+                        // </editor-fold>
                     }
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Erros, Exceptions & Closes ">
@@ -213,9 +217,10 @@ public class DirectoryService implements Constants {
     }
     
     private static boolean checkExistsClient(DataAddress addr){
-        for(DataAddress i : listClients)
-            if(addr.equals(i))
-                return true;
+        if(listClients != null)
+            for(DataAddress i : listClients)
+                if(addr.equals(i))
+                    return true;
         return false;
     }
     
