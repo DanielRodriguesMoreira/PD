@@ -1,6 +1,7 @@
 package directoryservice;
 
 import Constants.Constants;
+import static Constants.Constants.HEARTBEAT;
 import DataMessaging.ClientMessage;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
@@ -14,6 +15,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -188,10 +190,20 @@ public class DirectoryService implements Constants {
     
     private static void cleanListClients(){
         long currentTime = getCurrentTime();
-        if(listClients != null)
+        if(listClients != null){
+            Iterator iterator = listClients.iterator();
+            while (iterator.hasNext()) {
+                DataAddress item = (DataAddress) iterator.next();
+                if((currentTime - item.getTime()) > HEARTBEAT) {
+                   iterator.remove();
+                }
+            }
+            /*
             for(DataAddress i : listClients)
                 if((currentTime - i.getTime()) > HEARTBEAT)
                     listClients.remove(i);
+            */
+        }
     }
     
     private static <T> void sendMessage(T message){
