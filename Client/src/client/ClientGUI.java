@@ -1,6 +1,11 @@
     package client;
 
 import Constants.Constants;
+import DataMessaging.DataAddress;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -51,12 +56,18 @@ public class ClientGUI extends JFrame implements Constants {
         
         this.setVisible(true);
        
-        /*  3º GetOnlineServers()   
-        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
-        /*  4º GetOnlineClients()   
-        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_CLIENTS);
-          5º GetAllLists()    
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
+        try {
+            client.connectServer(new DataAddress("daniel",InetAddress.getByName(ipAddress), 51126, -1));
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            /*  3º GetOnlineServers()
+            client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
+            /*  4º GetOnlineClients()
+            client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_CLIENTS);
+            5º GetAllLists()
+            client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
+        
     }
     /**
      * This method is called from within the constructor to initialize the form.

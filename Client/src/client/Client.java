@@ -13,8 +13,11 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -39,6 +42,10 @@ public class Client implements Constants {
     int serverDirectoryPort;
     List<DataAddress> OnlineServers;
     List<DataAddress> OnlineClients;
+    
+    Socket socketTCP = null;
+    ObjectOutputStream outTCP = null;
+    ObjectInputStream inTCP = null;
         
     public Client (String username, String directoryServiceIP, String directoryServicePort) {
         this.username = username;
@@ -145,5 +152,47 @@ public class Client implements Constants {
     public void createHeartbeatThread() {
         Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
         t1.start();
+    }
+   
+    public boolean connectServer(DataAddress serverAddress){
+
+        try {
+            this.prepareSocketTCP(serverAddress);
+            this.sendMessageToServer(new String("OLA"));
+            
+            String resposta = (String)inTCP.readObject();
+            System.out.println(resposta);
+            
+            return true;
+        } catch (IOException ex) {
+            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
+            return false;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        
+    }
+    
+    private void prepareSocketTCP(DataAddress serverAddress) throws IOException{
+        
+        this.socketTCP = new Socket(serverAddress.getIp(), serverAddress.getPort());
+        
+        inTCP = new ObjectInputStream(this.socketTCP.getInputStream());
+        outTCP = new ObjectOutputStream(this.socketTCP.getOutputStream());
+        
+    }
+    
+    private void sendMessageToServer(String tipoPedidoAExecutar){
+        
+        try {
+            outTCP.writeUnshared(new String("OLA"));
+            outTCP.flush();
+            
+            //String response = (String)in.readObject();
+            
+        } catch (IOException ex) {
+            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
+        }
     }
 }

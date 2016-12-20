@@ -108,6 +108,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
             // <editor-fold defaultstate="collapsed" desc=" Create TCP Socket ">
             serverSocket = new ServerSocket(0);
             socketTCPPort = serverSocket.getLocalPort();
+            System.out.println("TCP port = " + socketTCPPort);
             // </editor-fold>
             
             // <editor-fold defaultstate="collapsed" desc=" Create ServerMessage and send it to Directory Service (by UDP) ">
@@ -229,9 +230,9 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     public void run() {
         
          while(true){     
-             //try {
+             try {
                 //Accept Client
-                //this.toClientSocket = this.serverSocketTCP.accept();
+                this.toClientSocket = this.serverSocketTCP.accept();
                 
                 //Start thread to attend the client
                 Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
@@ -243,12 +244,10 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                      Thread.sleep(HEARTBEAT);
                  } catch (InterruptedException ex) {
                      Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                 }
-            /*    
+                 }  
             } catch (IOException ex) {
                 System.out.println("An error occurred in accessing the socket:\n\t" + ex);
-            }
-            */
+            }   
         }
     } 
 }
