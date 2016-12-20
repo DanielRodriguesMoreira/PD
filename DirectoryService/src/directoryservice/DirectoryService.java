@@ -46,6 +46,9 @@ public class DirectoryService implements Constants {
         listClients = new ArrayList<>();
         List<DataAddress> listServers;
         
+        CommandThread ct = new CommandThread();
+        ct.start();
+        
         try {
             // <editor-fold defaultstate="collapsed" desc=" Args ">
             if(args.length != 1){
@@ -110,7 +113,7 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
                         case CLIENT_MSG_CHECK_USERNAME:
                             cleanListClients();
-                            if(checkExistsServer(clientMessage.getDataAddress()))
+                            if(checkExistsClient(clientMessage.getDataAddress()))
                                 clientMessage.setExists(true);
                             else{
                                 clientMessage.getDataAddress().setTime(getCurrentTime());
@@ -218,5 +221,13 @@ public class DirectoryService implements Constants {
         for(DataAddress i : listClients)
             if(addr.equals(i))
                 i = addr;
+    }
+    
+    public static Map<DataAddress, List<DataAddress>> getMapServers() {
+        return mapServers;
+    }
+
+    public static List<DataAddress> getListClients() {
+        return listClients;
     }
 }
