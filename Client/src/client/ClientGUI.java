@@ -1,6 +1,7 @@
 package client;
 
 import Constants.Constants;
+import DataMessaging.DataAddress;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -16,12 +17,40 @@ public class ClientGUI extends JFrame implements Constants {
     static String ipAddress;
     static String portAddress;
     static int option;
-    /**
-     * Creates new form ClientGUI
-     */
+    
     public ClientGUI() {
         initComponents();
         this.setTitle(username);
+        Client client;
+        
+        // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
+        do {
+            JTextField field1 = new JTextField();
+            JTextField field2 = new JTextField();
+            JTextField field3 = new JTextField();
+
+            Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
+            option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                username = field1.getText();
+                ipAddress = field2.getText();
+                portAddress = field3.getText();
+            }
+            client = new Client(username, ipAddress, portAddress);
+        } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
+        // </editor-fold>
+        
+        //client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
+        jTextArea1.append(client.OnlineServerstoString());
+        
+        this.setVisible(true);
+       
+        /*  3º GetOnlineServers()   
+        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
+        /*  4º GetOnlineClients()   
+        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_CLIENTS);
+          5º GetAllLists()    
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -52,6 +81,7 @@ public class ClientGUI extends JFrame implements Constants {
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
+        jTextArea1.getAccessibleContext().setAccessibleName("listServersTextArea");
 
         jLabel2.setText("Clients:");
 
@@ -109,69 +139,6 @@ public class ClientGUI extends JFrame implements Constants {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        
-        /*  Mostrar InputDialog para escolher o nome   */
-        do {
-            JTextField field1 = new JTextField();
-            JTextField field2 = new JTextField();
-            JTextField field3 = new JTextField();
-
-            Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
-            option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_OPTION);
-            if (option == JOptionPane.OK_OPTION)
-            {
-                username = field1.getText();
-                ipAddress = field2.getText();
-                portAddress = field3.getText();
-            }
-        } while(username == null || option != JOptionPane.OK_OPTION);
-        
-        Client client = new Client(username, ipAddress, portAddress);
-        /*  2º  Verificar se posso utilizar o username */
-        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
-        System.out.println("Cliente GUI ->");
-        System.out.println(client.OnlineServerstoString());
-        /*  3º GetOnlineServers()   
-        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
-        /*  4º GetOnlineClients()   
-        client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_CLIENTS);
-        /*  5º GetAllLists()    
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
-        
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ClientGUI().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
