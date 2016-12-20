@@ -42,7 +42,7 @@ public class DirectoryService implements Constants {
     public static void main(String[] args)
     {
         // (Saber os clientes que estão ligados a um determinado servidor)
-        mapServers = new TreeMap();
+        mapServers = new TreeMap<>();
         listClients = new ArrayList<>();
         List<DataAddress> listServers;
         DataAddress addr;
@@ -188,9 +188,10 @@ public class DirectoryService implements Constants {
     
     private static void cleanListClients(){
         long currentTime = getCurrentTime();
-        for(DataAddress i : listClients)
-            if((currentTime - i.getTime()) > HEARTBEAT)
-                listClients.remove(i);
+        if(listClients != null)
+            for(DataAddress i : listClients)
+                if((currentTime - i.getTime()) > HEARTBEAT)
+                    listClients.remove(i);
     }
     
     private static <T> void sendMessage(T message){
