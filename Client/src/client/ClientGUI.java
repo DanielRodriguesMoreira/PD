@@ -61,7 +61,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS, null);
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
         client.receiveMessage();
         //fillServersList();
         //fillClientsList();
@@ -221,7 +221,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private void jButtonRefreshListsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonRefreshListsMouseClicked
         // TODO add your handling code here:
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS, null);
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
         client.receiveMessage();
 //        fillServersList();
 //        fillClientsList();
@@ -232,7 +232,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private void jListClientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListClientsMouseClicked
         // TODO add your handling code here:
         if(evt.getClickCount() == 2){
-            client.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, this.onlineClient.get(this.jListClients.getSelectedIndex()));
+            DataAddress usernameToSend = this.onlineClient.get(this.jListClients.getSelectedIndex());
+            String message = "Ola Basilio";
+            client.sendMessageToServiceDirectory(usernameToSend, message);
         }
     }//GEN-LAST:event_jListClientsMouseClicked
 
