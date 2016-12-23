@@ -113,12 +113,6 @@ public class Client extends Observable implements Constants {
                     this.OnlineClients = message.getListClients();
                     break;
                 // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE AND CLIENT_SENDMESSAGE_TOALL ">
-                case CLIENT_SENDMESSAGE:
-                case CLIENT_SENDMESSAGE_TOALL:
-                    
-                    break;
-                // </editor-fold>
             }
             setChanged();
             notifyObservers();
