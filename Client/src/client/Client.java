@@ -152,8 +152,9 @@ public class Client extends Observable implements Constants {
         System.out.println("Estou dentro do getMessage()\n");
         this.message.setMessage("OLA daniel\n");
         return this.message.getMessage();
+    }
     
-    public boolean connectServer(DataAddress serverAddress){
+    public boolean connectServer(DataAddress serverAddress) {
 
         try {
             this.prepareSocketTCP(serverAddress);
@@ -167,7 +168,7 @@ public class Client extends Observable implements Constants {
             System.err.println("An error occurred in accessing the socket:\n\t" + ex);
             return false;
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println(ex);
             return false;
         }
         
