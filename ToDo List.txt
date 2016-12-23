@@ -1,0 +1,5 @@
+-> Tiago tem que corrigir o Directory Service porque está a apagar clientes e servidores
+
+-> Comunicação Cliente-Servidor (ter em atenção ao que diz no enunciado)
+
+
