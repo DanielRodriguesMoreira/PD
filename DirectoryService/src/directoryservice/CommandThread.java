@@ -33,7 +33,7 @@ public class CommandThread extends Thread{
                     if(listServers.size() > 0){
                          System.out.println("List of Servers:");
                         for(DataAddress i : listServers)
-                            System.out.println("Name: " + i.getName() + "/tIP: " + i.getIp().getHostAddress()+ " /tPort: " + i.getPort() +" /tTime: " + i.getTime());
+                            System.out.println("Name: " + i.getName() + " \tIP: " + i.getIp().getHostAddress()+ " \tPort: " + i.getPort() +" \tTime: " + i.getTime());
                     } else 
                         System.out.println("No Server Active.");
                     break;
@@ -43,7 +43,7 @@ public class CommandThread extends Thread{
                     if(listClients.size() > 0){
                         System.out.println("List of Clients:");
                         for(DataAddress i : listClients)
-                            System.out.println("Name: " + i.getName() + " /tIP: " + i.getIp().getHostAddress()+ " /tPort: " + i.getPort() +" /tTime: " + i.getTime());
+                            System.out.println("Name: " + i.getName() + " \tIP: " + i.getIp().getHostAddress()+ " \tPort: " + i.getPort() +" \tTime: " + i.getTime());
                     } else
                         System.out.println("No Client Active.");
                     break;

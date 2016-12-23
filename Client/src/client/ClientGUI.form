@@ -189,7 +189,11 @@
         <Property name="text" type="java.lang.String" value="Refresh Lists"/>
       </Properties>
       <Events>
+<<<<<<< HEAD
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jButton1MouseClicked"/>
+=======
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jButtonRefreshListsMouseClicked"/>
+>>>>>>> 9c4a39f09ed7d53556d6900c7b05b36d3343e635
       </Events>
     </Component>
   </SubComponents>
