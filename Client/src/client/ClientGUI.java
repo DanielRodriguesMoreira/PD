@@ -35,8 +35,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             JTextField field1 = new JTextField();
             JTextField field2 = new JTextField();
             JTextField field3 = new JTextField();
-            field1.setText("Daniel");
-            field2.setText("localhost");
+            field1.setText("Hugo");
+            field2.setText("192.168.126.193");
             field3.setText("6000");
 
             Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
