@@ -109,11 +109,17 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
         jScrollPane3.setViewportView(jTree1);
 
+        jTextAreaMessages.setEditable(false);
         jTextAreaMessages.setColumns(20);
         jTextAreaMessages.setRows(5);
         jScrollPane4.setViewportView(jTextAreaMessages);
 
         jButtonBroadcast.setText("Broadcast Message");
+        jButtonBroadcast.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonBroadcastMouseClicked(evt);
+            }
+        });
 
         jListServers.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -223,12 +229,29 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if(!this.jListClients.isSelectionEmpty()){
             if(evt.getClickCount() == 2){
                 DataAddress usernameToSend = this.onlineClient.get(this.jListClients.getSelectedIndex());
-                JFrame frame = new JFrame("Message");
-                String message = "[" + username + "] -> " +  JOptionPane.showInputDialog(frame, "Input your message");
-                client.sendMessageToServiceDirectory(usernameToSend, message);
+                String title = "Message to " + usernameToSend.getName();
+                JFrame frame = new JFrame(title);
+                
+                String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
+                String message = "[" + username + " - To " + usernameToSend.getName() + "] -> " + aux;
+                if(!aux.isEmpty() || aux != null)
+                    client.sendMessageToServiceDirectory(usernameToSend, message);
             }
         }
     }//GEN-LAST:event_jListClientsMouseClicked
+
+    private void jButtonBroadcastMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonBroadcastMouseClicked
+        // TODO add your handling code here:
+        if(this.onlineClient.isEmpty())
+            return;
+        
+        String title = "Message to All users";
+        JFrame frame = new JFrame(title);
+        String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
+        String message = "[" + username + " - To All] -> " + aux;
+        if(!aux.isEmpty() || aux != null)
+            client.sendMessageToServiceDirectory(null, message);
+    }//GEN-LAST:event_jButtonBroadcastMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBroadcast;
@@ -269,7 +292,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     private void fillMessageTextArea() {
         if(this.client.getMessage() != null)
-            this.jTextAreaMessages.setText(this.jTextAreaMessages.getText() + client.getMessage());
+            this.jTextAreaMessages.setText(this.jTextAreaMessages.getText() + "\n" + client.getMessage());
     }
 
     @Override

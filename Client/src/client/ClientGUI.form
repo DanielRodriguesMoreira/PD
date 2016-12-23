@@ -120,6 +120,7 @@
       <SubComponents>
         <Component class="javax.swing.JTextArea" name="jTextAreaMessages">
           <Properties>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>
           </Properties>
@@ -130,6 +131,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Broadcast Message"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jButtonBroadcastMouseClicked"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane5">
       <AuxValues>
