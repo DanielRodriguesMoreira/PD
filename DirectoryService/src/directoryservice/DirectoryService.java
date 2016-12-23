@@ -163,17 +163,19 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
                         case CLIENT_SENDMESSAGE:
-                            cleanListServers();
-                            if(checkLoggedClient(clientMessage.getUsernameToSend())){
+                            //cleanListServers();
+                            cleanListClients();
+//FOI O HUGO                            if(checkLoggedClient(clientMessage.getUsernameToSend())){
                                 packet.setAddress(clientMessage.getUsernameToSend().getIp());
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
                                 sendMessage(clientMessage);
-                            }
+//                            }
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE_TOALL ">
                         case CLIENT_SENDMESSAGE_TOALL:
-                            cleanListServers();
+//HUGO                            cleanListServers();
+                            cleanListClients();
                             sendMessageToAllLogged(clientMessage);
                             break;
                         // </editor-fold>

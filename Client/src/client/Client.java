@@ -63,11 +63,11 @@ public class Client extends Observable implements Constants, Runnable {
         // </editor-fold>
     }    
 
-    public void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
+    private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
         this.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, usernameToSend, message);
     }
     
-    public void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
+    private void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
         this.sendMessageToServiceDirectory(tipoPedidoAExecutar, null, null);
     }
     
@@ -94,16 +94,32 @@ public class Client extends Observable implements Constants, Runnable {
         }
     }
     
+    // <editor-fold defaultstate="collapsed" desc=" Methods used by interface (ClientGUI) ">
     public boolean checkClientExists() {
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
-        return message.isExists();
+        boolean exists = message.isExists();
+        System.out.println("Existe = " + exists);
+        if(exists){
+            Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
+            t1.start();
+            return true;
+        } else {
+            return false;
+        }
     }
     
-    public void createHeartbeatThread() {
-        Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
-        t1.start();
+    public void getAllLists(){
+        sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
     }
-
+    
+    public void sendMessageTo(DataAddress clientToSend, String messageToSend){
+        this.sendMessageToServiceDirectory(clientToSend, messageToSend);
+    }
+    
+    public void sendMessageToAll(String messageToSend){
+        this.sendMessageToServiceDirectory(null, messageToSend);
+    }
+    
     public List<DataAddress> getOnlineServers() {
         return this.OnlineServers;
     }
@@ -115,6 +131,7 @@ public class Client extends Observable implements Constants, Runnable {
     public String getMessage() {
         return this.message.getMessage();
     }
+    // </editor-fold>
     
     private boolean connectServer(DataAddress serverAddress) {
 

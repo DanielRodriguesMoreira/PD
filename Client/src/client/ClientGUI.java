@@ -40,23 +40,28 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             field3.setText("6000");
 
             Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
-            option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
+            option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if(option == JOptionPane.OK_OPTION) {
                 username = field1.getText();
                 ipAddress = field2.getText();
                 portAddress = field3.getText();
+            }else{
+                System.exit(0);
             }
-            client = new Client(username, ipAddress, portAddress);
+            
+            // <editor-fold defaultstate="collapsed" desc=" Create Client ">
+            this.client = new Client(username, ipAddress, portAddress);
             this.client.addObserver(this);
-        } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
+            // </editor-fold>            
+            if(!client.checkClientExists()){
+                JOptionPane.showMessageDialog(null, "Username already exists OR ServiceDirectory is offline");
+            }
+        } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || !client.checkClientExists());
         // </editor-fold>
         
-        // <editor-fold defaultstate="collapsed" desc=" Enviar HeartBeat para o serviceDirectory saber que estou vivo ">
-        client.createHeartbeatThread();        
-        // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        client.getAllLists();
         // </editor-fold>
         
         this.setTitle(username);
@@ -208,6 +213,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // <editor-fold defaultstate="collapsed" desc=" Events ">
     private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
         // TODO add your handling code here:
         if(evt.getClickCount() == 2) {
@@ -220,7 +226,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private void jButtonRefreshListsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonRefreshListsMouseClicked
         // TODO add your handling code here:
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        client.getAllLists();
         // </editor-fold>
     }//GEN-LAST:event_jButtonRefreshListsMouseClicked
 
@@ -235,7 +241,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
                 String message = "[" + username + " - To " + usernameToSend.getName() + "] -> " + aux;
                 if(!aux.isEmpty() || aux != null)
-                    client.sendMessageToServiceDirectory(usernameToSend, message);
+                    client.sendMessageTo(usernameToSend, message);
             }
         }
     }//GEN-LAST:event_jListClientsMouseClicked
@@ -250,9 +256,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
         String message = "[" + username + " - To All] -> " + aux;
         if(!aux.isEmpty() || aux != null)
-            client.sendMessageToServiceDirectory(null, message);
+            client.sendMessageToAll(message);
     }//GEN-LAST:event_jButtonBroadcastMouseClicked
-
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBroadcast;
     private javax.swing.JButton jButtonRefreshLists;
@@ -267,8 +275,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private javax.swing.JTextArea jTextAreaMessages;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
-
-    public void fillServersList() {
+    // </editor-fold>
+    
+    private void fillServersList() {
         if(client.getOnlineServers() == null ) return;
         this.onlineServer = new ArrayList<>(client.getOnlineServers());
         
