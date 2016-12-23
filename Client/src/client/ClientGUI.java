@@ -3,6 +3,8 @@ package client;
 import Constants.Constants;
 import DataMessaging.DataAddress;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,7 +15,7 @@ import javax.swing.JTextField;
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-public class ClientGUI extends JFrame implements Constants {
+public class ClientGUI extends JFrame implements Constants, Observer {
 
     static String username;
     static String ipAddress;
@@ -31,6 +33,9 @@ public class ClientGUI extends JFrame implements Constants {
             JTextField field1 = new JTextField();
             JTextField field2 = new JTextField();
             JTextField field3 = new JTextField();
+            field1.setText("Hugo");
+            field2.setText("192.168.126.116");
+            field3.setText("6000");
 
             Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
             option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_OPTION);
@@ -40,6 +45,7 @@ public class ClientGUI extends JFrame implements Constants {
                 portAddress = field3.getText();
             }
             client = new Client(username, ipAddress, portAddress);
+            this.client.addObserver(this);
         } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
         // </editor-fold>
         
@@ -50,8 +56,8 @@ public class ClientGUI extends JFrame implements Constants {
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
         client.receiveMessage();
-        fillServersList();
-        fillClientsList();
+        //fillServersList();
+        //fillClientsList();
         // </editor-fold>
         
         this.setTitle(username);
@@ -72,7 +78,7 @@ public class ClientGUI extends JFrame implements Constants {
         jScrollPane3 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
+        jTextAreaMessages = new javax.swing.JTextArea();
         jButtonBroadcast = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         jListServers = new javax.swing.JList<>();
@@ -89,9 +95,9 @@ public class ClientGUI extends JFrame implements Constants {
 
         jScrollPane3.setViewportView(jTree1);
 
-        jTextArea3.setColumns(20);
-        jTextArea3.setRows(5);
-        jScrollPane4.setViewportView(jTextArea3);
+        jTextAreaMessages.setColumns(20);
+        jTextAreaMessages.setRows(5);
+        jScrollPane4.setViewportView(jTextAreaMessages);
 
         jButtonBroadcast.setText("Broadcast Message");
 
@@ -191,8 +197,9 @@ public class ClientGUI extends JFrame implements Constants {
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
         client.receiveMessage();
-        fillServersList();
-        fillClientsList();
+//        fillServersList();
+//        fillClientsList();
+//        fillMessageTextArea();
         // </editor-fold>
     }//GEN-LAST:event_jButtonRefreshListsMouseClicked
 
@@ -207,11 +214,12 @@ public class ClientGUI extends JFrame implements Constants {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JTextArea jTextAreaMessages;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
 
     public void fillServersList() {
+        if(client.getOnlineServers() == null ) return;
         this.onlineServer = new ArrayList<>(client.getOnlineServers());
         
         DefaultListModel<String> listServersModel = new DefaultListModel<String>();
@@ -222,6 +230,7 @@ public class ClientGUI extends JFrame implements Constants {
     }
     
     private void fillClientsList() {
+        if(client.getOnlineClients() == null ) return;
         this.onlineClient = new ArrayList<>(client.getOnlineClients());
         
         DefaultListModel<String> listClientsModel = new DefaultListModel<String>();
@@ -229,5 +238,18 @@ public class ClientGUI extends JFrame implements Constants {
             listClientsModel.addElement(da.getName());
         }
         jListClients.setModel(listClientsModel);
+    }
+    
+    private void fillMessageTextArea() {
+        if(this.client.getMessage() != null)
+            this.jTextAreaMessages.setText(this.jTextAreaMessages.getText() + client.getMessage());
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        fillClientsList();
+        fillServersList();
+        fillMessageTextArea();
+        repaint();
     }
 }

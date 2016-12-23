@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * @author Daniel Moreira
@@ -22,7 +23,7 @@ import java.util.List;
  * @author Tiago Santos 
  */
 
-public class Client implements Constants {
+public class Client extends Observable implements Constants {
     String username;
     String directoryServiceIP;
     String directoryServicePort;
@@ -108,7 +109,15 @@ public class Client implements Constants {
                     this.OnlineClients = message.getListClients();
                     break;
                 // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE AND CLIENT_SENDMESSAGE_TOALL ">
+                case CLIENT_SENDMESSAGE:
+                case CLIENT_SENDMESSAGE_TOALL:
+                    
+                    break;
+                // </editor-fold>
             }
+            setChanged();
+            notifyObservers();
         } catch (IOException ex) {
             System.out.println("Error trying to create a ObjectInputStream\n");
         } catch (ClassNotFoundException ex) {
@@ -133,5 +142,11 @@ public class Client implements Constants {
     
     public List<DataAddress> getOnlineClients() {
         return this.OnlineClients;
+    }
+
+    public String getMessage() {
+        System.out.println("Estou dentro do getMessage()\n");
+        this.message.setMessage("OLA daniel\n");
+        return this.message.getMessage();
     }
 }
