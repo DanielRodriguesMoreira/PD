@@ -150,8 +150,6 @@ public class Client extends Observable implements Constants {
     }
 
     public String getMessage() {
-        System.out.println("Estou dentro do getMessage()\n");
-        this.message.setMessage("OLA daniel\n");
         return this.message.getMessage();
     }
     

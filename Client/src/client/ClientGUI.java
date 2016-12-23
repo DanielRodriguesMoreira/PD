@@ -70,12 +70,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         this.setTitle(username);
         this.setVisible(true);
 
-       
+       /* TESTE CONNECT SERVER
         try {
             client.connectServer(new DataAddress("daniel",InetAddress.getByName(ipAddress), 51126, -1));
         } catch (UnknownHostException ex) {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        */
             /*  3º GetOnlineServers()
             client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
             /*  4º GetOnlineClients()
