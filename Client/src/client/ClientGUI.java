@@ -3,11 +3,6 @@ package client;
 import Constants.Constants;
 import DataMessaging.DataAddress;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -40,8 +35,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             JTextField field1 = new JTextField();
             JTextField field2 = new JTextField();
             JTextField field3 = new JTextField();
-            field1.setText("Hugo");
-            field2.setText("192.168.126.116");
+            field1.setText("Daniel");
+            field2.setText("localhost");
             field3.setText("6000");
 
             Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
@@ -62,9 +57,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
-        client.receiveMessage();
-        //fillServersList();
-        //fillClientsList();
         // </editor-fold>
         
         this.setTitle(username);
@@ -223,19 +215,18 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         // TODO add your handling code here:
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
-        client.receiveMessage();
-//        fillServersList();
-//        fillClientsList();
-//        fillMessageTextArea();
         // </editor-fold>
     }//GEN-LAST:event_jButtonRefreshListsMouseClicked
 
     private void jListClientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListClientsMouseClicked
         // TODO add your handling code here:
-        if(evt.getClickCount() == 2){
-            DataAddress usernameToSend = this.onlineClient.get(this.jListClients.getSelectedIndex());
-            String message = "Ola Basilio";
-            client.sendMessageToServiceDirectory(usernameToSend, message);
+        if(!this.jListClients.isSelectionEmpty()){
+            if(evt.getClickCount() == 2){
+                DataAddress usernameToSend = this.onlineClient.get(this.jListClients.getSelectedIndex());
+                JFrame frame = new JFrame("Message");
+                String message = "[" + username + "] -> " +  JOptionPane.showInputDialog(frame, "Input your message");
+                client.sendMessageToServiceDirectory(usernameToSend, message);
+            }
         }
     }//GEN-LAST:event_jListClientsMouseClicked
 

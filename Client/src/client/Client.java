@@ -23,7 +23,7 @@ import java.util.Observable;
  * @author Tiago Santos 
  */
 
-public class Client extends Observable implements Constants {
+public class Client extends Observable implements Constants, Runnable {
     String username;
     String directoryServiceIP;
     String directoryServicePort;
@@ -55,11 +55,18 @@ public class Client extends Observable implements Constants {
         } catch (SocketException | UnknownHostException ex) {
             System.out.println("Error trying to create the DatagramSocket\n");
         }
+        
+        // <editor-fold defaultstate="collapsed" desc=" Create thread to receive on UDP Socket ">
+        Runnable run = this;
+        Thread threadToReceive = new Thread(run);
+        threadToReceive.start();
+        // </editor-fold>
     }    
 
     public void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
         this.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, usernameToSend, message);
     }
+    
     public void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
         this.sendMessageToServiceDirectory(tipoPedidoAExecutar, null, null);
     }
@@ -87,52 +94,8 @@ public class Client extends Observable implements Constants {
         }
     }
     
-    public void receiveMessage() {
-        try {
-            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
-            dataSocket.receive(packet);
-
-            in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
-
-            System.out.println("<Client> Packet received");
-            message = (ClientMessage) in.readObject();
-            
-            switch(message.getRequest()) {
-                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
-                case CLIENT_GET_ALL_LISTS:
-                    this.OnlineServers = message.getListServers();
-                    this.OnlineClients = message.getListClients();
-                    break;
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
-                case CLIENT_MSG_CHECK_USERNAME:
-                    this.OnlineServers = message.getListServers();
-                    this.OnlineClients = message.getListClients();
-                    break;
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
-                case CLIENT_GET_ONLINE_SERVERS:
-                    this.OnlineServers = message.getListServers();
-                    break;
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
-                case CLIENT_GET_ONLINE_CLIENTS:
-                    this.OnlineClients = message.getListClients();
-                    break;
-                // </editor-fold>
-            }
-            setChanged();
-            notifyObservers();
-        } catch (IOException ex) {
-            System.out.println("Error trying to create a ObjectInputStream\n");
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Class not found\n");
-        }
-    }
-    
     public boolean checkClientExists() {
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
-        receiveMessage();
         return message.isExists();
     }
     
@@ -153,7 +116,7 @@ public class Client extends Observable implements Constants {
         return this.message.getMessage();
     }
     
-    public boolean connectServer(DataAddress serverAddress) {
+    private boolean connectServer(DataAddress serverAddress) {
 
         try {
             this.prepareSocketTCP(serverAddress);
@@ -192,6 +155,52 @@ public class Client extends Observable implements Constants {
             
         } catch (IOException ex) {
             System.err.println("An error occurred in accessing the socket:\n\t" + ex);
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            while(true){
+                packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
+                dataSocket.receive(packet);
+
+                in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
+
+                System.out.println("<Client> Packet received");
+                message = (ClientMessage) in.readObject();
+
+                switch(message.getRequest()) {
+                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
+                    case CLIENT_GET_ALL_LISTS:
+                        this.OnlineServers = message.getListServers();
+                        this.OnlineClients = message.getListClients();
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
+                    case CLIENT_MSG_CHECK_USERNAME:
+                        this.OnlineServers = message.getListServers();
+                        this.OnlineClients = message.getListClients();
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
+                    case CLIENT_GET_ONLINE_SERVERS:
+                        this.OnlineServers = message.getListServers();
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
+                    case CLIENT_GET_ONLINE_CLIENTS:
+                        this.OnlineClients = message.getListClients();
+                        break;
+                    // </editor-fold>
+                }
+                setChanged();
+                notifyObservers();
+            }
+        } catch (IOException ex) {
+            System.out.println("Error trying to create a ObjectInputStream\n");
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found\n");
         }
     }
 }
