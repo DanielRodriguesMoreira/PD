@@ -61,7 +61,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS, null);
         client.receiveMessage();
         //fillServersList();
         //fillClientsList();
@@ -102,9 +102,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jTextAreaMessages = new javax.swing.JTextArea();
         jButtonBroadcast = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jListServers = new javax.swing.JList<>();
+        jListServers = new javax.swing.JList<String>();
         jScrollPane6 = new javax.swing.JScrollPane();
-        jListClients = new javax.swing.JList<>();
+        jListClients = new javax.swing.JList<String>();
         jButtonRefreshLists = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -122,10 +122,10 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
         jButtonBroadcast.setText("Broadcast Message");
 
-        jListServers.setModel(new javax.swing.AbstractListModel<String>() {
+        jListServers.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+            public Object getElementAt(int i) { return strings[i]; }
         });
         jListServers.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -134,10 +134,15 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         });
         jScrollPane5.setViewportView(jListServers);
 
-        jListClients.setModel(new javax.swing.AbstractListModel<String>() {
+        jListClients.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jListClients.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListClientsMouseClicked(evt);
+            }
         });
         jScrollPane6.setViewportView(jListClients);
 
@@ -216,13 +221,20 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private void jButtonRefreshListsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonRefreshListsMouseClicked
         // TODO add your handling code here:
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
-        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS, null);
         client.receiveMessage();
 //        fillServersList();
 //        fillClientsList();
 //        fillMessageTextArea();
         // </editor-fold>
     }//GEN-LAST:event_jButtonRefreshListsMouseClicked
+
+    private void jListClientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListClientsMouseClicked
+        // TODO add your handling code here:
+        if(evt.getClickCount() == 2){
+            client.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, this.onlineClient.get(this.jListClients.getSelectedIndex()));
+        }
+    }//GEN-LAST:event_jListClientsMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBroadcast;

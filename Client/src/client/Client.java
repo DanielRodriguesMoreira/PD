@@ -57,16 +57,16 @@ public class Client extends Observable implements Constants {
         }
     }    
 
-    public void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
+    public void sendMessageToServiceDirectory(String tipoPedidoAExecutar, DataAddress usernameToSend) {
         try {
             serverDirectoryAddr = InetAddress.getByName(this.directoryServiceIP);
             serverDirectoryPort = Integer.parseInt(this.directoryServicePort);   
 
             bOut = new ByteArrayOutputStream();            
             out = new ObjectOutputStream(bOut);
-
+            
             // <editor-fold defaultstate="collapsed" desc=" Criar o datagramAddress para enviar para o Service directory ">
-            message = new ClientMessage(dataAddress, null, null, tipoPedidoAExecutar, null, null, false);
+            message = new ClientMessage(dataAddress, usernameToSend, null, tipoPedidoAExecutar, null, null, false);
             // </editor-fold>
            
             out.writeObject(message);
@@ -124,7 +124,7 @@ public class Client extends Observable implements Constants {
     }
     
     public boolean checkClientExists() {
-        sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
+        sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME, null);
         receiveMessage();
         return message.isExists();
     }
