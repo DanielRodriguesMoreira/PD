@@ -64,7 +64,7 @@ public class Client extends Observable implements Constants {
         this.sendMessageToServiceDirectory(tipoPedidoAExecutar, null, null);
     }
     
-    private void sendMessageToServiceDirectory(String tipoPedidoAExecutar, DataAddress usernameToSend, String message){
+    private void sendMessageToServiceDirectory(String tipoPedidoAExecutar, DataAddress usernameToSend, String messageToSend){
         try {
             serverDirectoryAddr = InetAddress.getByName(this.directoryServiceIP);
             serverDirectoryPort = Integer.parseInt(this.directoryServicePort);   
@@ -73,10 +73,10 @@ public class Client extends Observable implements Constants {
             out = new ObjectOutputStream(bOut);
             
             // <editor-fold defaultstate="collapsed" desc=" Criar o datagramAddress para enviar para o Service directory ">
-            this.message = new ClientMessage(dataAddress, usernameToSend, message, tipoPedidoAExecutar, null, null, false);
+            this.message = new ClientMessage(dataAddress, usernameToSend, messageToSend, tipoPedidoAExecutar, null, null, false);
             // </editor-fold>
            
-            out.writeObject(message);
+            out.writeObject(this.message);
             out.flush();
 
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
