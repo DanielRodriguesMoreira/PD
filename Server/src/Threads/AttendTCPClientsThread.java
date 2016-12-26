@@ -2,6 +2,7 @@
 package Threads;
 
 import Constants.Constants;
+import DataMessaging.ClientServerMessage;
 import DataMessaging.DataAddress;
 import DataMessaging.ServerMessage;
 import java.io.BufferedReader;
@@ -22,10 +23,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import server.FilesInterface;
-import server.Login;
+import DataMessaging.Login;
 
 /**
  * @author Daniel Moreira
@@ -68,11 +67,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, FilesIn
                 out = new ObjectOutputStream(toClientSocket.getOutputStream());
                 in = new ObjectInputStream(toClientSocket.getInputStream());
 
-                String request = (String)in.readObject();
+                ClientServerMessage request = (ClientServerMessage)in.readObject();
                 
                 System.out.println("Request - " + request);
                 
-                out.writeUnshared(new String("OI HUGO"));
+                //falta bue da bue de merdas
+                request.setTeste(this.isUsernameAndPasswordCorrect(request.getLogin()));
+                out.writeUnshared(request);
                 out.flush();
                 
             } catch (ClassNotFoundException ex) {

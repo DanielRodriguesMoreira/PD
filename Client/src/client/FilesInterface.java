@@ -1,7 +1,8 @@
 
-package server;
+package client;
 
 import DataMessaging.Login;
+import DataMessaging.DataAddress;
 import java.io.File;
 
 /**
@@ -11,7 +12,7 @@ import java.io.File;
 
 public interface FilesInterface {
 
-    public boolean Login(Login login);
+    public boolean Login(Login login, DataAddress serverToSend);
     public boolean Logout(Login login);     //Ainda falta discutir se podem haver 2 usernames iguais
     public boolean CreateAccount(Login login, File rootDirectory);
     public boolean GetFilesInDirectory(File directory);

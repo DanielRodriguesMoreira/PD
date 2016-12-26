@@ -1,11 +1,14 @@
 package client;
 
+import DataMessaging.Login;
 import Constants.Constants;
 import DataMessaging.ClientMessage;
+import DataMessaging.ClientServerMessage;
 import DataMessaging.DataAddress;
 import Threads.ImAliveThread;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,7 +31,7 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
-public class Client extends Observable implements Constants {
+public class Client extends Observable implements Constants, FilesInterface {
     
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration ">
     private String username;
@@ -51,12 +54,14 @@ public class Client extends Observable implements Constants {
     
     //private Map<DataAddress, SocketCommunication> mapServers;
     private List<SocketCommunication> serversCommnunication = null;
+    private Map<DataAddress, Socket> serversMap = null;
             
     public Client (String username, String directoryServiceIP, String directoryServicePort) {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
         this.serversCommnunication = new ArrayList<>();
+        this.serversMap = new HashMap<>();
         try {
             this.dataSocket = new DatagramSocket();
             this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
@@ -142,15 +147,43 @@ public class Client extends Observable implements Constants {
         return this.message.getMessage();
     }
     
-    public void connectoToServer(DataAddress serverToConnect){
-        System.out.println(serverToConnect.getIp().getHostName());
+    private void connectoToServer(DataAddress serverToConnect){
         try {
-            for(int i = 0; i < this.serversCommnunication.size(); i++) {
-                if(!serverToConnect.equals(this.serversCommnunication.get(i))) {
-                    SocketCommunication socketCommunication = new SocketCommunication(serverToConnect);
-                    this.serversCommnunication.add(socketCommunication);
-                } else System.out.println("Já estou ligado a um servidor com esse dataaddress!");
+            boolean existe = false;
+            for(DataAddress da : serversMap.keySet()){
+                if(da.equals(serverToConnect))
+                    existe = true;
             }
+            
+            if(!existe){
+            
+                Socket tcpClient = new Socket(serverToConnect.getIp(), serverToConnect.getPort());
+                this.serversMap.put(serverToConnect, tcpClient);
+
+                /*ObjectInputStream in = new ObjectInputStream(tcpClient.getInputStream());
+                ObjectOutputStream out = new ObjectOutputStream(tcpClient.getOutputStream());
+
+                out.writeUnshared(new String("Oi Server"));
+                out.flush();
+
+                String resposta = (String)in.readObject();
+                System.out.println(resposta);
+            */
+            }
+            
+            /*
+            System.out.println(serverToConnect.getIp().getHostName());
+            try {
+                for(int i = 0; i < this.serversCommnunication.size(); i++) {
+                    if(!serverToConnect.equals(this.serversCommnunication.get(i))) {
+                        SocketCommunication socketCommunication = new SocketCommunication(serverToConnect);
+                        this.serversCommnunication.add(socketCommunication);
+                    } else System.out.println("Já estou ligado a um servidor com esse dataaddress!");
+                }
+            } catch (IOException ex) {
+                System.err.println("[Hugo]An error occurred in accessing the socket:\n\t" + ex);
+            }
+            */
         } catch (IOException ex) {
             System.err.println("[Hugo]An error occurred in accessing the socket:\n\t" + ex);
         }
@@ -199,4 +232,70 @@ public class Client extends Observable implements Constants {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    private boolean sendMessageToServer(ClientServerMessage message, DataAddress serverToSend){
+        ObjectInputStream in = null;
+        ObjectOutputStream out = null;
+        
+        try {
+            Socket socket = this.getServerTCPSocket(serverToSend);
+            //if(socket == null) return false;
+            in = new ObjectInputStream(socket.getInputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
+            
+            out.writeUnshared(message);
+            out.flush();
+            
+            ClientServerMessage resposta = (ClientServerMessage)in.readObject();
+            
+            return resposta.getTeste();
+
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return false;
+    }
+    
+    private Socket getServerTCPSocket(DataAddress server){
+        for(DataAddress da : this.serversMap.keySet()){
+            if(da.equals(server))
+                return this.serversMap.get(da);
+        }
+        
+        return null;
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
+    @Override
+    public boolean Login(Login login, DataAddress serverToSend) {
+        this.connectoToServer(serverToSend);
+        ClientServerMessage message = new ClientServerMessage();
+        message.setLogin(login);
+        message.setRequest("LOGIN");
+        return sendMessageToServer(message, serverToSend);
+    }
+
+    @Override
+    public boolean Logout(Login login) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean CreateAccount(DataMessaging.Login login, File rootDirectory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean GetFilesInDirectory(File directory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    // </editor-fold>
 }

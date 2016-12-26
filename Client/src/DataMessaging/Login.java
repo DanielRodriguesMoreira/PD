@@ -1,5 +1,5 @@
 
-package server;
+package DataMessaging;
 
 import java.util.Objects;
 
