@@ -20,6 +20,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String username;
     static String ipAddress;
     static String portAddress;
+    static String password;
     static int option;
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
@@ -215,10 +216,24 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if(!this.jListServers.isSelectionEmpty()){
             if(evt.getClickCount() == 2) {
                 this.client.connectoToServer(this.onlineServer.get(this.jListServers.getSelectedIndex()));
-                
-                //System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getIp());
-                //System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getName());
-                //System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getPort());
+                // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
+                do {
+                    JTextField inputUsernameTextField = new JTextField();
+                    JTextField inputPasswordTextField = new JTextField();
+
+                    Object[] message = {"Username:", inputUsernameTextField, 
+                        "Password:", inputPasswordTextField};
+                    option = JOptionPane.showConfirmDialog(null, message, "Login or Register", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if(option == JOptionPane.OK_OPTION) {
+                        username = inputUsernameTextField.getText();
+                        password = inputPasswordTextField.getText();
+                    }else{
+                        //System.exit(0);
+                    }
+
+                } while (username.isEmpty() || password.isEmpty());
+                // </editor-fold>
+                this.client.login(new Login(username, password), this.onlineServer.get(this.jListServers.getSelectedIndex()));
             }
         }
     }//GEN-LAST:event_jListServersMouseClicked
