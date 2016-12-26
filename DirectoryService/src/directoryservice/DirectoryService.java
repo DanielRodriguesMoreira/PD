@@ -118,17 +118,22 @@ public class DirectoryService implements Constants {
                 // <editor-fold defaultstate="collapsed" desc=" ClientMessage ">
                 } else if(objecto instanceof ClientMessage) {
                     ClientMessage clientMessage = (ClientMessage) objecto;
+                    ClientMessage messageToSend;
                     switch(clientMessage.getRequest()){
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
                         case CLIENT_MSG_CHECK_USERNAME:
                             cleanListClients();
+                            boolean exists = false;
                             if(checkExistsClient(clientMessage.getDataAddress()))
-                                clientMessage.setExists(true);
+                                exists = true;
                             else{
                                 clientMessage.getDataAddress().setTime(getCurrentTime());
                                 listClients.add(clientMessage.getDataAddress());
                             }
-                            sendMessage(clientMessage);
+                            
+                            messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
+                                    null, CLIENT_MSG_CHECK_USERNAME, null, null, exists);
+                            sendMessage(messageToSend);
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_HEARTBEAT ">
@@ -142,14 +147,18 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
                         case CLIENT_GET_ONLINE_SERVERS:
                             listServers = new ArrayList<>( mapServers.keySet());
-                            clientMessage.setListServers(listServers);
-                            sendMessage(clientMessage);
+                            messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
+                                    null, CLIENT_GET_ONLINE_SERVERS, null, null, false);
+                            messageToSend.setListServers(listServers);
+                            sendMessage(messageToSend);
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
                         case CLIENT_GET_ONLINE_CLIENTS:
-                            clientMessage.setListClients(listClients);
-                            sendMessage(clientMessage);
+                            messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
+                                    null, CLIENT_GET_ONLINE_CLIENTS, null, null, false);
+                            messageToSend.setListClients(listClients);
+                            sendMessage(messageToSend);
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
@@ -157,9 +166,11 @@ public class DirectoryService implements Constants {
                             cleanListServers();
                             cleanListClients();
                             listServers = new ArrayList<>( mapServers.keySet());
-                            clientMessage.setListServers(listServers);
-                            clientMessage.setListClients(listClients);
-                            sendMessage(clientMessage);
+                            messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
+                                    null, CLIENT_GET_ALL_LISTS, null, null, false);
+                            messageToSend.setListServers(listServers);
+                            messageToSend.setListClients(listClients);
+                            sendMessage(messageToSend);
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
