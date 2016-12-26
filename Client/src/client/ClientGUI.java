@@ -2,12 +2,10 @@ package client;
 
 import Constants.Constants;
 import DataMessaging.DataAddress;
-
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.DefaultListModel;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -18,12 +16,11 @@ import javax.swing.JTextField;
  * @author Tiago Santos 
  */
 public class ClientGUI extends JFrame implements Constants, Observer {
-
+    Client client;
     static String username;
     static String ipAddress;
     static String portAddress;
     static int option;
-    Client client;
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     
@@ -32,19 +29,21 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         
         // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
         do {
-            JTextField field1 = new JTextField();
-            JTextField field2 = new JTextField();
-            JTextField field3 = new JTextField();
-            field1.setText("Daniel");
-            field2.setText("192.168.126.183");
-            field3.setText("6000");
+            JTextField inputUsernameTextField = new JTextField();
+            JTextField inputIpAddressDirectoryServiceTextField = new JTextField();
+            JTextField inputPortDirectoryServiceTextField = new JTextField();
+            inputUsernameTextField.setText("Daniel");
+            inputIpAddressDirectoryServiceTextField.setText("192.168.122.55");
+            inputPortDirectoryServiceTextField.setText("6000");
 
-            Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
+            Object[] message = {"Username:", inputUsernameTextField, 
+                "SD Address:", inputIpAddressDirectoryServiceTextField, 
+                "SD Port:", inputPortDirectoryServiceTextField};
             option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if(option == JOptionPane.OK_OPTION) {
-                username = field1.getText();
-                ipAddress = field2.getText();
-                portAddress = field3.getText();
+                username = inputUsernameTextField.getText();
+                ipAddress = inputIpAddressDirectoryServiceTextField.getText();
+                portAddress = inputPortDirectoryServiceTextField.getText();
             }else{
                 System.exit(0);
             }
@@ -52,7 +51,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             // <editor-fold defaultstate="collapsed" desc=" Create Client ">
             this.client = new Client(username, ipAddress, portAddress);
             this.client.addObserver(this);
-            // </editor-fold>            
+            // </editor-fold>
+            
             if(client.checkClientExists()){
                 JOptionPane.showMessageDialog(null, "Username already exists OR ServiceDirectory is offline");
             }

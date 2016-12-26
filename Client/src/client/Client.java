@@ -15,7 +15,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +29,8 @@ import java.util.logging.Logger;
  */
 
 public class Client extends Observable implements Constants, Runnable {
+    
+    // <editor-fold defaultstate="collapsed" desc=" Variables declaration ">
     private String username;
     private String directoryServiceIP;
     private String directoryServicePort;
@@ -42,20 +47,24 @@ public class Client extends Observable implements Constants, Runnable {
     private int serverDirectoryPort;
     private List<DataAddress> OnlineServers;
     private List<DataAddress> OnlineClients;
+    // </editor-fold>>
     
-    private Socket socketTCP = null;
-    private ObjectOutputStream outTCP = null;
-    private ObjectInputStream inTCP = null;
+    
+    //private Map<DataAddress, SocketCommunication> mapServers;
+    private List<SocketCommunication> serversCommnunication = null;
             
     public Client (String username, String directoryServiceIP, String directoryServicePort) {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
+        this.serversCommnunication = new ArrayList<>();
         try {
             this.dataSocket = new DatagramSocket();
             this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
-        } catch (SocketException | UnknownHostException ex) {
-            System.out.println("Error trying to create the DatagramSocket\n");
+        } catch (SocketException ex) {
+            System.err.println("An error occurred with the UDP socket level:\n\t" + ex);
+        } catch (UnknownHostException ex) {
+            System.err.println("Can't find directory service");
         }
         
         // <editor-fold defaultstate="collapsed" desc=" Create thread to receive on UDP Socket ">
@@ -92,7 +101,7 @@ public class Client extends Observable implements Constants, Runnable {
             dataSocket.send(packet);
             System.out.println("<Client> Message Sended\n");
         } catch (IOException ex) {
-            System.out.println("DirectoryServiceIP/Port IOException\n");
+            System.err.println("DirectoryServiceIP/Port IOException\n" + ex);
         }
     }
     
@@ -100,7 +109,7 @@ public class Client extends Observable implements Constants, Runnable {
     public boolean checkClientExists() {
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
         boolean exists = message.isExists();
-        System.out.println("Existe = " + exists);
+        System.out.println("Exists = " + exists);
         if(exists){
             return true;
         } else {
@@ -136,13 +145,15 @@ public class Client extends Observable implements Constants, Runnable {
     
     public void connectoToServer(DataAddress serverToConnect){
         System.out.println(serverToConnect.getIp().getHostName());
-        
         try {
-            this.socketTCP = new Socket(serverToConnect.getIp(), serverToConnect.getPort());
-            this.inTCP = new ObjectInputStream(this.socketTCP.getInputStream());
-            this.outTCP = new ObjectOutputStream(this.socketTCP.getOutputStream());
+            for(int i = 0; i < this.serversCommnunication.size(); i++) {
+                if(!serverToConnect.equals(this.serversCommnunication.get(i))) {
+                    SocketCommunication socketCommunication = new SocketCommunication(serverToConnect);
+                    this.serversCommnunication.add(socketCommunication);
+                } else System.out.println("Já estou ligado a um servidor com esse dataaddress!");
+            }
         } catch (IOException ex) {
-            System.err.println(ex);
+            System.err.println("[Hugo]An error occurred in accessing the socket:\n\t" + ex);
         }
     }
     // </editor-fold>
@@ -187,9 +198,9 @@ public class Client extends Observable implements Constants, Runnable {
                 notifyObservers();
             }
         } catch (IOException ex) {
-            System.out.println("Error trying to create a ObjectInputStream\n");
+            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
         } catch (ClassNotFoundException ex) {
-            System.out.println("Class not found\n");
+            System.err.println("The object received is not the expected type:\n\t" + ex);
         }
     }
 }
