@@ -2,6 +2,7 @@ package client;
 
 import Constants.Constants;
 import DataMessaging.DataAddress;
+import DataMessaging.Login;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -215,7 +216,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         // TODO add your handling code here:
         if(!this.jListServers.isSelectionEmpty()){
             if(evt.getClickCount() == 2) {
-                this.client.connectoToServer(this.onlineServer.get(this.jListServers.getSelectedIndex()));
                 // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
                 do {
                     JTextField inputUsernameTextField = new JTextField();
@@ -233,7 +233,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
                 } while (username.isEmpty() || password.isEmpty());
                 // </editor-fold>
-                this.client.login(new Login(username, password), this.onlineServer.get(this.jListServers.getSelectedIndex()));
+                System.out.println(this.client.Login(new Login(username, password), this.onlineServer.get(this.jListServers.getSelectedIndex())));
             }
         }
     }//GEN-LAST:event_jListServersMouseClicked

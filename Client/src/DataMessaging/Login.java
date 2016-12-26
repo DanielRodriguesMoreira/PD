@@ -1,13 +1,14 @@
 
 package DataMessaging;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /*
  * @author Daniel Moreira
  */
 
-public class Login {
+public class Login implements Serializable{
     private String username;
     private String password;
     
