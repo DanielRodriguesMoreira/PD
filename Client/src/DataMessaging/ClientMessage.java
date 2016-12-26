@@ -1,6 +1,7 @@
 package DataMessaging;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,8 +28,8 @@ public class ClientMessage implements Serializable {
         this.usernameToSend = usernameToSend;
         this.message = message;
         this.request = request;
-        this.listServers = listServers;
-        this.listClients = listClients;
+        this.listServers = new ArrayList<>();
+        this.listClients = new ArrayList<>();
         this.exists = exists;
     }
     // </editor-fold>
@@ -79,7 +80,7 @@ public class ClientMessage implements Serializable {
     }
 
     public void setListServers(List<DataAddress> listServers) {
-        this.listServers = listServers;
+        this.listServers = new ArrayList<>(listServers);
     }
 
     public List<DataAddress> getListClients() {
@@ -87,7 +88,7 @@ public class ClientMessage implements Serializable {
     }
 
     public void setListClients(List<DataAddress> listClients) {
-        this.listClients = listClients;
+        this.listClients = new ArrayList<>(listClients);
     }
     // </editor-fold>
 }
