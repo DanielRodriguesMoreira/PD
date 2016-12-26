@@ -133,6 +133,7 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_HEARTBEAT ">
                         case CLIENT_MSG_HEARTBEAT:
+                            System.out.println("-HB-");
                             clientMessage.getDataAddress().setTime(getCurrentTime());
                             updateTimeClient(clientMessage.getDataAddress());
                             cleanListClients();
@@ -163,8 +164,7 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
                         case CLIENT_SENDMESSAGE:
-                            //cleanListServers();
-                            cleanListClients();
+                            cleanListServers();
 //FOI O HUGO                            if(checkLoggedClient(clientMessage.getUsernameToSend())){
                                 packet.setAddress(clientMessage.getUsernameToSend().getIp());
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
@@ -174,8 +174,7 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE_TOALL ">
                         case CLIENT_SENDMESSAGE_TOALL:
-//HUGO                            cleanListServers();
-                            cleanListClients();
+                            cleanListServers();
                             sendMessageToAllLogged(clientMessage);
                             break;
                         // </editor-fold>
@@ -257,9 +256,11 @@ public class DirectoryService implements Constants {
     }
     
     private static void updateTimeClient(DataAddress addr){
-        for(DataAddress i : listClients)
-            if(addr.equals(i))
-                i = addr;
+        for(int i = 0; i < listClients.size(); i++)
+            if(listClients.get(i).equals(addr)){
+                listClients.set(i, addr);
+                break;
+            }
     }
     
     private static boolean checkLoggedClient(DataAddress addr){
