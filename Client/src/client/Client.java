@@ -17,6 +17,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Observable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * @author Daniel Moreira
  * @author Hugo Santos
@@ -24,27 +26,27 @@ import java.util.Observable;
  */
 
 public class Client extends Observable implements Constants, Runnable {
-    String username;
-    String directoryServiceIP;
-    String directoryServicePort;
-    DatagramSocket dataSocket = null;
-    DataAddress dataAddress = null;
+    private String username;
+    private String directoryServiceIP;
+    private String directoryServicePort;
+    private DatagramSocket dataSocket = null;
+    private DataAddress dataAddress = null;
 
-    ByteArrayOutputStream bOut = null;
-    ObjectOutputStream out = null;
-    ObjectInputStream in;
-    DatagramPacket packet;
-    ClientMessage message;
+    private ByteArrayOutputStream bOut = null;
+    private ObjectOutputStream out = null;
+    private ObjectInputStream in;
+    private DatagramPacket packet;
+    private ClientMessage message;
 
-    InetAddress serverDirectoryAddr;
-    int serverDirectoryPort;
-    List<DataAddress> OnlineServers;
-    List<DataAddress> OnlineClients;
+    private InetAddress serverDirectoryAddr;
+    private int serverDirectoryPort;
+    private List<DataAddress> OnlineServers;
+    private List<DataAddress> OnlineClients;
     
-    Socket socketTCP = null;
-    ObjectOutputStream outTCP = null;
-    ObjectInputStream inTCP = null;
-        
+    private Socket socketTCP = null;
+    private ObjectOutputStream outTCP = null;
+    private ObjectInputStream inTCP = null;
+            
     public Client (String username, String directoryServiceIP, String directoryServicePort) {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
@@ -100,10 +102,10 @@ public class Client extends Observable implements Constants, Runnable {
         boolean exists = message.isExists();
         System.out.println("Existe = " + exists);
         if(exists){
-            Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
-            t1.start();
             return true;
         } else {
+            Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
+            t1.start();
             return false;
         }
     }
@@ -131,50 +133,20 @@ public class Client extends Observable implements Constants, Runnable {
     public String getMessage() {
         return this.message.getMessage();
     }
+    
+    public void connectoToServer(DataAddress serverToConnect){
+        System.out.println(serverToConnect.getIp().getHostName());
+        
+        try {
+            this.socketTCP = new Socket(serverToConnect.getIp(), serverToConnect.getPort());
+            this.inTCP = new ObjectInputStream(this.socketTCP.getInputStream());
+            this.outTCP = new ObjectOutputStream(this.socketTCP.getOutputStream());
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+    }
     // </editor-fold>
     
-    private boolean connectServer(DataAddress serverAddress) {
-
-        try {
-            this.prepareSocketTCP(serverAddress);
-            this.sendMessageToServer(new String("OLA"));
-            
-            String resposta = (String)inTCP.readObject();
-            System.out.println(resposta);
-            
-            return true;
-        } catch (IOException ex) {
-            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
-            return false;
-        } catch (ClassNotFoundException ex) {
-            System.err.println(ex);
-            return false;
-        }
-        
-    }
-    
-    private void prepareSocketTCP(DataAddress serverAddress) throws IOException{
-        
-        this.socketTCP = new Socket(serverAddress.getIp(), serverAddress.getPort());
-        
-        inTCP = new ObjectInputStream(this.socketTCP.getInputStream());
-        outTCP = new ObjectOutputStream(this.socketTCP.getOutputStream());
-        
-    }
-    
-    private void sendMessageToServer(String tipoPedidoAExecutar){
-        
-        try {
-            outTCP.writeUnshared(new String("OLA"));
-            outTCP.flush();
-            
-            //String response = (String)in.readObject();
-            
-        } catch (IOException ex) {
-            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
-        }
-    }
-
     @Override
     public void run() {
         try {

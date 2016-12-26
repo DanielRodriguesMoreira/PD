@@ -64,7 +64,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, FilesIn
         
         while(true){
             try {
-                
+                System.out.println("estou a atender um cliente!");
                 out = new ObjectOutputStream(toClientSocket.getOutputStream());
                 in = new ObjectInputStream(toClientSocket.getInputStream());
 

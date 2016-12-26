@@ -35,8 +35,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             JTextField field1 = new JTextField();
             JTextField field2 = new JTextField();
             JTextField field3 = new JTextField();
-            field1.setText("Hugo");
-            field2.setText("192.168.126.193");
+            field1.setText("Daniel");
+            field2.setText("192.168.126.183");
             field3.setText("6000");
 
             Object[] message = {"Username:", field1, "SD Address:", field2, "SD Port:", field3};
@@ -53,12 +53,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             this.client = new Client(username, ipAddress, portAddress);
             this.client.addObserver(this);
             // </editor-fold>            
-            if(!client.checkClientExists()){
+            if(client.checkClientExists()){
                 JOptionPane.showMessageDialog(null, "Username already exists OR ServiceDirectory is offline");
             }
-        } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || !client.checkClientExists());
+        } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
         // </editor-fold>
-        
         
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.getAllLists();
@@ -216,10 +215,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // <editor-fold defaultstate="collapsed" desc=" Events ">
     private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
         // TODO add your handling code here:
-        if(evt.getClickCount() == 2) {
-            System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getIp());
-            System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getName());
-            System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getPort());
+        if(!this.jListServers.isSelectionEmpty()){
+            if(evt.getClickCount() == 2) {
+                this.client.connectoToServer(this.onlineServer.get(this.jListServers.getSelectedIndex()));
+                
+                //System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getIp());
+                //System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getName());
+                //System.out.println(this.onlineServer.get(this.jListServers.getSelectedIndex()).getPort());
+            }
         }
     }//GEN-LAST:event_jListServersMouseClicked
 
