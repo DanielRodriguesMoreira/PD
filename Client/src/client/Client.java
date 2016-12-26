@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * @author Tiago Santos 
  */
 
-public class Client extends Observable implements Constants, Runnable {
+public class Client extends Observable implements Constants {
     
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration ">
     private String username;
@@ -49,7 +49,6 @@ public class Client extends Observable implements Constants, Runnable {
     private List<DataAddress> OnlineClients;
     // </editor-fold>>
     
-    
     //private Map<DataAddress, SocketCommunication> mapServers;
     private List<SocketCommunication> serversCommnunication = null;
             
@@ -66,12 +65,6 @@ public class Client extends Observable implements Constants, Runnable {
         } catch (UnknownHostException ex) {
             System.err.println("Can't find directory service");
         }
-        
-        // <editor-fold defaultstate="collapsed" desc=" Create thread to receive on UDP Socket ">
-        Runnable run = this;
-        Thread threadToReceive = new Thread(run);
-        threadToReceive.start();
-        // </editor-fold>
     }    
 
     private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
@@ -99,7 +92,11 @@ public class Client extends Observable implements Constants, Runnable {
 
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
+            
             System.out.println("<Client> Message Sended\n");
+            
+            this.receiveMessageFromServiceDirectory();
+            
         } catch (IOException ex) {
             System.err.println("DirectoryServiceIP/Port IOException\n" + ex);
         }
@@ -107,7 +104,9 @@ public class Client extends Observable implements Constants, Runnable {
     
     // <editor-fold defaultstate="collapsed" desc=" Methods used by interface (ClientGUI) ">
     public boolean checkClientExists() {
+        
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
+        
         boolean exists = message.isExists();
         System.out.println("Exists = " + exists);
         if(exists){
@@ -158,49 +157,46 @@ public class Client extends Observable implements Constants, Runnable {
     }
     // </editor-fold>
     
-    @Override
-    public void run() {
+    private void receiveMessageFromServiceDirectory(){
         try {
-            while(true){
-                packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
-                dataSocket.receive(packet);
-
-                in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
-
-                System.out.println("<Client> Packet received");
-                message = (ClientMessage) in.readObject();
-
-                switch(message.getRequest()) {
-                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
-                    case CLIENT_GET_ALL_LISTS:
-                        this.OnlineServers = message.getListServers();
-                        this.OnlineClients = message.getListClients();
-                        break;
+            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
+            dataSocket.receive(packet);
+            
+            in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
+            
+            System.out.println("<Client> Packet received");
+            message = (ClientMessage) in.readObject();
+            System.out.println("Recebi a resposta de " + message.getRequest());
+            switch(message.getRequest()) {
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
+                case CLIENT_GET_ALL_LISTS:
+                    this.OnlineServers = message.getListServers();
+                    this.OnlineClients = message.getListClients();
+                    break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
-                    case CLIENT_MSG_CHECK_USERNAME:
-                        this.OnlineServers = message.getListServers();
-                        this.OnlineClients = message.getListClients();
-                        break;
+                case CLIENT_MSG_CHECK_USERNAME:
+                    //this.OnlineServers = message.getListServers();
+                    //this.OnlineClients = message.getListClients();
+                    break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
-                    case CLIENT_GET_ONLINE_SERVERS:
-                        this.OnlineServers = message.getListServers();
-                        break;
+                case CLIENT_GET_ONLINE_SERVERS:
+                    this.OnlineServers = message.getListServers();
+                    break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
-                    case CLIENT_GET_ONLINE_CLIENTS:
-                        this.OnlineClients = message.getListClients();
-                        break;
+                case CLIENT_GET_ONLINE_CLIENTS:
+                    this.OnlineClients = message.getListClients();
+                    break;
                     // </editor-fold>
-                }
-                setChanged();
-                notifyObservers();
             }
+            setChanged();
+            notifyObservers();
         } catch (IOException ex) {
-            System.err.println("An error occurred in accessing the socket:\n\t" + ex);
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
-            System.err.println("The object received is not the expected type:\n\t" + ex);
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

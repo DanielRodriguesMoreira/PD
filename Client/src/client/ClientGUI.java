@@ -53,9 +53,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             this.client.addObserver(this);
             // </editor-fold>
             
-            if(client.checkClientExists()){
-                JOptionPane.showMessageDialog(null, "Username already exists OR ServiceDirectory is offline");
-            }
         } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
         // </editor-fold>
         
