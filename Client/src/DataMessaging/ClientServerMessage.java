@@ -65,6 +65,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     public ClientServerMessage(String path, DataAddress myAddress){
         this.clientAddress = myAddress;
         this.dirPath = path;
+        this.dirContent = new File[0];
         this.request = GET_WORKING_DIR_CONTENT;
     }
     
@@ -101,7 +102,9 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     // <editor-fold defaultstate="collapsed" desc=" Set's ">
     public void setDirContent(File[] files){
-        this.dirContent = files;
+        this.dirContent = new File[files.length];
+        System.arraycopy(files, 0, this.dirContent, 0, files.length );
+        //this.dirContent = files;
     }
     // </editor-fold>
 }
