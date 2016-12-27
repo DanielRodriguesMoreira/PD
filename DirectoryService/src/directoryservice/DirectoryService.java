@@ -163,18 +163,20 @@ public class DirectoryService implements Constants {
                         case CLIENT_GET_ALL_LISTS:
                             cleanListServers();
                             cleanListClients();
+//FOI O TIAGO                           if(checkLoggedClient(clientMessage.getDataAddress())){                            
                             listServers = new ArrayList<>( mapServers.keySet());
                             messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
                                     null, CLIENT_GET_ALL_LISTS, null, null, false);
                             messageToSend.setListServers(listServers);
                             messageToSend.setListClients(listClients);
                             sendMessage(messageToSend);
+//                          }
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
                         case CLIENT_SENDMESSAGE:
                             cleanListServers();
-//FOI O HUGO                            if(checkLoggedClient(clientMessage.getUsernameToSend())){
+//FOI O HUGO                            if(checkLoggedClient(clientMessage.getDataAddress()) && checkLoggedClient(clientMessage.getUsernameToSend())){
                                 packet.setAddress(clientMessage.getUsernameToSend().getIp());
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
                                 sendMessage(clientMessage);
