@@ -165,6 +165,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         ClientServerMessage message = new ClientServerMessage(login, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
+    
+    @Override
+    public File[] GetWorkingDirContent(String path, DataAddress serverToSend)
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(path, dataAddress);
+        sendMessageToServer(message, serverToSend);
+        return message.getWorkingDirContent();
+    }
 
     @Override
     public boolean GetFilesInDirectory(File directory) {
@@ -254,6 +262,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
                     break;
                 case CREATE_ACCOUNT:
                     if(response.getSuccess() != true) throw new CreateAccountException();
+                    break;
+                case GET_WORKING_DIR_CONTENT:
+                    //
             }
             
         } catch (IOException | ClassNotFoundException ex) {

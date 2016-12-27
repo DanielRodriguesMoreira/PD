@@ -2,6 +2,7 @@
 package DataMessaging;
 
 import Constants.ClientServerRequests;
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -19,6 +20,8 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     private String filePath;
     private boolean success;
     private DataAddress clientAddress;
+    private String dirPath;
+    private File[] dirContent;
     
     public ClientServerMessage(){
         this.login = null;
@@ -59,6 +62,12 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         this.request = CREATE_ACCOUNT;
     }
     
+    public ClientServerMessage(String path, DataAddress myAddress){
+        this.clientAddress = myAddress;
+        this.dirPath = path;
+        this.request = GET_WORKING_DIR_CONTENT;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Get's ">
     public boolean getSuccess(){
         return this.success;
@@ -78,6 +87,21 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     public DataAddress getClientAddress(){
         return this.clientAddress;
+    }
+    
+    public File[] getWorkingDirContent(){
+        return this.dirContent;
+    }
+    
+    public String getDirPath(){
+        return this.dirPath;
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Set's ">
+    public void setDirContent(File[] files){
+        this.dirContent = files;
     }
     // </editor-fold>
 }
