@@ -81,9 +81,10 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case LOGIN:
                         //1º Verificar se username e password estão correctos
                         if(this.isUsernameAndPasswordCorrect(requestMessage.getLogin())){
-                        //2º Só adiciona se não existir
-                            if(!this.usernameAlreadyExists(requestMessage.getLogin()))
+                            //2º Só adiciona se não existir
+                            if(!this.isUserLoggedIn(requestMessage.getClientAddress())){
                                 this.addUserToList(requestMessage.getClientAddress());
+                            }
                             success = true;
                         }else{
                             success = false;
@@ -93,7 +94,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" LOGOUT ">
                     case LOGOUT:
-                        if(this.isUserLoggedIn(requestMessage.getLogin())){
+                        if(this.isUserLoggedIn(requestMessage.getClientAddress())){
                             this.removeUserFromList(requestMessage.getClientAddress());
                             success = true;
                         }else{
@@ -104,16 +105,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CREATE ACCOUNT ">
                     case CREATE_ACCOUNT:
-                        if(this.usernameAlreadyExists(requestMessage.getLogin())){
+                        try {
+                            success = this.CreateAccount(requestMessage.getLogin(), requestMessage.getClientAddress());
+                        } catch (WriteOnFileException ex) {
+                            System.err.println(ex);
                             success = false;
-                        }else{
-                            try {
-                                success = this.CreateAccount(requestMessage.getLogin(), requestMessage.getClientAddress());
-                            } catch (WriteOnFileException ex) {
-                                System.err.println(ex);
-                                success = false;
-                            }
                         }
+                        System.out.println("Success = " + success);
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
@@ -198,9 +196,9 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      * Este método vai ser chamado:
      *      -   createAccount
      */
-    private boolean usernameAlreadyExists(Login login){
+    private boolean usernameAlreadyExistsInFile(Login login){
         for(Login l : this.loginsList){
-            if(login.equals(login.getUsername()))
+            if(l.equals(login.getUsername()))
                 return true;
         }
         
@@ -213,7 +211,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      */
     private boolean isUsernameAndPasswordCorrect(Login login){
         for(Login l : this.loginsList){
-            if(login.equals(l))
+            if(l.equals(login))
                 return true;
         }
         
@@ -224,9 +222,9 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      * Este método vai ser chamado:
      *      -   logout
      */
-    private boolean isUserLoggedIn(Login login){
-        for(Login l : this.loginsList){
-            if(login.equals(l))
+    private boolean isUserLoggedIn(DataAddress clientAddress){
+        for(DataAddress da : this.usersLoggedIn){
+            if(da.equals(clientAddress))
                 return true;
         }
         return false;
@@ -315,6 +313,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             DatagramPacket packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), this.directoryServiceIP, this.directoryServicePort);
             socketUDP.send(packet);
             
+            System.out.println("Mandei para o directory service:");
+            for(DataAddress da : this.usersLoggedIn){
+                System.out.println(da.getName());
+            }
+            
         } catch (SocketException ex) {
             System.out.println("An error occurred with the UDP socket level:\n\t" + ex);
         } catch (IOException ex) {
@@ -328,7 +331,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      */
     private boolean CreateAccount(Login login, DataAddress clientAddress) throws WriteOnFileException {
         //1º verificar se já existe
-        if(this.usernameAlreadyExists(login))
+        if(this.usernameAlreadyExistsInFile(login))
             return false;
         
         //2º adicionar ao ficheiro de texto

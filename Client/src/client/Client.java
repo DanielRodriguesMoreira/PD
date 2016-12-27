@@ -48,7 +48,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     private int serverDirectoryPort;
     private List<DataAddress> OnlineServers;
     private List<DataAddress> OnlineClients;
-    // </editor-fold>>
+    // </editor-fold>
     
     private Map<DataAddress, Socket> serversMap = null;
             
@@ -94,9 +94,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             dataSocket.send(packet);
             
             System.out.println("<Client> Message Sended\n");
-            
-            this.receiveMessageFromServiceDirectory();
-            
         } catch (IOException ex) {
             System.err.println("DirectoryServiceIP/Port IOException\n" + ex);
         }
@@ -106,7 +103,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public boolean checkClientExists() {
         
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
-        
+        this.receiveMessageFromServiceDirectory();
         boolean exists = message.isExists();
         System.out.println("Exists = " + exists);
         if(exists){
@@ -120,14 +117,19 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     
     public void getAllLists(){
         sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
+        this.receiveMessageFromServiceDirectory();
     }
     
     public void sendMessageTo(DataAddress clientToSend, String messageToSend){
         this.sendMessageToServiceDirectory(clientToSend, messageToSend);
+        setChanged();
+        notifyObservers();
     }
     
     public void sendMessageToAll(String messageToSend){
         this.sendMessageToServiceDirectory(null, messageToSend);
+        setChanged();
+        notifyObservers();
     }
     
     public List<DataAddress> getOnlineServers() {
@@ -223,9 +225,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             }
             setChanged();
             notifyObservers();
-        } catch (IOException ex) {
-            System.err.println(ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             System.err.println(ex);
         }
     }
