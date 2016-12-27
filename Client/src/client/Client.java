@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Observable;
 
 
-public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests {
+public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests, Runnable {
     
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration ">
     private String username;
@@ -103,7 +103,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public boolean checkClientExists() {
         
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
-        this.receiveMessageFromServiceDirectory();
+       // this.receiveMessageFromServiceDirectory();
         boolean exists = message.isExists();
         System.out.println("Exists = " + exists);
         if(exists){
@@ -111,13 +111,15 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         } else {
             Thread t1 = new ImAliveThread(dataSocket, serverDirectoryAddr, serverDirectoryPort, dataAddress);
             t1.start();
+            Thread t2 = new Thread(this);
+            t2.start();
             return false;
         }
     }
     
     public void getAllLists(){
         sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);
-        this.receiveMessageFromServiceDirectory();
+        //this.receiveMessageFromServiceDirectory();
     }
     
     public void sendMessageTo(DataAddress clientToSend, String messageToSend){
@@ -199,13 +201,13 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     
     private void receiveMessageFromServiceDirectory(){
         try {
-            packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
-            dataSocket.receive(packet);
+            DatagramPacket packetGram = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
+            dataSocket.receive(packetGram);
             
-            in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
+            ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(packetGram.getData(), 0, packetGram.getLength()));
             
             System.out.println("<Client> Packet received");
-            message = (ClientMessage) in.readObject();
+            message = (ClientMessage) input.readObject();
             System.out.println("Recebi a resposta de " + message.getRequest());
             switch(message.getRequest()) {
                 // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
@@ -279,5 +281,12 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         }
         
         return null;
+    }
+
+    @Override
+    public void run() {
+        while(true){
+            receiveMessageFromServiceDirectory();
+        }
     }
 }
