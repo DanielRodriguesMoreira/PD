@@ -398,6 +398,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     private void addFiles(File [] files, DefaultMutableTreeNode node) {
         if(files != null){
+            node.add(new DefaultMutableTreeNode("..."));
             for(File f: files){
                 node.add( new DefaultMutableTreeNode(f.getName()));
             }
