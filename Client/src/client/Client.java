@@ -170,7 +170,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public File[] GetWorkingDirContent(String path, DataAddress serverToSend)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
         ClientServerMessage message = new ClientServerMessage(path, dataAddress);
-        sendMessageToServer(message, serverToSend);
+        message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
 
@@ -238,7 +238,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         }
     }
 
-    private void sendMessageToServer(ClientServerMessage message, DataAddress serverToSend) 
+    private ClientServerMessage sendMessageToServer(ClientServerMessage message, DataAddress serverToSend) 
             throws UsernameOrPasswordIncorrectException, ServerConnectionException, ClientNotLoggedInException, CreateAccountException{
         
         try {
@@ -251,22 +251,22 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             out.writeUnshared(message);
             out.flush();
             
-            ClientServerMessage response = (ClientServerMessage)in.readObject();
-            
-            switch(response.getRequest()){
+            //ClientServerMessage response = (ClientServerMessage)in.readObject();
+            message = (ClientServerMessage)in.readObject();
+            switch(message.getRequest()){
                 case LOGIN: 
-                    if(response.getSuccess() != true) throw new UsernameOrPasswordIncorrectException();
+                    if(message.getSuccess() != true) throw new UsernameOrPasswordIncorrectException();
                     break;
                 case LOGOUT:
-                    if(response.getSuccess() != true) throw new ClientNotLoggedInException();
+                    if(message.getSuccess() != true) throw new ClientNotLoggedInException();
                     break;
                 case CREATE_ACCOUNT:
-                    if(response.getSuccess() != true) throw new CreateAccountException();
+                    if(message.getSuccess() != true) throw new CreateAccountException();
                     break;
                 case GET_WORKING_DIR_CONTENT:
                     //
             }
-            
+            return message;
         } catch (IOException | ClassNotFoundException ex) {
             throw new ServerConnectionException("Error with Server connection!\n(" + ex + ")");
         }
