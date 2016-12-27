@@ -12,8 +12,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -38,7 +36,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     private javax.swing.JTree tree;
-    static boolean teste = false;
+    static boolean repeatDialogInput = false;
+    static boolean cancelLoginCycle = false;
     public JPopupMenu popup;
     
     public ClientGUI() {
@@ -50,21 +49,25 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             JTextField inputUsernameTextField = new JTextField();
             JTextField inputIpAddressDirectoryServiceTextField = new JTextField();
             JTextField inputPortDirectoryServiceTextField = new JTextField();
-            inputUsernameTextField.setText("Daniel");
-            inputIpAddressDirectoryServiceTextField.setText("192.168.122.55");
+            
+            // <editor-fold defaultstate="collapsed" desc=" PARA TIRAR CONSTANTES NO INICIO ">
+            inputUsernameTextField.setText("Hugo");
+            inputIpAddressDirectoryServiceTextField.setText("localhost");
             inputPortDirectoryServiceTextField.setText("6000");
+            // </editor-fold>
+            
 
             Object[] message = {"Username:", inputUsernameTextField, 
                 "SD Address:", inputIpAddressDirectoryServiceTextField, 
                 "SD Port:", inputPortDirectoryServiceTextField};
-            option = JOptionPane.showConfirmDialog(null, message, "Enter all your values", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            option = JOptionPane.showConfirmDialog(null, message, "Connect to Directory Service",
+                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if(option == JOptionPane.OK_OPTION) {
                 username = inputUsernameTextField.getText();
                 ipAddress = inputIpAddressDirectoryServiceTextField.getText();
                 portAddress = inputPortDirectoryServiceTextField.getText();
-            }else{
+            } else
                 System.exit(0);
-            }
             
             // <editor-fold defaultstate="collapsed" desc=" Create Client ">
             this.client = new Client(username, ipAddress, portAddress);
@@ -153,8 +156,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             }
         });
 
-        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -224,56 +225,45 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if(!this.jListServers.isSelectionEmpty()) {
             if (evt.getButton() == 3) {
                 popup = new JPopupMenu();
-                
                 JMenuItem itemLogin, itemLogout, itemRegister;
+                // <editor-fold defaultstate="collapsed" desc=" Login Item (PopUpMenu) ">
                 itemLogin = new JMenuItem("Login");
                 itemLogin.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
-                        
                         do {
+                            repeatDialogInput = false;
+                            cancelLoginCycle = false;
+                            // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
                             do {
                                 JTextField inputUsernameTextField = new JTextField();
                                 JTextField inputPasswordTextField = new JTextField();
 
                                 Object[] message = {"Username:", inputUsernameTextField, "Password:", inputPasswordTextField};
-                                option = JOptionPane.showConfirmDialog(null, message, "Login or Register", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                                option = JOptionPane.showConfirmDialog(null, message, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
                                 if(option == JOptionPane.OK_OPTION) {
                                     username = inputUsernameTextField.getText();
                                     password = inputPasswordTextField.getText();
+                                } else if(option == JOptionPane.CANCEL_OPTION) {
+                                    cancelLoginCycle = true;
+                                    break;
                                 }
                             } while (username.isEmpty() || password.isEmpty());
-                            try {
-                                // </editor-fold>
+                            // </editor-fold>
+                            
+                            if (cancelLoginCycle == false) {
+                                try {
                                 client.Login(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
-                            } catch (ServerConnectionException ex) {
-                                //show message OK (EX na mensagem)
-                                teste = true;
-                                JOptionPane.showConfirmDialog(rootPane, ex);
-                            } catch (UsernameOrPasswordIncorrectException ex) {
-                                teste = true;
-                                JOptionPane.showConfirmDialog(rootPane, ex);
-                            } catch (ClientNotLoggedInException ex) {} 
-                            catch (CreateAccountException ex) {}
-                        } while(teste);
+                                } catch (ServerConnectionException | UsernameOrPasswordIncorrectException ex) {
+                                    repeatDialogInput = true;
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Login error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (ClientNotLoggedInException | CreateAccountException ex) {}
+                            }
+                        } while(repeatDialogInput);
                     }
                 });
-                itemLogout =  new JMenuItem("Logout");
-                itemLogout.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Logout pressed");
-                        try {
-                            client.Logout(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
-                        } catch (ServerConnectionException ex) {
-                           // mostrar mensagem
-                        } catch (UsernameOrPasswordIncorrectException ex) {/*ignorar*/} 
-                        catch (ClientNotLoggedInException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (CreateAccountException ex) {/*ignorar*/}
-                    }
-                });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" New Account Item (PopUpMenu) ">
                 itemRegister = new JMenuItem("New account");
                 itemRegister.addActionListener(new ActionListener() {
                     @Override
@@ -294,24 +284,37 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 password = inputPasswordTextField.getText();
                                 passwordConfirmation = inputPasswordAgainTextField.getText();
                             }
-                        } while (username.isEmpty() || password.isEmpty() && password.equalsIgnoreCase(passwordConfirmation));
+                        } while (username.isEmpty() || password.isEmpty() && password.equals(passwordConfirmation));
                         try {
                             // </editor-fold>
                             client.CreateAccount(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
-                        } catch (ServerConnectionException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (UsernameOrPasswordIncorrectException ex) {/*ignore*/
-                        } catch (ClientNotLoggedInException ex) {/*ignore*/
-                        } catch (CreateAccountException ex) {
-                            //apanhar a excepção
-                            
-                        }
+                        } catch (ServerConnectionException | CreateAccountException ex) {
+                            JOptionPane.showConfirmDialog(rootPane, ex, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                        } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException ex) {/*ignore*/}
                     }
                 });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" Logout Item (PopUpMenu) ">
+                itemLogout =  new JMenuItem("Logout");
+                itemLogout.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Logout pressed");
+                        try {
+                            client.Logout(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                        } catch (ServerConnectionException | ClientNotLoggedInException ex) {
+                           JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                        }catch (UsernameOrPasswordIncorrectException | CreateAccountException ex) {/*ignorar*/}
+                    }
+                });
+                // </editor-fold>
+                
+                // <editor-fold defaultstate="collapsed" desc=" Adicionar itens ao PopUpMenu/ Mostrar PopUpMenu ">
                 popup.add(itemLogin);
-                popup.add(itemLogout);
                 popup.add(itemRegister);
-                popup.show(this.jListServers, evt.getX(), evt.getY()); //and show the menu
+                popup.add(itemLogout);
+                popup.show(this.jListServers, evt.getX(), evt.getY());
+                // </editor-fold>
             }
         }
     }//GEN-LAST:event_jListServersMouseClicked

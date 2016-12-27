@@ -48,7 +48,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     private int serverDirectoryPort;
     private List<DataAddress> OnlineServers;
     private List<DataAddress> OnlineClients;
-    // </editor-fold>>
+    // </editor-fold>
     
     private Map<DataAddress, Socket> serversMap = null;
             
@@ -225,9 +225,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             }
             setChanged();
             notifyObservers();
-        } catch (IOException ex) {
-            System.err.println(ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             System.err.println(ex);
         }
     }
