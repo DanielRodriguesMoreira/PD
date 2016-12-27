@@ -253,14 +253,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public void Logout(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
         ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
-        sendMessageToServer(message, dataAddress);
+        sendMessageToServer(message, serverToSend);
     }
 
     @Override
-    public void CreateAccount(Login login) 
+    public void CreateAccount(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
         ClientServerMessage message = new ClientServerMessage(login, dataAddress);
-        sendMessageToServer(message, dataAddress);
+        sendMessageToServer(message, serverToSend);
     }
 
     @Override
