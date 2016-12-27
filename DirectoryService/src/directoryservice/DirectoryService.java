@@ -27,8 +27,7 @@ import java.util.TreeMap;
  */
 
 /**
- * Está sempre à escuta, dependendo do tipo de mensagem cria uma thread para tratar da tarefa.
- * Criação de Pipes para haver comunicação entre as threads; ServerThread -> UpdateClientsThread; ClientThread -> UpdateClientsThread; ClientThread -> ClientThread;
+ * Está sempre à escuta, dependendo do tipo de mensagem faz uma tarefa diferente.
  */
 public class DirectoryService implements Constants {
     // <editor-fold defaultstate="collapsed" desc=" Variáveis ">
@@ -138,7 +137,6 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_HEARTBEAT ">
                         case CLIENT_MSG_HEARTBEAT:
-                            System.out.println("-HB-");
                             clientMessage.getDataAddress().setTime(getCurrentTime());
                             updateTimeClient(clientMessage.getDataAddress());
                             cleanListClients();
