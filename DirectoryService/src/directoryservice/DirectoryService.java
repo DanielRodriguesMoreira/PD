@@ -162,31 +162,30 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
                         case CLIENT_GET_ALL_LISTS:
                             cleanListServers();
-                            cleanListClients();
-//FOI O TIAGO                           if(checkLoggedClient(clientMessage.getDataAddress())){                            
+                            cleanListClients();                          
                             listServers = new ArrayList<>( mapServers.keySet());
                             messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
                                     null, CLIENT_GET_ALL_LISTS, null, null, false);
                             messageToSend.setListServers(listServers);
                             messageToSend.setListClients(listClients);
                             sendMessage(messageToSend);
-//                          }
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
                         case CLIENT_SENDMESSAGE:
                             cleanListServers();
-//FOI O HUGO                            if(checkLoggedClient(clientMessage.getDataAddress()) && checkLoggedClient(clientMessage.getUsernameToSend())){
+                            if(checkLoggedClient(clientMessage.getDataAddress()) && checkLoggedClient(clientMessage.getUsernameToSend())){
                                 packet.setAddress(clientMessage.getUsernameToSend().getIp());
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
                                 sendMessage(clientMessage);
-//                            }
+                            }
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE_TOALL ">
                         case CLIENT_SENDMESSAGE_TOALL:
                             cleanListServers();
-                            sendMessageToAllLogged(clientMessage);
+                            if(checkLoggedClient(clientMessage.getDataAddress()))
+                                sendMessageToAllLogged(clientMessage);
                             break;
                         // </editor-fold>
                     }
