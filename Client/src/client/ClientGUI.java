@@ -33,11 +33,12 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String password;
     static String passwordConfirmation;
     static int option;
+    static boolean repeatDialogInput = false;
+    static boolean cancelLoginCycle = false;
+    static boolean cancelCreateAccountCycle = false;
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     private javax.swing.JTree tree;
-    static boolean repeatDialogInput = false;
-    static boolean cancelLoginCycle = false;
     public JPopupMenu popup;
     
     public ClientGUI() {
@@ -268,7 +269,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 itemRegister.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.out.println("New account pressed");
                         // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
                         do {
                             JTextField inputUsernameTextField = new JTextField();
@@ -279,18 +279,25 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                                 "Password:", inputPasswordTextField,
                                                 "Confirm Password:", inputPasswordAgainTextField};
                             option = JOptionPane.showConfirmDialog(null, message, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                            if(option == JOptionPane.OK_OPTION) {
+                            if (option == JOptionPane.OK_OPTION) {
                                 username = inputUsernameTextField.getText();
                                 password = inputPasswordTextField.getText();
                                 passwordConfirmation = inputPasswordAgainTextField.getText();
+                            } else if (option == JOptionPane.CANCEL_OPTION) {
+                                cancelCreateAccountCycle = true;
                             }
-                        } while (username.isEmpty() || password.isEmpty() && password.equals(passwordConfirmation));
-                        try {
-                            // </editor-fold>
-                            client.CreateAccount(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
-                        } catch (ServerConnectionException | CreateAccountException ex) {
-                            JOptionPane.showConfirmDialog(rootPane, ex, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                        } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException ex) {/*ignore*/}
+                            if(!password.equals(passwordConfirmation))
+                               JOptionPane.showConfirmDialog(rootPane, "Palavra pass não coincide", "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                        } while (username.isEmpty() || password.isEmpty() || !password.equals(passwordConfirmation));
+                        // </editor-fold>
+                        
+                        if (cancelCreateAccountCycle == false) {
+                            try {
+                                client.CreateAccount(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                            } catch (ServerConnectionException | CreateAccountException ex) {
+                                JOptionPane.showConfirmDialog(rootPane, ex, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException ex) {/*ignore*/}
+                        }
                     }
                 });
                 // </editor-fold>
@@ -299,7 +306,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 itemLogout.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.out.println("Logout pressed");
                         try {
                             client.Logout(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
                         } catch (ServerConnectionException | ClientNotLoggedInException ex) {
