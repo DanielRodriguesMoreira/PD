@@ -122,10 +122,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     
     public void sendMessageTo(DataAddress clientToSend, String messageToSend){
         this.sendMessageToServiceDirectory(clientToSend, messageToSend);
+        setChanged();
+        notifyObservers();
     }
     
     public void sendMessageToAll(String messageToSend){
         this.sendMessageToServiceDirectory(null, messageToSend);
+        setChanged();
+        notifyObservers();
     }
     
     public List<DataAddress> getOnlineServers() {
