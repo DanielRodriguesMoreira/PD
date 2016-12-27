@@ -27,8 +27,7 @@ import java.util.TreeMap;
  */
 
 /**
- * Está sempre à escuta, dependendo do tipo de mensagem cria uma thread para tratar da tarefa.
- * Criação de Pipes para haver comunicação entre as threads; ServerThread -> UpdateClientsThread; ClientThread -> UpdateClientsThread; ClientThread -> ClientThread;
+ * Está sempre à escuta, dependendo do tipo de mensagem faz uma tarefa diferente.
  */
 public class DirectoryService implements Constants {
     // <editor-fold defaultstate="collapsed" desc=" Variáveis ">
@@ -138,7 +137,6 @@ public class DirectoryService implements Constants {
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_HEARTBEAT ">
                         case CLIENT_MSG_HEARTBEAT:
-                            System.out.println("-HB-");
                             clientMessage.getDataAddress().setTime(getCurrentTime());
                             updateTimeClient(clientMessage.getDataAddress());
                             cleanListClients();
@@ -165,18 +163,20 @@ public class DirectoryService implements Constants {
                         case CLIENT_GET_ALL_LISTS:
                             cleanListServers();
                             cleanListClients();
+//FOI O TIAGO                           if(checkLoggedClient(clientMessage.getDataAddress())){                            
                             listServers = new ArrayList<>( mapServers.keySet());
                             messageToSend = new ClientMessage(clientMessage.getDataAddress(), null, 
                                     null, CLIENT_GET_ALL_LISTS, null, null, false);
                             messageToSend.setListServers(listServers);
                             messageToSend.setListClients(listClients);
                             sendMessage(messageToSend);
+//                          }
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
                         case CLIENT_SENDMESSAGE:
                             cleanListServers();
-//FOI O HUGO                            if(checkLoggedClient(clientMessage.getUsernameToSend())){
+//FOI O HUGO                            if(checkLoggedClient(clientMessage.getDataAddress()) && checkLoggedClient(clientMessage.getUsernameToSend())){
                                 packet.setAddress(clientMessage.getUsernameToSend().getIp());
                                 packet.setPort(clientMessage.getUsernameToSend().getPort());
                                 sendMessage(clientMessage);
