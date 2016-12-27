@@ -23,5 +23,7 @@ public interface FilesInterface {
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public void CreateAccount(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
+    public File[] GetWorkingDirContent(String path, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public boolean GetFilesInDirectory(File directory);
 }

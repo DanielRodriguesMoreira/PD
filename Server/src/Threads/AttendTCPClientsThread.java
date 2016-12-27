@@ -115,6 +115,12 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" GET ">
+                    case GET_WORKING_DIR_CONTENT:
+                                                                                //requestMessage.setDirContent(this.getWorkingDirContent(requestMessage.getDirPath()));
+                        requestMessage.setDirContent(this.getWorkingDirContent("Hugo"));
+                        break;
+                    // </editor-fold>
                 }
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Write response ">
@@ -351,7 +357,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         
         return true;
     }
-
+    
+    private File[] getWorkingDirContent(String path){
+        return new File(this.rootDirectory + File.separator + path).listFiles();
+    }
+    
     private boolean GetFilesInDirectory(File directory) {
         File[] files = new File(this.rootDirectory + File.separator + directory).listFiles();
             
