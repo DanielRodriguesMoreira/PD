@@ -48,6 +48,22 @@ public class CommandThread extends Thread{
                         System.out.println("No Client Active.");
                     break;
                 // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" listlogged ">
+                case "listlogged":
+                    for(DataAddress i: mapServers.keySet()){
+                        System.out.println("Server: " + i.getName());
+                        if (mapServers.get(i) != null){
+                            if (mapServers.get(i).size() > 0){
+                                System.out.println("\tList of Clients:");
+                                for(DataAddress j: mapServers.get(i))
+                                    System.out.println("\tName: " + j.getName() + "\tIP: " + j.getIp().getHostAddress());
+                            } else
+                                System.out.println("\tList slients empty.");
+                        } else
+                            System.out.println("\tNo clients on this server.");
+                    }
+                    break;
+                // </editor-fold>
              }
         }while(!cmd.equals("close"));
     }

@@ -95,9 +95,10 @@ public class DirectoryService implements Constants {
                         // <editor-fold defaultstate="collapsed" desc=" SERVER_MSG_HEARTBEAT ">
                         case SERVER_MSG_HEARTBEAT:
                             if(checkExistsServer(serverMessage.getServer())){
+                                List<DataAddress> listAux = mapServers.get(serverMessage.getServer());
                                 mapServers.remove(serverMessage.getServer());
                                 serverMessage.getServer().setTime(getCurrentTime());
-                                mapServers.put(serverMessage.getServer(), serverMessage.getUsers());
+                                mapServers.put(serverMessage.getServer(), listAux);
                             }
                             cleanListServers();
                             break;
@@ -274,12 +275,13 @@ public class DirectoryService implements Constants {
     }
     
     private static boolean checkLoggedClient(DataAddress addr){
-        List<DataAddress> listServers = new ArrayList<>( mapServers.keySet());
-        for(DataAddress i : listServers)
-            if(mapServers.get(i).contains(addr))
-            for(DataAddress j : mapServers.get(i))
-                if(addr.equals(j))
+        for(DataAddress i : mapServers.keySet()){
+            if(mapServers.get(i) != null)
+                if(mapServers.get(i).contains(addr))
+//                for(DataAddress j : mapServers.get(i))
+//                    if(addr.equals(j))
                     return true;
+        }
         return false;
     }
     
