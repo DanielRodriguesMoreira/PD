@@ -13,6 +13,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -266,7 +268,17 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         } while(repeatDialogInput);
                         DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
                         root.add(server);
-                        addFiles(client.getWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
+                        try {
+                            addFiles(client.GetWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
+                        } catch (ServerConnectionException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (UsernameOrPasswordIncorrectException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ClientNotLoggedInException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (CreateAccountException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 });
                 // </editor-fold>
@@ -385,10 +397,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // </editor-fold>
     
     private void addFiles(File [] files, DefaultMutableTreeNode node) {
-        
-        for(File f: files){
-            node.add( new DefaultMutableTreeNode(f.getName()));
-        }
+        if(files != null){
+            for(File f: files){
+                node.add( new DefaultMutableTreeNode(f.getName()));
+            }
+        } else
+            System.out.println("Files estão a null");
+        System.out.println("tentar atualizar");
+        jScrollPane1.repaint();
     }
     
     private void fillServersList() {
