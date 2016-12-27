@@ -3,3 +3,8 @@
 -> Comunicação Cliente-Servidor (ter em atenção ao que diz no enunciado)
 
 
+[HUGO] Pedir palavra pass no inicio do cliente para guardar esses dados para todos os loginÕs dos clientes. Nos servidores;
+
+[HUGO] Procurar como Ž que funciona a jTree e tentar fazer alguma coisa com isso.
+
+

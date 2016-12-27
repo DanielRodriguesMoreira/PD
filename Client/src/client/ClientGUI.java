@@ -3,13 +3,24 @@ package client;
 import Constants.Constants;
 import DataMessaging.DataAddress;
 import DataMessaging.Login;
+import Exceptions.ClientNotLoggedInException;
+import Exceptions.CreateAccountException;
+import Exceptions.ServerConnectionException;
+import Exceptions.UsernameOrPasswordIncorrectException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  * @author Daniel Moreira
@@ -22,9 +33,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String ipAddress;
     static String portAddress;
     static String password;
+    static String passwordConfirmation;
     static int option;
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
+    static boolean teste = false;
+    
+    public JPopupMenu popup;
     
     public ClientGUI() {
         initComponents();
@@ -64,21 +79,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         
         this.setTitle(username);
         this.setVisible(true);
-
-       /* TESTE CONNECT SERVER
-        try {
-            client.connectServer(new DataAddress("daniel",InetAddress.getByName(ipAddress), 51126, -1));
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        */
-            /*  3º GetOnlineServers()
-            client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_SERVERS);
-            /*  4º GetOnlineClients()
-            client.sendMessageToServiceDirectory(CLIENT_GET_ONLINE_CLIENTS);
-            5º GetAllLists()
-            client.sendMessageToServiceDirectory(CLIENT_GET_ALL_LISTS);*/
-        
     }
 
     /**
@@ -214,26 +214,97 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // <editor-fold defaultstate="collapsed" desc=" Events ">
     private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
         // TODO add your handling code here:
-        if(!this.jListServers.isSelectionEmpty()){
-            if(evt.getClickCount() == 2) {
-                // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
-                do {
-                    JTextField inputUsernameTextField = new JTextField();
-                    JTextField inputPasswordTextField = new JTextField();
+        if(!this.jListServers.isSelectionEmpty()) {
+            if (evt.getButton() == 3) {
+                popup = new JPopupMenu();
+                
+                JMenuItem itemLogin, itemLogout, itemRegister;
+                itemLogin = new JMenuItem("Login");
+                itemLogin.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
+                        
+                        do {
+                            do {
+                                JTextField inputUsernameTextField = new JTextField();
+                                JTextField inputPasswordTextField = new JTextField();
 
-                    Object[] message = {"Username:", inputUsernameTextField, 
-                        "Password:", inputPasswordTextField};
-                    option = JOptionPane.showConfirmDialog(null, message, "Login or Register", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if(option == JOptionPane.OK_OPTION) {
-                        username = inputUsernameTextField.getText();
-                        password = inputPasswordTextField.getText();
-                    }else{
-                        //System.exit(0);
+                                Object[] message = {"Username:", inputUsernameTextField, "Password:", inputPasswordTextField};
+                                option = JOptionPane.showConfirmDialog(null, message, "Login or Register", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                                if(option == JOptionPane.OK_OPTION) {
+                                    username = inputUsernameTextField.getText();
+                                    password = inputPasswordTextField.getText();
+                                }
+                            } while (username.isEmpty() || password.isEmpty());
+                            try {
+                                // </editor-fold>
+                                client.Login(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                            } catch (ServerConnectionException ex) {
+                                //show message OK (EX na mensagem)
+                                teste = true;
+                                JOptionPane.showConfirmDialog(rootPane, ex);
+                            } catch (UsernameOrPasswordIncorrectException ex) {
+                                teste = true;
+                                JOptionPane.showConfirmDialog(rootPane, ex);
+                            } catch (ClientNotLoggedInException ex) {} 
+                            catch (CreateAccountException ex) {}
+                        } while(teste);
                     }
+                });
+                itemLogout =  new JMenuItem("Logout");
+                itemLogout.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Logout pressed");
+                        try {
+                            client.Logout(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                        } catch (ServerConnectionException ex) {
+                           // mostrar mensagem
+                        } catch (UsernameOrPasswordIncorrectException ex) {/*ignorar*/} 
+                        catch (ClientNotLoggedInException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (CreateAccountException ex) {/*ignorar*/}
+                    }
+                });
+                itemRegister = new JMenuItem("New account");
+                itemRegister.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("New account pressed");
+                        // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
+                        do {
+                            JTextField inputUsernameTextField = new JTextField();
+                            JTextField inputPasswordTextField = new JTextField();
+                            JTextField inputPasswordAgainTextField = new JTextField();
 
-                } while (username.isEmpty() || password.isEmpty());
-                // </editor-fold>
-                System.out.println(this.client.Login(new Login(username, password), this.onlineServer.get(this.jListServers.getSelectedIndex())));
+                            Object[] message = {"Username:", inputUsernameTextField, 
+                                                "Password:", inputPasswordTextField,
+                                                "Confirm Password:", inputPasswordAgainTextField};
+                            option = JOptionPane.showConfirmDialog(null, message, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                            if(option == JOptionPane.OK_OPTION) {
+                                username = inputUsernameTextField.getText();
+                                password = inputPasswordTextField.getText();
+                                passwordConfirmation = inputPasswordAgainTextField.getText();
+                            }
+                        } while (username.isEmpty() || password.isEmpty() && password.equalsIgnoreCase(passwordConfirmation));
+                        try {
+                            // </editor-fold>
+                            client.CreateAccount(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                        } catch (ServerConnectionException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (UsernameOrPasswordIncorrectException ex) {/*ignore*/
+                        } catch (ClientNotLoggedInException ex) {/*ignore*/
+                        } catch (CreateAccountException ex) {
+                            //apanhar a excepção
+                            
+                        }
+                    }
+                });
+                popup.add(itemLogin);
+                popup.add(itemLogout);
+                popup.add(itemRegister);
+                popup.show(this.jListServers, evt.getX(), evt.getY()); //and show the menu
             }
         }
     }//GEN-LAST:event_jListServersMouseClicked
