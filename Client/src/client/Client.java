@@ -141,6 +141,35 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public String getMessage() {
         return this.message.getMessage();
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
+    @Override
+    public void Login(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(login, true, dataAddress);
+        sendMessageToServer(message, serverToSend);
+    }
+
+    @Override
+    public void Logout(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
+        sendMessageToServer(message, serverToSend);
+    }
+
+    @Override
+    public void CreateAccount(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(login, dataAddress);
+        sendMessageToServer(message, serverToSend);
+    }
+
+    @Override
+    public boolean GetFilesInDirectory(File directory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    // </editor-fold>
+    
     // </editor-fold>
     
     private void createSocket(DataAddress serverToConnect) throws IOException {
@@ -240,33 +269,4 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         
         return null;
     }
-    
-    // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
-    @Override
-    public void Login(Login login, DataAddress serverToSend) 
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(login, true, dataAddress);
-        sendMessageToServer(message, serverToSend);
-    }
-
-    @Override
-    public void Logout(Login login, DataAddress serverToSend) 
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
-        sendMessageToServer(message, serverToSend);
-    }
-
-    @Override
-    public void CreateAccount(Login login, DataAddress serverToSend) 
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(login, dataAddress);
-        sendMessageToServer(message, serverToSend);
-    }
-
-    @Override
-    public boolean GetFilesInDirectory(File directory) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    // </editor-fold>
-
 }
