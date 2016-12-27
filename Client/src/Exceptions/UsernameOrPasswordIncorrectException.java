@@ -7,12 +7,12 @@ package Exceptions;
  * @author Tiago Santos 
  */
 
-public class ServerAlreadyExistsException extends Exception{
+public class UsernameOrPasswordIncorrectException extends Exception{
 
     private String error;
     
-    public ServerAlreadyExistsException(String serverName){
-        this.error = "The '" + serverName + "' already exists in Directory Service";
+    public UsernameOrPasswordIncorrectException(){
+        this.error = "The username or password are incorrect.";
     }
     
     @Override

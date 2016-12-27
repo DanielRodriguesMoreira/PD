@@ -1,6 +1,7 @@
 
 package DataMessaging;
 
+import Constants.ClientServerRequests;
 import java.io.Serializable;
 
 /**
@@ -9,40 +10,74 @@ import java.io.Serializable;
  * @author Tiago Santos 
  */
 
-public class ClientServerMessage implements Serializable{
-    
+public class ClientServerMessage implements Serializable, ClientServerRequests{
+
     static final long serialVersionUID = 1L;
     private Login login;
     private String request;
     private String filename;
     private String filePath;
-    private boolean teste;
+    private boolean success;
+    private DataAddress clientAddress;
     
     public ClientServerMessage(){
         this.login = null;
         this.request = null;
         this.filePath = null;
         this.filename = null;
+        this.success = false;
+        this.clientAddress = null;
     }
     
-    public void setLogin(Login login){
+    /**
+     * Prepare ClientServerMessage to Login the client in the server or to logout 
+     * if the second param it's false
+     *
+     * @param login     the Login of the client
+     * @param isToLogin true if is to login, false if is to logout
+     * @param myAddress address of the client who sends the request
+     */
+    public ClientServerMessage(Login login, boolean isToLogin, DataAddress myAddress){
         this.login = login;
+        this.clientAddress = myAddress;
+        if(isToLogin){
+            this.request = LOGIN;
+        }else{
+            this.request = LOGOUT;
+        }
+    }
+    
+    /**
+     * Prepare ClientServerMessage to Create an account on the server
+     *
+     * @param login     the Login of the client
+     * @param myAddress address of the client who sends the request
+     */
+    public ClientServerMessage(Login login, DataAddress myAddress){
+        this.login = login;
+        this.clientAddress = myAddress;
+        this.request = CREATE_ACCOUNT;
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc=" Get's ">
+    public boolean getSuccess(){
+        return this.success;
+    }
+    
+    public void setSuccess(boolean success){
+        this.success = success;
+    }
+    
+    public String getRequest(){
+        return this.request;
     }
     
     public Login getLogin(){
         return this.login;
     }
     
-    public void setRequest(String request){
-        this.request = request;
+    public DataAddress getClientAddress(){
+        return this.clientAddress;
     }
-    
-    public void setTeste(boolean teste){
-        this.teste = teste;
-    }
-    
-    public boolean getTeste(){
-        return this.teste;
-    }
-    
+    // </editor-fold>
 }

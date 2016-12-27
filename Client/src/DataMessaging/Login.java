@@ -4,11 +4,14 @@ package DataMessaging;
 import java.io.Serializable;
 import java.util.Objects;
 
-/*
+/**
  * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
  */
 
 public class Login implements Serializable{
+    static final long serialVersionUID = 1L;
     private String username;
     private String password;
     
