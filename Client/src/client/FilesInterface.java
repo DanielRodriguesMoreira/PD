@@ -3,17 +3,25 @@ package client;
 
 import DataMessaging.Login;
 import DataMessaging.DataAddress;
+import Exceptions.ClientNotLoggedInException;
+import Exceptions.CreateAccountException;
+import Exceptions.ServerConnectionException;
+import Exceptions.UsernameOrPasswordIncorrectException;
 import java.io.File;
 
 /**
- *
  * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
  */
 
 public interface FilesInterface {
 
-    public boolean Login(Login login, DataAddress serverToSend);
-    public boolean Logout(Login login);     //Ainda falta discutir se podem haver 2 usernames iguais
-    public boolean CreateAccount(Login login, File rootDirectory);
+    public void Login(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
+    public void Logout(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
+    public void CreateAccount(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public boolean GetFilesInDirectory(File directory);
 }

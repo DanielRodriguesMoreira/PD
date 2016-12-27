@@ -1,10 +1,15 @@
 package client;
 
+import Constants.ClientServerRequests;
 import DataMessaging.Login;
 import Constants.Constants;
 import DataMessaging.ClientMessage;
 import DataMessaging.ClientServerMessage;
 import DataMessaging.DataAddress;
+import Exceptions.ClientNotLoggedInException;
+import Exceptions.CreateAccountException;
+import Exceptions.ServerConnectionException;
+import Exceptions.UsernameOrPasswordIncorrectException;
 import Threads.ImAliveThread;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,20 +23,13 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-/**
- * @author Daniel Moreira
- * @author Hugo Santos
- * @author Tiago Santos 
- */
 
-public class Client extends Observable implements Constants, FilesInterface {
+
+public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests {
     
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration ">
     private String username;
@@ -52,15 +50,12 @@ public class Client extends Observable implements Constants, FilesInterface {
     private List<DataAddress> OnlineClients;
     // </editor-fold>>
     
-    //private Map<DataAddress, SocketCommunication> mapServers;
-    private List<SocketCommunication> serversCommnunication = null;
     private Map<DataAddress, Socket> serversMap = null;
             
     public Client (String username, String directoryServiceIP, String directoryServicePort) {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
-        this.serversCommnunication = new ArrayList<>();
         this.serversMap = new HashMap<>();
         try {
             this.dataSocket = new DatagramSocket();
@@ -147,48 +142,50 @@ public class Client extends Observable implements Constants, FilesInterface {
         return this.message.getMessage();
     }
     
-    private void connectoToServer(DataAddress serverToConnect){
-        try {
-            boolean existe = false;
-            for(DataAddress da : serversMap.keySet()){
-                if(da.equals(serverToConnect))
-                    existe = true;
-            }
-            
-            if(!existe){
-            
-                Socket tcpClient = new Socket(serverToConnect.getIp(), serverToConnect.getPort());
-                this.serversMap.put(serverToConnect, tcpClient);
+    // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
+    @Override
+    public void Login(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(login, true, dataAddress);
+        sendMessageToServer(message, serverToSend);
+    }
 
-                /*ObjectInputStream in = new ObjectInputStream(tcpClient.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(tcpClient.getOutputStream());
+    @Override
+    public void Logout(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
+        sendMessageToServer(message, serverToSend);
+    }
 
-                out.writeUnshared(new String("Oi Server"));
-                out.flush();
+    @Override
+    public void CreateAccount(Login login, DataAddress serverToSend) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+        ClientServerMessage message = new ClientServerMessage(login, dataAddress);
+        sendMessageToServer(message, serverToSend);
+    }
 
-                String resposta = (String)in.readObject();
-                System.out.println(resposta);
-            */
-            }
-            
-            /*
-            System.out.println(serverToConnect.getIp().getHostName());
-            try {
-                for(int i = 0; i < this.serversCommnunication.size(); i++) {
-                    if(!serverToConnect.equals(this.serversCommnunication.get(i))) {
-                        SocketCommunication socketCommunication = new SocketCommunication(serverToConnect);
-                        this.serversCommnunication.add(socketCommunication);
-                    } else System.out.println("Já estou ligado a um servidor com esse dataaddress!");
-                }
-            } catch (IOException ex) {
-                System.err.println("[Hugo]An error occurred in accessing the socket:\n\t" + ex);
-            }
-            */
-        } catch (IOException ex) {
-            System.err.println("[Hugo]An error occurred in accessing the socket:\n\t" + ex);
-        }
+    @Override
+    public boolean GetFilesInDirectory(File directory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     // </editor-fold>
+    
+    // </editor-fold>
+    
+    private void createSocket(DataAddress serverToConnect) throws IOException {
+        if(!this.socketAlreadyExists(serverToConnect)){
+            Socket socket = new Socket(serverToConnect.getIp(), serverToConnect.getPort());
+            this.serversMap.put(serverToConnect, socket);
+        }
+    }
+    
+    private boolean socketAlreadyExists(DataAddress serverToConnect){
+        for(DataAddress dataAddress : this.serversMap.keySet()){
+            if(dataAddress.equals(serverToConnect))
+                return true;
+        }
+        return false;
+    }
     
     private void receiveMessageFromServiceDirectory(){
         try {
@@ -203,22 +200,22 @@ public class Client extends Observable implements Constants, FilesInterface {
             switch(message.getRequest()) {
                 // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
                 case CLIENT_GET_ALL_LISTS:
-                    this.OnlineServers = message.getListServers();
-                    this.OnlineClients = message.getListClients();
-                    break;
-                    // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
-                case CLIENT_MSG_CHECK_USERNAME:
-                    //this.OnlineServers = message.getListServers();
-                    //this.OnlineClients = message.getListClients();
-                    break;
-                    // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
-                case CLIENT_GET_ONLINE_SERVERS:
-                    this.OnlineServers = message.getListServers();
-                    break;
-                    // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
+                this.OnlineServers = message.getListServers();
+                this.OnlineClients = message.getListClients();
+                break;
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_MSG_CHECK_USERNAME ">
+            case CLIENT_MSG_CHECK_USERNAME:
+                //this.OnlineServers = message.getListServers();
+                //this.OnlineClients = message.getListClients();
+                break;
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_SERVERS ">
+            case CLIENT_GET_ONLINE_SERVERS:
+                this.OnlineServers = message.getListServers();
+                break;
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
                 case CLIENT_GET_ONLINE_CLIENTS:
                     this.OnlineClients = message.getListClients();
                     break;
@@ -227,36 +224,41 @@ public class Client extends Observable implements Constants, FilesInterface {
             setChanged();
             notifyObservers();
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println(ex);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println(ex);
         }
     }
 
-    private boolean sendMessageToServer(ClientServerMessage message, DataAddress serverToSend){
-        ObjectInputStream in = null;
-        ObjectOutputStream out = null;
+    private void sendMessageToServer(ClientServerMessage message, DataAddress serverToSend) 
+            throws UsernameOrPasswordIncorrectException, ServerConnectionException, ClientNotLoggedInException, CreateAccountException{
         
         try {
+            this.createSocket(serverToSend);
             Socket socket = this.getServerTCPSocket(serverToSend);
-            //if(socket == null) return false;
-            in = new ObjectInputStream(socket.getInputStream());
-            out = new ObjectOutputStream(socket.getOutputStream());
+            
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             
             out.writeUnshared(message);
             out.flush();
             
-            ClientServerMessage resposta = (ClientServerMessage)in.readObject();
+            ClientServerMessage response = (ClientServerMessage)in.readObject();
             
-            return resposta.getTeste();
-
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        
-        return false;
+            switch(response.getRequest()){
+                case LOGIN: 
+                    if(response.getSuccess() != true) throw new UsernameOrPasswordIncorrectException();
+                    break;
+                case LOGOUT:
+                    if(response.getSuccess() != true) throw new ClientNotLoggedInException();
+                    break;
+                case CREATE_ACCOUNT:
+                    if(response.getSuccess() != true) throw new CreateAccountException();
+            }
+            
+        } catch (IOException | ClassNotFoundException ex) {
+            throw new ServerConnectionException("Error with Server connection!\n(" + ex + ")");
+        }
     }
     
     private Socket getServerTCPSocket(DataAddress server){
@@ -267,30 +269,4 @@ public class Client extends Observable implements Constants, FilesInterface {
         
         return null;
     }
-    
-    // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
-    @Override
-    public boolean Login(Login login, DataAddress serverToSend) {
-        this.connectoToServer(serverToSend);
-        ClientServerMessage message = new ClientServerMessage();
-        message.setLogin(login);
-        message.setRequest("LOGIN");
-        return sendMessageToServer(message, serverToSend);
-    }
-
-    @Override
-    public boolean Logout(Login login) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean CreateAccount(DataMessaging.Login login, File rootDirectory) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean GetFilesInDirectory(File directory) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    // </editor-fold>
 }

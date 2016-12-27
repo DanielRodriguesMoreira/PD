@@ -30,8 +30,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -177,7 +175,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
             }
             // </editor-fold>
         } catch(ServerAlreadyExistsException ex) {
-            System.err.println(ex.getError());
+            System.err.println(ex);
         } catch(UnknownHostException ex) {
             System.err.println("Can't find directory service " + serverName);
         } catch(NumberFormatException e){
@@ -240,7 +238,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                  try {
                      Thread.sleep(HEARTBEAT);
                  } catch (InterruptedException ex) {
-                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                     System.err.println(ex);
                  }  
             } catch (IOException ex) {
                 System.out.println("An error occurred in accessing the socket:\n\t" + ex);

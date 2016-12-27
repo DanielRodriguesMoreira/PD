@@ -1,0 +1,6 @@
+imagina que quando inicias o cliente metes a pass errada, o servidor vai logo criar outra pasta e não pode.
+Por isso é melhor pedir a palavra passe quando queremos conectar depois eu verifico se existe ou não, se não existir perguntamos se quer criar uma conta! 
+Acho que é melhor assim!
+
+
+BOM------> http://www.codejava.net/java-se/swing/jtree-basic-tutorial-and-examples
