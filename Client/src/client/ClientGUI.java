@@ -9,6 +9,7 @@ import Exceptions.ServerConnectionException;
 import Exceptions.UsernameOrPasswordIncorrectException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -19,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 
 /**
  * @author Daniel Moreira
@@ -39,6 +41,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     private javax.swing.JTree tree;
+    DefaultMutableTreeNode root;
     public JPopupMenu popup;
     
     public ClientGUI() {
@@ -215,7 +218,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }// </editor-fold>//GEN-END:initComponents
     
     private void initTree(){
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+        root = new DefaultMutableTreeNode("Root");
         tree = new javax.swing.JTree(root);
         jScrollPane1.setViewportView(tree);
     }
@@ -261,6 +264,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 } catch (ClientNotLoggedInException | CreateAccountException ex) {}
                             }
                         } while(repeatDialogInput);
+                        DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
+                        root.add(server);
+                        addFiles(client.getWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
                     }
                 });
                 // </editor-fold>
@@ -377,6 +383,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private javax.swing.JTextArea jTextAreaMessages;
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
+    
+    private void addFiles(File [] files, DefaultMutableTreeNode node) {
+        
+        for(File f: files){
+            node.add( new DefaultMutableTreeNode(f.getName()));
+        }
+    }
     
     private void fillServersList() {
         if(client.getOnlineServers() == null ) return;
