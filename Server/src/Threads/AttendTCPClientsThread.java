@@ -114,6 +114,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                                 success = false;
                             }
                         }
+                        System.out.println("Success = " + success);
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
@@ -200,7 +201,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      */
     private boolean usernameAlreadyExists(Login login){
         for(Login l : this.loginsList){
-            if(login.equals(login.getUsername()))
+            if(l.equals(login.getUsername()))
                 return true;
         }
         
@@ -213,7 +214,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      */
     private boolean isUsernameAndPasswordCorrect(Login login){
         for(Login l : this.loginsList){
-            if(login.equals(l))
+            if(l.equals(login))
                 return true;
         }
         
