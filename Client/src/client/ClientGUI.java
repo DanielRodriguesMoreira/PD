@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 /**
@@ -241,17 +240,93 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     void doMouseClicked(MouseEvent me) {
         TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
         if (tp != null) {
-            if (me.getButton() == 1 && me.getClickCount() == 2)
-                if (tp.getPathCount() == 3)
-                    if (tp.getLastPathComponent().toString().equals("..."))
+            if (me.getButton() == 1 && me.getClickCount() == 2) {
+                if (tp.getPathCount() == 3) {
+                    if (tp.getLastPathComponent().toString().equals(".."))
                         System.out.println("Andar para tras");
                     else
                     {
+                        System.out.println(((File[])File.listRoots()).toString());
                         if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
                             System.out.println("É pasta");
                         else
                             System.out.println("É ficheiro");
                     }
+                }
+            } else if (me.getButton() == 3) {
+                popup = new JPopupMenu();
+                JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove, itemOpen;
+                // <editor-fold defaultstate="collapsed" desc=" Open Folder/File ">
+                itemOpen = new JMenuItem("Open");
+                itemOpen.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar Open para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
+                itemCopy = new JMenuItem("Copy");
+                itemCopy.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar Copy para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" Paste Folder/File ">
+                itemPaste = new JMenuItem("Paste");
+                itemPaste.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar Paste para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" Cut Folder/File ">
+                itemCut = new JMenuItem("Cut");
+                itemCut.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar Cut para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" MakeDir ">
+                itemMakedir = new JMenuItem("MakeDir");
+                itemMakedir.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar MakeDir para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" Remove Folder/File ">
+                itemRemove = new JMenuItem("Remove");
+                itemRemove.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar Remove para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                // </editor-fold>
+                
+                // <editor-fold defaultstate="collapsed" desc=" Adicionar itens ao PopUpMenu/ Mostrar PopUpMenu ">
+                popup.add(itemOpen);
+                popup.add(itemCopy);
+                popup.add(itemPaste);
+                popup.add(itemCut);
+                popup.add(itemMakedir);
+                popup.add(itemRemove);
+                popup.show(this.jScrollPane1, me.getX(), me.getY());
+                // </editor-fold>
+            }
         } else
             System.out.println("Nada selecionado");
     }
@@ -301,7 +376,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
                             root.add(server);
                             try {
-                                addFiles(client.GetWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
+                                addFiles(client.GetWorkingDirContent( onlineServer.get(jListServers.getSelectedIndex())), server);
                             } catch (ServerConnectionException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (UsernameOrPasswordIncorrectException ex) {

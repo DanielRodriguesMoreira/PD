@@ -169,13 +169,20 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public File[] GetWorkingDirContent(String path, DataAddress serverToSend)
+    public File[] GetWorkingDirContent(DataAddress serverToSend)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(path, dataAddress);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, true);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
 
+    @Override
+    public String GetWorkingDirPath(DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        ClientServerMessage message = new ClientServerMessage(dataAddress, false);
+        message = sendMessageToServer(message, serverToSend);
+        return message.getWorkingDirectoryPath();
+    }
+    
     @Override
     public boolean GetFilesInDirectory(File directory) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -253,7 +260,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             out.writeUnshared(message);
             out.flush();
             
-            //ClientServerMessage response = (ClientServerMessage)in.readObject();
             message = (ClientServerMessage)in.readObject();
             switch(message.getRequest()){
                 case LOGIN: 
@@ -265,8 +271,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
                 case CREATE_ACCOUNT:
                     if(message.getSuccess() != true) throw new CreateAccountException();
                     break;
-                case GET_WORKING_DIR_CONTENT:
-                    //
             }
             return message;
         } catch (IOException | ClassNotFoundException ex) {
@@ -288,10 +292,5 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         while(true){
             receiveMessageFromServiceDirectory();
         }
-    }
-
-    @Override
-    public String GetWorkingDirPath(String path, DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

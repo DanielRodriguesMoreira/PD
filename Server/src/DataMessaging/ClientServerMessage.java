@@ -2,6 +2,10 @@
 package DataMessaging;
 
 import Constants.ClientServerRequests;
+import static Constants.ClientServerRequests.CREATE_ACCOUNT;
+import static Constants.ClientServerRequests.GET_WORKING_DIR_CONTENT;
+import static Constants.ClientServerRequests.LOGIN;
+import static Constants.ClientServerRequests.LOGOUT;
 import java.io.File;
 import java.io.Serializable;
 
@@ -16,18 +20,15 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     static final long serialVersionUID = 1L;
     private Login login;
     private String request;
-    private String filename;
-    private String filePath;
     private boolean success;
     private DataAddress clientAddress;
-    private String dirPath;
-    private File[] dirContent;
+    
+    private String workingDirectoryPath;
+    private File[] workingDirectoryContent;
     
     public ClientServerMessage(){
         this.login = null;
         this.request = null;
-        this.filePath = null;
-        this.filename = null;
         this.success = false;
         this.clientAddress = null;
     }
@@ -62,11 +63,22 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         this.request = CREATE_ACCOUNT;
     }
     
-    public ClientServerMessage(String path, DataAddress myAddress){
+    /**
+     * Prepate ClientServerMessage to get the content of working directory
+     * 
+     * @param myAddress address of the client who sends the request
+     * @param getContent true if is to get the content of the working directory, false if is to get the working directory path
+     */
+    public ClientServerMessage(DataAddress myAddress, boolean getContent){
         this.clientAddress = myAddress;
-        this.dirPath = path;
-        this.dirContent = null;
-        this.request = GET_WORKING_DIR_CONTENT;
+        if(getContent){
+            this.workingDirectoryContent = null;
+            this.request = GET_WORKING_DIR_CONTENT;
+        }
+        else{
+            this.workingDirectoryPath = null;
+            this.request = GET_WORKING_DIR_PATH;
+        }
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Get's ">
@@ -91,20 +103,24 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     }
     
     public File[] getWorkingDirContent(){
-        return this.dirContent;
+        return this.workingDirectoryContent;
     }
     
-    public String getDirPath(){
-        return this.dirPath;
+    public String getWorkingDirectoryPath(){
+        return this.workingDirectoryPath;
     }
     
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Set's ">
-    public void setDirContent(File[] files){
-        this.dirContent = new File[files.length];
-        System.arraycopy(files, 0, this.dirContent, 0, files.length );
-        System.out.println("dirContent = " + this.dirContent.length);
+    public void setWorkingDirectoryContent(File[] files){
+        this.workingDirectoryContent = new File[files.length];
+        System.arraycopy(files, 0, this.workingDirectoryContent, 0, files.length );
+        System.out.println("dirContent = " + this.workingDirectoryContent.length);
+    }
+    
+    public void setWorkingDirectoryPath(String workingDirectoryPath){
+        this.workingDirectoryPath = workingDirectoryPath;
     }
     // </editor-fold>
 }
