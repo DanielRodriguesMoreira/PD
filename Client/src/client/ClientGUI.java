@@ -47,7 +47,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     private javax.swing.JTree tree;
-    DefaultMutableTreeNode root;
+    DefaultMutableTreeNode root, home;
     public JPopupMenu popup;
     
     public ClientGUI() {
@@ -225,10 +225,10 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     private void initTree(){
         root = new DefaultMutableTreeNode("Root");
-        DefaultMutableTreeNode base = new DefaultMutableTreeNode("C:");
-        root.add(base);
-        addFiles(new File("C:" + File.separator).listFiles(),base);
         tree = new javax.swing.JTree(root);
+        home = new DefaultMutableTreeNode("C:");
+        root.add(home);
+        addFiles(File.listRoots()[0].listFiles(),home);
         jScrollPane1.setViewportView(tree);
         
         tree.addMouseListener(new MouseAdapter() {
@@ -297,18 +297,20 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 } catch (ClientNotLoggedInException | CreateAccountException ex) {}
                             }
                         } while(repeatDialogInput);
-                        DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
-                        root.add(server);
-                        try {
-                            addFiles(client.GetWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
-                        } catch (ServerConnectionException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (UsernameOrPasswordIncorrectException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ClientNotLoggedInException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (CreateAccountException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        if(!cancelLoginCycle){
+                            DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
+                            root.add(server);
+                            try {
+                                addFiles(client.GetWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
+                            } catch (ServerConnectionException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (UsernameOrPasswordIncorrectException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (ClientNotLoggedInException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (CreateAccountException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 });
@@ -438,6 +440,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             }
         } else
             System.out.println("Files are null");
+        tree.updateUI();
         jScrollPane1.repaint();
     }
     
