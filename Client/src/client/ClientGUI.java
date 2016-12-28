@@ -41,6 +41,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String portAddress;
     static String password;
     static String passwordConfirmation;
+    static String homePath;
     static int option;
     static boolean repeatDialogInput = false;
     static boolean cancelLoginCycle = false;
@@ -229,6 +230,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         tree = new javax.swing.JTree(root);
         home = new DefaultMutableTreeNode("C:");
         root.add(home);
+        homePath = File.listRoots()[0].toString();
         addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())), home);
         jScrollPane1.setViewportView(tree);
         
@@ -404,23 +406,27 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (tp != null) {   //Se estiver alguma coisa selecionada
             if (me.getButton() == 1 && me.getClickCount() == 2) {    //É para abrir
                 if (tp.getPathCount() == 3) {
-                    if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()){
+                    if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()){   // Se é ficheiro
                         String fatherName = tp.getParentPath().getLastPathComponent().toString();
-                        
-                        try {
+                        if(!fatherName.equals("C:")){
+                            try {
+                                DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
+                                fatherNode.removeAllChildren();
+                                addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
+                            } catch (ServerConnectionException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (UsernameOrPasswordIncorrectException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (ClientNotLoggedInException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (CreateAccountException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } else {
                             DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
                             fatherNode.removeAllChildren();
-                            addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
-                        } catch (ServerConnectionException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (UsernameOrPasswordIncorrectException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ClientNotLoggedInException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (CreateAccountException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            addFiles(HomeChangeDirectory(tp.getLastPathComponent().toString()), fatherNode);
                         }
-                        
                     } else
                             System.out.println("É ficheiro");
                 }
@@ -502,6 +508,24 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         return null;
     }
     
+    private ArrayList<File> HomeChangeDirectory(String file){
+        if(file.contains(homePath)){
+            System.out.println("a tentar ir para tras");
+            String replace = homePath.replace(homePath.substring(homePath.lastIndexOf(File.separator),homePath.length()),"");
+            homePath = replace;
+            if(homePath.equals("C:"))
+                homePath+=File.separator;
+        }else{
+            if(!(homePath.charAt(homePath.length()-1) == File.separatorChar))
+                homePath += File.separator;
+            homePath += file;
+        }
+        System.out.println("PATH: "+ homePath);
+        File f = new File(homePath);
+        if (f.listFiles() != null)
+            return new ArrayList<>(Arrays.asList(f.listFiles()));
+        return null;
+    }
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBroadcast;
@@ -528,6 +552,20 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     System.out.println(f.getName());
                 remote.add(node);
             }
+            if (remote.toString().contains("remote")){
+                try {
+                    remote.add( new DefaultMutableTreeNode("[ " + client.GetWorkingDirPath(remote.toString().replace("remote","")) + " ]"));
+                } catch (ServerConnectionException ex) {
+                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (UsernameOrPasswordIncorrectException ex) {
+                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClientNotLoggedInException ex) {
+                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (CreateAccountException ex) {
+                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else if(!homePath.equals(File.listRoots()[0].toString()))
+                remote.add( new DefaultMutableTreeNode("[ " + homePath + " ]"));
         } else
             System.out.println("Files are null");
         tree.updateUI();

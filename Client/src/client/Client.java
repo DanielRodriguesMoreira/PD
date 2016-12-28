@@ -196,7 +196,10 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
 
     @Override
-    public String GetWorkingDirPath(DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+    public String GetWorkingDirPath(String serverName) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        System.out.println("SERVER NAME = " + serverName);
+        DataAddress serverToSend = findServerByName(serverName);
+        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
         ClientServerMessage message = new ClientServerMessage(dataAddress, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirectoryPath();
