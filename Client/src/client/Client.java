@@ -171,14 +171,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public File[] GetWorkingDirContent(DataAddress serverToSend)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(dataAddress, true);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, true, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
 
     @Override
     public String GetWorkingDirPath(DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
-        ClientServerMessage message = new ClientServerMessage(dataAddress, false);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, false, true);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirectoryPath();
     }

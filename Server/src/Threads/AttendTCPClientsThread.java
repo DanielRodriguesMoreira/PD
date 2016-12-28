@@ -47,6 +47,9 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private ObjectOutputStream out = null;
     private ClientServerMessage requestMessage = null;
     
+    private String clientWorkingDir = null;
+    private String clientParentWorkingDir = null;
+    
     public AttendTCPClientsThread(Socket socket, DataAddress myAddress, InetAddress dsIP, int dsPort,
             List<DataAddress> users, File rootDirectory, String loginFile){
         this.toClientSocket = socket;
@@ -86,6 +89,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                                 this.addUserToList(requestMessage.getClientAddress());
                             }
                             success = true;
+                            this.setClientWorkingDir(requestMessage.getLogin().getUsername() + File.separator);
                         }else{
                             success = false;
                         }
@@ -117,13 +121,16 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR PATH ">
                     case GET_WORKING_DIR_PATH:
+                        requestMessage.setWorkingDirectoryPath(this.getClientWorkingDir());
+                        break;
+                    case GET_WORKING_DIR_PATH_TO_SHOW:
                         requestMessage.setWorkingDirectoryPath(REMOTE_NAME+this.myAddress.getName());
                         break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc="GET_WORKING_DIR_CONTENT">
                     case GET_WORKING_DIR_CONTENT:
-                                                                                //requestMessage.setDirContent(this.getWorkingDirContent(requestMessage.getDirPath()));
-                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent("Hugo"));
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent(requestMessage.getWorkingDirectoryPath()));
+                        //requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent("Hugo"));
                         break;
                     // </editor-fold>
                 }
@@ -364,19 +371,24 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private File[] getWorkingDirContent(String path){
-        return new File(this.rootDirectory + File.separator + path).listFiles();
+        File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + path).listFiles();
+        file[file.length - 1] = new File("ola tiago");
+        return file;
     }
     
-    private boolean GetFilesInDirectory(File directory) {
-        File[] files = new File(this.rootDirectory + File.separator + directory).listFiles();
-            
-        for(int i = 0; i < files.length; i++){
-            if(files[i].isDirectory())
-                System.out.println("Pumba! sou uma pasta " + files[i]);
-            else
-                System.out.println("ohhh :( sou um ficheiro " + files[i]);
-        }
-            
-        return true;    
+    private String getClientWorkingDir(){
+        return this.clientWorkingDir;
+    }
+    
+    private void setClientWorkingDir(String newWorkingDir){
+        this.clientWorkingDir = newWorkingDir;
+    }
+    
+    private String getClientParentWorkingDir(){
+        return this.clientParentWorkingDir;
+    }
+    
+    private void setClientParentWorkingDir(){
+        
     }
 }

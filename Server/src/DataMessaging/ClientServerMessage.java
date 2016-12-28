@@ -68,8 +68,9 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
      * 
      * @param myAddress address of the client who sends the request
      * @param getContent true if is to get the content of the working directory, false if is to get the working directory path
+     * @param firstTime (only if getContent equals false) true if is to show the first time
      */
-    public ClientServerMessage(DataAddress myAddress, boolean getContent){
+    public ClientServerMessage(DataAddress myAddress, boolean getContent, boolean firstTime){
         this.clientAddress = myAddress;
         if(getContent){
             this.workingDirectoryContent = null;
@@ -77,7 +78,10 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         }
         else{
             this.workingDirectoryPath = null;
-            this.request = GET_WORKING_DIR_PATH;
+            if(firstTime)
+                this.request = GET_WORKING_DIR_PATH_TO_SHOW;
+            else
+                this.request = GET_WORKING_DIR_PATH;
         }
     }
     
