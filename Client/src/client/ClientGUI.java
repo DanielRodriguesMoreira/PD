@@ -404,7 +404,17 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             if (me.getButton() == 1 && me.getClickCount() == 2) {    //É para abrir
                 if (tp.getPathCount() == 3) {
                     if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
-                        System.out.println("É pasta");
+                        try {
+                            client.ChangeDirecotry(tp.getParentPath().toString().replace("remote",""), tp.getLastPathComponent().toString());
+                    } catch (ServerConnectionException ex) {
+                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (UsernameOrPasswordIncorrectException ex) {
+                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClientNotLoggedInException ex) {
+                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (CreateAccountException ex) {
+                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     else
                         System.out.println("É ficheiro");
                 }
@@ -499,7 +509,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (files != null){
             for (File f: files){
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
-                if (!f.isDirectory())
+                if (f.isFile())
                     node.setAllowsChildren(false);
                 else
                     System.out.println(f.getName());

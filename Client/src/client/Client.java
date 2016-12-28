@@ -69,13 +69,11 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     private DataAddress findServerByName(String server) {
-        DataAddress search = null;
-        
-        for(int i = 0; i < this.OnlineServers.size(); i++) {
-            if (this.OnlineServers.get(i).getName().equals(server))
-                search = this.OnlineServers.get(i);
+        for(DataAddress i : this.OnlineServers) {
+            if (i.getName().equals(server))
+                return i;
         }
-        return search;
+        return null;
     }
 
     private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
