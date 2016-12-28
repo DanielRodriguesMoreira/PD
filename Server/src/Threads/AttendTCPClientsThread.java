@@ -48,8 +48,10 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private ObjectOutputStream out = null;
     private ClientServerMessage requestMessage = null;
     
-    private String clientWorkingDir = null;
-    private String clientParentWorkingDir = null;
+    private String clientActualDir = "";
+    private String clientWorkingDir = "";
+    private String clientRootDir = "";
+    private String clientWorkingDirPathToShow = "";
     
     public AttendTCPClientsThread(Socket socket, DataAddress myAddress, InetAddress dsIP, int dsPort,
             List<DataAddress> users, File rootDirectory, String loginFile){
@@ -90,7 +92,10 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                                 this.addUserToList(requestMessage.getClientAddress());
                             }
                             success = true;
+                            // <editor-fold defaultstate="collapsed" desc=" Configure directories ">
                             this.setClientWorkingDir(requestMessage.getLogin().getUsername());
+                            this.clientRootDir = this.getClientWorkingDir();
+                            // </editor-fold>
                         }else{
                             success = false;
                         }
@@ -122,7 +127,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR PATH ">
                     case GET_WORKING_DIR_PATH:
-                        requestMessage.setWorkingDirectoryPath(this.getClientWorkingDir());
+                        requestMessage.setWorkingDirectoryPath(this.convertWorkingDirToShow());
                         break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR CONTENT">
@@ -132,6 +137,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CHANGE DIRECTORY ">
                     case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS path pode vir a null ou ser uma path que não exista
+                        System.out.println("Vou tentar mudar para = " + requestMessage.getPathToChange());
                         this.setClientWorkingDir(requestMessage.getPathToChange());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
@@ -369,16 +375,20 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         File file = new File(this.rootDirectory + File.separator + login.getUsername());
         if(!file.mkdir())
             return false;
+        // <editor-fold defaultstate="collapsed" desc=" Configure directories ">
+        this.setClientWorkingDir(requestMessage.getLogin().getUsername());
+        this.clientRootDir = this.getClientWorkingDir();
+        // </editor-fold>
         
         return true;
     }
     
-    private ArrayList<File> getWorkingDirContent(){       
+    private ArrayList<File> getWorkingDirContent(){  
+        System.out.println("Vou procurar em: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
         File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
         
         ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
-        filesToSend.add(new File("(Ola Tiago)"));
-        
+
         return filesToSend;
     }
     
@@ -387,15 +397,23 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private void setClientWorkingDir(String newWorkingDir){
-        //this.clientParentWorkingDir = this.clientWorkingDir;
-        this.clientWorkingDir = newWorkingDir + File.separator;
+        if(newWorkingDir.equals(new String("[ " + this.clientWorkingDirPathToShow + " ]"))){
+            newWorkingDir = newWorkingDir.replace("[ ", "");
+            newWorkingDir = newWorkingDir.replace(" ]", "");
+            newWorkingDir = newWorkingDir.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
+            newWorkingDir = newWorkingDir.replace(this.clientActualDir, "");
+            newWorkingDir = newWorkingDir.replace(this.rootDirectory + File.separator, "");
+            this.clientWorkingDir = newWorkingDir;
+            this.clientActualDir = newWorkingDir;
+        }else{
+            this.clientActualDir = newWorkingDir + File.separator;
+            this.clientWorkingDir += newWorkingDir + File.separator;
+        }
     }
     
-    private String getClientParentWorkingDir(){
-        return this.clientParentWorkingDir;
-    }
-    
-    private void setClientParentWorkingDir(){
-        
+    private String convertWorkingDirToShow(){
+        String aux = this.rootDirectory + File.separator + this.getClientWorkingDir();
+        clientWorkingDirPathToShow = aux.replace(this.rootDirectory + File.separator + this.clientRootDir, ("remote" + this.myAddress.getName() + File.separator));
+        return clientWorkingDirPathToShow;
     }
 }
