@@ -320,6 +320,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 username = inputUsernameTextField.getText();
                                 password = inputPasswordTextField.getText();
                                 passwordConfirmation = inputPasswordAgainTextField.getText();
+                                cancelCreateAccountCycle = false;
                             } else if (option == JOptionPane.CANCEL_OPTION) {
                                 cancelCreateAccountCycle = true;
                             }
@@ -441,8 +442,10 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     itemMakedir.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            System.out.println("Enviar MakeDir para o servidor.");
-                            //client.GetFilesInDirectory(me.);
+                            //  JFrame frame = new JFrame(title);
+                            String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
+                            if (!aux.isEmpty() || aux != null)
+                                client.MakeDir(tp.getLastPathComponent().toString(), aux);
                         }
                     });
                     popup.add(itemMakedir);
