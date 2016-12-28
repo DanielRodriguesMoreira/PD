@@ -131,7 +131,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CHANGE DIRECTORY ">
-                    case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS
+                    case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS path pode vir a null ou ser uma path que não exista
                         this.setClientWorkingDir(requestMessage.getPathToChange());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;

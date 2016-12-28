@@ -26,7 +26,7 @@ public interface FilesInterface {
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public ArrayList<File> GetWorkingDirContent(DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
-    public ArrayList<File> ChangeDirecotry(DataAddress servertToSend, String newPath)
+    public ArrayList<File> ChangeDirecotry(String serverName, String newPath)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public String GetWorkingDirPath(DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
