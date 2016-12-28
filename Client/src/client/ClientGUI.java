@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 /**
@@ -403,20 +404,25 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (tp != null) {   //Se estiver alguma coisa selecionada
             if (me.getButton() == 1 && me.getClickCount() == 2) {    //É para abrir
                 if (tp.getPathCount() == 3) {
-                    if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
+                    if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()){
+                        String fatherName = tp.getParentPath().getLastPathComponent().toString();
+                        
                         try {
-                            client.ChangeDirectory(tp.getParentPath().toString().replace("remote",""), tp.getLastPathComponent().toString());
-                    } catch (ServerConnectionException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UsernameOrPasswordIncorrectException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ClientNotLoggedInException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (CreateAccountException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    else
-                        System.out.println("É ficheiro");
+                            DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
+                            fatherNode.removeAllChildren();
+                            addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
+                        } catch (ServerConnectionException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (UsernameOrPasswordIncorrectException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ClientNotLoggedInException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (CreateAccountException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    } else
+                            System.out.println("É ficheiro");
                 }
             } else if (me.getButton() == 3) {
                 if (tp.getPathCount() == 2) {
@@ -488,6 +494,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             System.out.println("No selection");
     }    
     // </editor-fold>
+    
+    private DefaultMutableTreeNode findNode(int size, String name){
+        for(int i= 0; i < size; i++)
+            if(root.getChildAt(i).toString().equals(name))
+                return (DefaultMutableTreeNode) root.getChildAt(i);
+        return null;
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
