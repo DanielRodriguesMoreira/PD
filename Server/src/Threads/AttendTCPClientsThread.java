@@ -410,7 +410,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             newWorkingDir = newWorkingDir.replace(this.clientActualDir, "");
             newWorkingDir = newWorkingDir.replace(this.rootDirectory + File.separator, "");
             this.clientWorkingDir = newWorkingDir;
-            this.clientActualDir = newWorkingDir;
+            this.clientActualDir = newWorkingDir.replace(this.clientRootDir, "");
         }else{
             this.clientActualDir = newWorkingDir + File.separator;
             this.clientWorkingDir += newWorkingDir + File.separator;
