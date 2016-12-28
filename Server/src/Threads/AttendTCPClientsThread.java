@@ -41,6 +41,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private InetAddress directoryServiceIP = null;
     private int directoryServicePort = -1;
     private List<DataAddress> usersLoggedIn = null;
+    private List<String> usersNamesLoggedIn = null;
     private List<Login> loginsList = null;
     private File rootDirectory = null;
     private String loginFile = null;
@@ -54,7 +55,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private String clientWorkingDirPathToShow = "";
     
     public AttendTCPClientsThread(Socket socket, DataAddress myAddress, InetAddress dsIP, int dsPort,
-            List<DataAddress> users, File rootDirectory, String loginFile){
+            List<DataAddress> users, File rootDirectory, String loginFile, List<String> usernamesLoggedIn){
         this.toClientSocket = socket;
         this.myAddress = myAddress;
         this.directoryServiceIP = dsIP;
@@ -64,6 +65,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         this.rootDirectory = rootDirectory;
         this.loginFile = loginFile;
         this.updateLoginsList();
+        this.usersNamesLoggedIn = usernamesLoggedIn;
     }
     
     @Override
@@ -86,11 +88,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // <editor-fold defaultstate="collapsed" desc=" LOGIN">
                     case LOGIN:
                         //1º Verificar se username e password estão correctos
-                        if(this.isUsernameAndPasswordCorrect(requestMessage.getLogin())){
-                            //2º Só adiciona se não existir
-                            if(!this.isUserLoggedIn(requestMessage.getClientAddress())){
-                                this.addUserToList(requestMessage.getClientAddress());
-                            }
+                        //2º Só adiciona se não existir
+                        if(this.isUsernameAndPasswordCorrect(requestMessage.getLogin()) 
+                                && !this.isUserLoggedIn(requestMessage.getClientAddress()) 
+                                && !this.isUserNameLoggedIn(requestMessage.getLogin().getUsername())) {
+                            this.addUserToList(requestMessage.getClientAddress());
+                            //Adicionar nome do login a uma lista
+                            this.addUserToListNamesLoggedIn(this.requestMessage.getLogin().getUsername());
                             success = true;
                             // <editor-fold defaultstate="collapsed" desc=" Configure directories ">
                             this.setClientWorkingDir(requestMessage.getLogin().getUsername());
@@ -251,8 +255,10 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      */
     private boolean isUserLoggedIn(DataAddress clientAddress){
         for(DataAddress da : this.usersLoggedIn){
-            if(da.equals(clientAddress))
+            if(da.equals(clientAddress)) {
+                System.out.println("<USER LOGGED IN> " + da.getName());
                 return true;
+            }
         }
         return false;
     }
@@ -415,5 +421,23 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         String aux = this.rootDirectory + File.separator + this.getClientWorkingDir();
         clientWorkingDirPathToShow = aux.replace(this.rootDirectory + File.separator + this.clientRootDir, ("remote" + this.myAddress.getName() + File.separator));
         return clientWorkingDirPathToShow;
+    }
+
+    private boolean isUserNameLoggedIn(String username) {
+        if(this.usersNamesLoggedIn != null) {
+            for(String nome: this.usersNamesLoggedIn){
+                if(nome.equals(username)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void addUserToListNamesLoggedIn(String username) {
+        synchronized(this.usersNamesLoggedIn){
+            this.usersNamesLoggedIn.add(username);
+        }
+        //this.notifyDirectoryServiceAboutUsersList();
     }
 }

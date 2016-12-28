@@ -510,9 +510,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     private ArrayList<File> HomeChangeDirectory(String file){
         if(file.contains(homePath)){
-            System.out.println("a tentar ir para tras");
-            String replace = homePath.replace(homePath.substring(homePath.lastIndexOf(File.separator),homePath.length()),"");
-            homePath = replace;
+            homePath = homePath.replace(homePath.substring(homePath.lastIndexOf(File.separator),homePath.length()),"");
             if(homePath.equals("C:"))
                 homePath+=File.separator;
         }else{
@@ -520,7 +518,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 homePath += File.separator;
             homePath += file;
         }
-        System.out.println("PATH: "+ homePath);
         File f = new File(homePath);
         if (f.listFiles() != null)
             return new ArrayList<>(Arrays.asList(f.listFiles()));
@@ -548,8 +545,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
                 if (f.isFile())
                     node.setAllowsChildren(false);
-                else
-                    System.out.println(f.getName());
                 remote.add(node);
             }
             if (remote.toString().contains("remote")){
