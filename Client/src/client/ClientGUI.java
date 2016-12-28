@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -227,7 +228,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         tree = new javax.swing.JTree(root);
         home = new DefaultMutableTreeNode("C:");
         root.add(home);
-        addFiles(File.listRoots()[0].listFiles(),home);
+        addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())),home);
         jScrollPane1.setViewportView(tree);
         
         tree.addMouseListener(new MouseAdapter() {
@@ -364,7 +365,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             }
                         } while(repeatDialogInput);
                         if(!cancelLoginCycle){
-                            DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
+                            DefaultMutableTreeNode server = new DefaultMutableTreeNode("remote" + onlineServer.get(jListServers.getSelectedIndex()).getName());
                             root.add(server);
                             try {
                                 addFiles(client.GetWorkingDirContent( onlineServer.get(jListServers.getSelectedIndex())), server);
@@ -495,7 +496,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
     
-    private void addFiles(File [] files, DefaultMutableTreeNode remote) {
+    private void addFiles(ArrayList<File> files, DefaultMutableTreeNode remote) {
         if(files != null){
             remote.add(new DefaultMutableTreeNode(".."));
             for(File f: files){
