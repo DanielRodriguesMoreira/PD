@@ -48,6 +48,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     private List<DataAddress> usersLoggedIn = null;
     private String loginFile = null;
     private File rootDirectory = null;
+    private List<String> usersNamesLoggedIn = null;
     
     public Server(ServerSocket serverSocket, InetAddress dsIP, int dsPort, DataAddress myTCPAddress, String loginFile, File rootDirectory){
         this.serverSocketTCP = serverSocket;
@@ -57,6 +58,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
         this.usersLoggedIn = Collections.synchronizedList(new ArrayList<DataAddress>());
         this.loginFile = loginFile;
         this.rootDirectory = rootDirectory;
+        this.usersNamesLoggedIn = Collections.synchronizedList(new ArrayList<String>());
     }
     
     public static void main(String[] args) {
@@ -75,7 +77,6 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
         String localRequest = null;
         String loginFile = null;
         File rootDirectory = null;
-        
         // </editor-fold>
         
         if(args.length != 5){
@@ -232,7 +233,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                 //Start thread to attend the client
                 Thread attendClientThread = new AttendTCPClientsThread(this.toClientSocket, this.myAddress,
                 this.directoryServiceIP, this.directoryServicePort, this.usersLoggedIn,
-                this.rootDirectory, this.loginFile);
+                this.rootDirectory, this.loginFile, this.usersNamesLoggedIn);
                 attendClientThread.start();
                 
                  try {

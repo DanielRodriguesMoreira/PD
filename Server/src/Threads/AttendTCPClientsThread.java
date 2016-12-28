@@ -35,12 +35,12 @@ import java.util.Arrays;
  */
 
 public class AttendTCPClientsThread extends Thread implements Constants, ClientServerRequests{
-    private static final String REMOTE_NAME = "remote";
     private Socket toClientSocket = null;
     private DataAddress myAddress = null;
     private InetAddress directoryServiceIP = null;
     private int directoryServicePort = -1;
     private List<DataAddress> usersLoggedIn = null;
+    private List<String> usersNamesLoggedIn = null;
     private List<Login> loginsList = null;
     private File rootDirectory = null;
     private String loginFile = null;
@@ -48,11 +48,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private ObjectOutputStream out = null;
     private ClientServerMessage requestMessage = null;
     
-    private String clientWorkingDir = null;
-    private String clientParentWorkingDir = null;
+    private String clientActualDir = "";
+    private String clientWorkingDir = "";
+    private String clientRootDir = "";
+    private String clientWorkingDirPathToShow = "";
     
     public AttendTCPClientsThread(Socket socket, DataAddress myAddress, InetAddress dsIP, int dsPort,
-            List<DataAddress> users, File rootDirectory, String loginFile){
+            List<DataAddress> users, File rootDirectory, String loginFile, List<String> usernamesLoggedIn){
         this.toClientSocket = socket;
         this.myAddress = myAddress;
         this.directoryServiceIP = dsIP;
@@ -62,6 +64,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         this.rootDirectory = rootDirectory;
         this.loginFile = loginFile;
         this.updateLoginsList();
+        this.usersNamesLoggedIn = usernamesLoggedIn;
     }
     
     @Override
@@ -84,13 +87,18 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // <editor-fold defaultstate="collapsed" desc=" LOGIN">
                     case LOGIN:
                         //1º Verificar se username e password estão correctos
-                        if(this.isUsernameAndPasswordCorrect(requestMessage.getLogin())){
-                            //2º Só adiciona se não existir
-                            if(!this.isUserLoggedIn(requestMessage.getClientAddress())){
-                                this.addUserToList(requestMessage.getClientAddress());
-                            }
+                        //2º Só adiciona se não existir
+                        if(this.isUsernameAndPasswordCorrect(requestMessage.getLogin()) 
+                                && !this.isUserLoggedIn(requestMessage.getClientAddress()) 
+                                && !this.isUserNameLoggedIn(requestMessage.getLogin().getUsername())) {
+                            this.addUserToList(requestMessage.getClientAddress());
+                            //Adicionar nome do login a uma lista
+                            this.addUserToListNamesLoggedIn(this.requestMessage.getLogin().getUsername());
                             success = true;
+                            // <editor-fold defaultstate="collapsed" desc=" Configure directories ">
                             this.setClientWorkingDir(requestMessage.getLogin().getUsername());
+                            this.clientRootDir = this.getClientWorkingDir();
+                            // </editor-fold>
                         }else{
                             success = false;
                         }
@@ -101,6 +109,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case LOGOUT:
                         if(this.isUserLoggedIn(requestMessage.getClientAddress())){
                             this.removeUserFromList(requestMessage.getClientAddress());
+                            this.removeUserNameFromList(requestMessage.getLogin().getUsername());
                             success = true;
                         }else{
                             success = false;
@@ -122,7 +131,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR PATH ">
                     case GET_WORKING_DIR_PATH:
-                        requestMessage.setWorkingDirectoryPath(this.getClientWorkingDir());
+                        requestMessage.setWorkingDirectoryPath(this.convertWorkingDirToShow());
                         break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR CONTENT">
@@ -132,6 +141,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CHANGE DIRECTORY ">
                     case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS path pode vir a null ou ser uma path que não exista
+                        System.out.println("Vou tentar mudar para = " + requestMessage.getPathToChange());
                         this.setClientWorkingDir(requestMessage.getPathToChange());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
@@ -245,8 +255,10 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      */
     private boolean isUserLoggedIn(DataAddress clientAddress){
         for(DataAddress da : this.usersLoggedIn){
-            if(da.equals(clientAddress))
+            if(da.equals(clientAddress)) {
+                System.out.println("<USER LOGGED IN> " + da.getName());
                 return true;
+            }
         }
         return false;
     }
@@ -261,6 +273,19 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             this.usersLoggedIn.add(clientAddress);
         }
         this.notifyDirectoryServiceAboutUsersList();
+    }
+    
+    /**
+     * Este método vai ser chamado:
+     *      -   login
+     *      -   createAccount
+     *  serve para adicionar as strings do login numa lista para depois comparar cada vez que tentamos fazer login
+     */
+    private void addUserToListNamesLoggedIn(String username) {
+        synchronized(this.usersNamesLoggedIn){
+            this.usersNamesLoggedIn.add(username);
+        }
+        //this.notifyDirectoryServiceAboutUsersList();
     }
     
     /**
@@ -283,6 +308,21 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         
         if(isToNofify){
             this.notifyDirectoryServiceAboutUsersList();
+        }
+    }
+    
+    /**
+     * Este método vai ser chamado:
+     *      -   logout
+     */
+    private void removeUserNameFromList(String username) {
+        synchronized(this.usersNamesLoggedIn){
+            for(String nome : this.usersNamesLoggedIn){
+                if(nome.equals(username)){
+                    this.usersNamesLoggedIn.remove(username);
+                    break;
+                }
+            }
         }
     }
     
@@ -369,16 +409,20 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         File file = new File(this.rootDirectory + File.separator + login.getUsername());
         if(!file.mkdir())
             return false;
+        // <editor-fold defaultstate="collapsed" desc=" Configure directories ">
+        this.setClientWorkingDir(requestMessage.getLogin().getUsername());
+        this.clientRootDir = this.getClientWorkingDir();
+        // </editor-fold>
         
         return true;
     }
     
-    private ArrayList<File> getWorkingDirContent(){       
+    private ArrayList<File> getWorkingDirContent(){  
+        System.out.println("Vou procurar em: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
         File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
         
         ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
-        filesToSend.add(new File("(Ola Tiago)"));
-        
+
         return filesToSend;
     }
     
@@ -387,15 +431,34 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private void setClientWorkingDir(String newWorkingDir){
-        //this.clientParentWorkingDir = this.clientWorkingDir;
-        this.clientWorkingDir = newWorkingDir + File.separator;
+        if(newWorkingDir.equals(new String("[ " + this.clientWorkingDirPathToShow + " ]"))){
+            newWorkingDir = newWorkingDir.replace("[ ", "");
+            newWorkingDir = newWorkingDir.replace(" ]", "");
+            newWorkingDir = newWorkingDir.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
+            newWorkingDir = newWorkingDir.replace(this.clientActualDir, "");
+            newWorkingDir = newWorkingDir.replace(this.rootDirectory + File.separator, "");
+            this.clientWorkingDir = newWorkingDir;
+            this.clientActualDir = newWorkingDir;
+        }else{
+            this.clientActualDir = newWorkingDir + File.separator;
+            this.clientWorkingDir += newWorkingDir + File.separator;
+        }
     }
     
-    private String getClientParentWorkingDir(){
-        return this.clientParentWorkingDir;
+    private String convertWorkingDirToShow(){
+        String aux = this.rootDirectory + File.separator + this.getClientWorkingDir();
+        clientWorkingDirPathToShow = aux.replace(this.rootDirectory + File.separator + this.clientRootDir, ("remote" + this.myAddress.getName() + File.separator));
+        return clientWorkingDirPathToShow;
     }
-    
-    private void setClientParentWorkingDir(){
-        
+
+    private boolean isUserNameLoggedIn(String username) {
+        if(this.usersNamesLoggedIn != null) {
+            for(String nome: this.usersNamesLoggedIn){
+                if(nome.equals(username)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
