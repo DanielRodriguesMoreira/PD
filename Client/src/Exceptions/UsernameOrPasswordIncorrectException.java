@@ -12,7 +12,7 @@ public class UsernameOrPasswordIncorrectException extends Exception{
     private String error;
     
     public UsernameOrPasswordIncorrectException(){
-        this.error = "The username or password are incorrect.";
+        this.error = "The username or password are incorrect.\nOr that account is used already.";
     }
     
     @Override
