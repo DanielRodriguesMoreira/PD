@@ -34,7 +34,7 @@ import Exceptions.WriteOnFileException;
  */
 
 public class AttendTCPClientsThread extends Thread implements Constants, ClientServerRequests{
-
+    private static final String REMOTE_NAME = "remote";
     private Socket toClientSocket = null;
     private DataAddress myAddress = null;
     private InetAddress directoryServiceIP = null;
@@ -115,10 +115,15 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc=" GET ">
+                    // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR PATH ">
+                    case GET_WORKING_DIR_PATH:
+                        requestMessage.setWorkingDirectoryPath(REMOTE_NAME+this.myAddress.getName());
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc="GET_WORKING_DIR_CONTENT">
                     case GET_WORKING_DIR_CONTENT:
                                                                                 //requestMessage.setDirContent(this.getWorkingDirContent(requestMessage.getDirPath()));
-                        requestMessage.setDirContent(this.getWorkingDirContent("Hugo"));
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent("Hugo"));
                         break;
                     // </editor-fold>
                 }
