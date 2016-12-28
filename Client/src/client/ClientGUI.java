@@ -228,7 +228,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         tree = new javax.swing.JTree(root);
         home = new DefaultMutableTreeNode("C:");
         root.add(home);
-        addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())),home);
+        addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())), home);
         jScrollPane1.setViewportView(tree);
         
         tree.addMouseListener(new MouseAdapter() {
@@ -242,7 +242,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // <editor-fold defaultstate="collapsed" desc=" Events ">
     private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
         // TODO add your handling code here:
-        if(!this.jListServers.isSelectionEmpty()) {
+        if (!this.jListServers.isSelectionEmpty()) {
             if (evt.getButton() == 3) {
                 popup = new JPopupMenu();
                 JMenuItem itemLogin, itemLogout, itemRegister;
@@ -368,15 +368,15 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
     private void jListClientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListClientsMouseClicked
         // TODO add your handling code here:
-        if(!this.jListClients.isSelectionEmpty()){
-            if(evt.getClickCount() == 2){
+        if (!this.jListClients.isSelectionEmpty()){
+            if (evt.getClickCount() == 2){
                 DataAddress usernameToSend = this.onlineClient.get(this.jListClients.getSelectedIndex());
                 String title = "Message to " + usernameToSend.getName();
                 JFrame frame = new JFrame(title);
                 
                 String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
                 String message = "[" + username + " - To " + usernameToSend.getName() + "] -> " + aux;
-                if(!aux.isEmpty() || aux != null)
+                if (!aux.isEmpty() || aux != null)
                     client.sendMessageTo(usernameToSend, message);
             }
         }
@@ -384,14 +384,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
     private void jButtonBroadcastMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonBroadcastMouseClicked
         // TODO add your handling code here:
-        if(this.onlineClient.isEmpty())
+        if (this.onlineClient.isEmpty())
             return;
         
         String title = "Message to All users";
         JFrame frame = new JFrame(title);
         String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
         String message = "[" + username + " - To All] -> " + aux;
-        if(!aux.isEmpty() || aux != null)
+        if (!aux.isEmpty() || aux != null)
             client.sendMessageToAll(message);
     }//GEN-LAST:event_jButtonBroadcastMouseClicked
 
@@ -403,7 +403,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (tp != null) {   //Se estiver alguma coisa selecionada
             if (me.getButton() == 1 && me.getClickCount() == 2) {    //É para abrir
                 if (tp.getPathCount() == 3) {
-                    if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
+                    if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
                         System.out.println("É pasta");
                     else
                         System.out.println("É ficheiro");
@@ -433,8 +433,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     });
                     popup.add(itemPaste);
                     // </editor-fold>
-                } else if(tp.getPathCount() == 3) {
-                    if(!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
+                } else if (tp.getPathCount() == 3) {
+                    if (!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
                         //Botao direito nos ficheiros
                         // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
                         itemCopy = new JMenuItem("Copy");
@@ -496,12 +496,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // </editor-fold>
     
     private void addFiles(ArrayList<File> files, DefaultMutableTreeNode remote) {
-        if(files != null){
-            remote.add(new DefaultMutableTreeNode(".."));
-            for(File f: files){
+        if (files != null){
+            for (File f: files){
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
-                if(!f.isDirectory())
+                if (!f.isDirectory())
                     node.setAllowsChildren(false);
+                else
+                    System.out.println(f.getName());
                 remote.add(node);
             }
         } else
@@ -511,7 +512,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }
     
     private void fillServersList() {
-        if(client.getOnlineServers() == null ) return;
+        if (client.getOnlineServers() == null ) return;
         this.onlineServer = new ArrayList<>(client.getOnlineServers());
         
         DefaultListModel<String> listServersModel = new DefaultListModel<String>();
@@ -522,7 +523,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }
     
     private void fillClientsList() {
-        if(client.getOnlineClients() == null ) return;
+        if (client.getOnlineClients() == null ) return;
         this.onlineClient = new ArrayList<>(client.getOnlineClients());
         
         DefaultListModel<String> listClientsModel = new DefaultListModel<String>();
