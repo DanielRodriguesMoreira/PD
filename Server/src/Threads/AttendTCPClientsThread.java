@@ -35,7 +35,6 @@ import java.util.Arrays;
  */
 
 public class AttendTCPClientsThread extends Thread implements Constants, ClientServerRequests{
-    private static final String REMOTE_NAME = "remote";
     private Socket toClientSocket = null;
     private DataAddress myAddress = null;
     private InetAddress directoryServiceIP = null;
@@ -110,6 +109,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case LOGOUT:
                         if(this.isUserLoggedIn(requestMessage.getClientAddress())){
                             this.removeUserFromList(requestMessage.getClientAddress());
+                            this.removeUserNameFromList(requestMessage.getLogin().getUsername());
                             success = true;
                         }else{
                             success = false;
@@ -277,6 +277,19 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     
     /**
      * Este método vai ser chamado:
+     *      -   login
+     *      -   createAccount
+     *  serve para adicionar as strings do login numa lista para depois comparar cada vez que tentamos fazer login
+     */
+    private void addUserToListNamesLoggedIn(String username) {
+        synchronized(this.usersNamesLoggedIn){
+            this.usersNamesLoggedIn.add(username);
+        }
+        //this.notifyDirectoryServiceAboutUsersList();
+    }
+    
+    /**
+     * Este método vai ser chamado:
      *      -   logout
      *      -   caso haja algum erro de comunicação com o cliente
      */
@@ -295,6 +308,21 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         
         if(isToNofify){
             this.notifyDirectoryServiceAboutUsersList();
+        }
+    }
+    
+    /**
+     * Este método vai ser chamado:
+     *      -   logout
+     */
+    private void removeUserNameFromList(String username) {
+        synchronized(this.usersNamesLoggedIn){
+            for(String nome : this.usersNamesLoggedIn){
+                if(nome.equals(username)){
+                    this.usersNamesLoggedIn.remove(username);
+                    break;
+                }
+            }
         }
     }
     
@@ -432,12 +460,5 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             }
         }
         return false;
-    }
-
-    private void addUserToListNamesLoggedIn(String username) {
-        synchronized(this.usersNamesLoggedIn){
-            this.usersNamesLoggedIn.add(username);
-        }
-        //this.notifyDirectoryServiceAboutUsersList();
     }
 }
