@@ -381,7 +381,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
                         root.add(server);
                         try {
-                            addFiles(client.GetWorkingDirContent(null, onlineServer.get(jListServers.getSelectedIndex())), server);
+                            addFiles(client.GetWorkingDirContent(onlineServer.get(jListServers.getSelectedIndex())), server);
                         } catch (ServerConnectionException ex) {
                             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (UsernameOrPasswordIncorrectException ex) {
