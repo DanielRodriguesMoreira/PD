@@ -405,7 +405,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 if (tp.getPathCount() == 3) {
                     if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
                         try {
-                            client.ChangeDirecotry(tp.getParentPath().toString().replace("remote",""), tp.getLastPathComponent().toString());
+                            client.ChangeDirectory(tp.getParentPath().toString().replace("remote",""), tp.getLastPathComponent().toString());
                     } catch (ServerConnectionException ex) {
                         Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (UsernameOrPasswordIncorrectException ex) {
