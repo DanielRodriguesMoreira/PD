@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -227,7 +228,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         tree = new javax.swing.JTree(root);
         home = new DefaultMutableTreeNode("C:");
         root.add(home);
-        addFiles(File.listRoots()[0].listFiles(),home);
+        addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())), home);
         jScrollPane1.setViewportView(tree);
         
         tree.addMouseListener(new MouseAdapter() {
@@ -281,7 +282,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             }
                         } while(repeatDialogInput);
                         if(!cancelLoginCycle){
-                            DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
+                            DefaultMutableTreeNode server = new DefaultMutableTreeNode("remote" + onlineServer.get(jListServers.getSelectedIndex()).getName());
                             root.add(server);
                             try {
                                 addFiles(client.GetWorkingDirContent( onlineServer.get(jListServers.getSelectedIndex())), server);
@@ -368,15 +369,15 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
     private void jListClientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListClientsMouseClicked
         // TODO add your handling code here:
-        if(!this.jListClients.isSelectionEmpty()){
-            if(evt.getClickCount() == 2){
+        if (!this.jListClients.isSelectionEmpty()){
+            if (evt.getClickCount() == 2){
                 DataAddress usernameToSend = this.onlineClient.get(this.jListClients.getSelectedIndex());
                 String title = "Message to " + usernameToSend.getName();
                 JFrame frame = new JFrame(title);
                 
                 String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
                 String message = "[" + username + " - To " + usernameToSend.getName() + "] -> " + aux;
-                if(!aux.isEmpty() || aux != null)
+                if (!aux.isEmpty() || aux != null)
                     client.sendMessageTo(usernameToSend, message);
             }
         }
@@ -384,14 +385,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
 
     private void jButtonBroadcastMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonBroadcastMouseClicked
         // TODO add your handling code here:
-        if(this.onlineClient.isEmpty())
+        if (this.onlineClient.isEmpty())
             return;
         
         String title = "Message to All users";
         JFrame frame = new JFrame(title);
         String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
         String message = "[" + username + " - To All] -> " + aux;
-        if(!aux.isEmpty() || aux != null)
+        if (!aux.isEmpty() || aux != null)
             client.sendMessageToAll(message);
     }//GEN-LAST:event_jButtonBroadcastMouseClicked
 
@@ -403,10 +404,25 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (tp != null) {   //Se estiver alguma coisa selecionada
             if (me.getButton() == 1 && me.getClickCount() == 2) {    //É para abrir
                 if (tp.getPathCount() == 3) {
-                    if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
-                        System.out.println("É pasta");
-                    else
-                        System.out.println("É ficheiro");
+                    if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()){
+                        String fatherName = tp.getParentPath().getLastPathComponent().toString();
+                        
+                        try {
+                            DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
+                            fatherNode.removeAllChildren();
+                            addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
+                        } catch (ServerConnectionException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (UsernameOrPasswordIncorrectException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ClientNotLoggedInException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (CreateAccountException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    } else
+                            System.out.println("É ficheiro");
                 }
             } else if (me.getButton() == 3) {
                 if (tp.getPathCount() == 2) {
@@ -433,8 +449,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     });
                     popup.add(itemPaste);
                     // </editor-fold>
-                } else if(tp.getPathCount() == 3) {
-                    if(!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
+                } else if (tp.getPathCount() == 3) {
+                    if (!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
                         //Botao direito nos ficheiros
                         // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
                         itemCopy = new JMenuItem("Copy");
@@ -479,6 +495,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }    
     // </editor-fold>
     
+    private DefaultMutableTreeNode findNode(int size, String name){
+        for(int i= 0; i < size; i++)
+            if(root.getChildAt(i).toString().equals(name))
+                return (DefaultMutableTreeNode) root.getChildAt(i);
+        return null;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBroadcast;
@@ -495,13 +518,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
     
-    private void addFiles(File [] files, DefaultMutableTreeNode remote) {
-        if(files != null){
-            remote.add(new DefaultMutableTreeNode(".."));
-            for(File f: files){
+    private void addFiles(ArrayList<File> files, DefaultMutableTreeNode remote) {
+        if (files != null){
+            for (File f: files){
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
-                if(!f.isDirectory())
+                if (f.isFile())
                     node.setAllowsChildren(false);
+                else
+                    System.out.println(f.getName());
                 remote.add(node);
             }
         } else
@@ -511,7 +535,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }
     
     private void fillServersList() {
-        if(client.getOnlineServers() == null ) return;
+        if (client.getOnlineServers() == null ) return;
         this.onlineServer = new ArrayList<>(client.getOnlineServers());
         
         DefaultListModel<String> listServersModel = new DefaultListModel<String>();
@@ -522,7 +546,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }
     
     private void fillClientsList() {
-        if(client.getOnlineClients() == null ) return;
+        if (client.getOnlineClients() == null ) return;
         this.onlineClient = new ArrayList<>(client.getOnlineClients());
         
         DefaultListModel<String> listClientsModel = new DefaultListModel<String>();

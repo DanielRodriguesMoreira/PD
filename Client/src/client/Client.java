@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,13 +69,11 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     private DataAddress findServerByName(String server) {
-        DataAddress search = null;
-        
-        for(int i = 0; i < this.OnlineServers.size(); i++) {
-            if (this.OnlineServers.get(i).getName().equals(server))
-                search = this.OnlineServers.get(i);
+        for(DataAddress i : this.OnlineServers) {
+            if (i.getName().equals(server))
+                return i;
         }
-        return search;
+        return null;
     }
 
     private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
@@ -179,16 +178,26 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public File[] GetWorkingDirContent(DataAddress serverToSend)
+    public ArrayList<File> GetWorkingDirContent(DataAddress serverToSend)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(dataAddress, true, false);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, true);
+        message = sendMessageToServer(message, serverToSend);
+        return message.getWorkingDirContent();
+    }
+    
+    @Override
+    public ArrayList<File> ChangeDirectory(String serverName, String newPath) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        System.out.println("SERVER NAME = " + serverName);
+        DataAddress serverToSend = findServerByName(serverName);
+        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+        ClientServerMessage message = new ClientServerMessage(dataAddress, newPath);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
 
     @Override
     public String GetWorkingDirPath(DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
-        ClientServerMessage message = new ClientServerMessage(dataAddress, false, true);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirectoryPath();
     }

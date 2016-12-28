@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Scanner;
 import DataMessaging.Login;
 import Exceptions.WriteOnFileException;
+import java.util.Arrays;
 
 /**
  * @author Daniel Moreira
@@ -89,7 +90,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                                 this.addUserToList(requestMessage.getClientAddress());
                             }
                             success = true;
-                            this.setClientWorkingDir(requestMessage.getLogin().getUsername() + File.separator);
+                            this.setClientWorkingDir(requestMessage.getLogin().getUsername());
                         }else{
                             success = false;
                         }
@@ -123,14 +124,16 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case GET_WORKING_DIR_PATH:
                         requestMessage.setWorkingDirectoryPath(this.getClientWorkingDir());
                         break;
-                    case GET_WORKING_DIR_PATH_TO_SHOW:
-                        requestMessage.setWorkingDirectoryPath(REMOTE_NAME+this.myAddress.getName());
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR CONTENT">
+                    case GET_WORKING_DIR_CONTENT:
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
                     // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc="GET_WORKING_DIR_CONTENT">
-                    case GET_WORKING_DIR_CONTENT:
-                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent(requestMessage.getWorkingDirectoryPath()));
-                        //requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent("Hugo"));
+                    // <editor-fold defaultstate="collapsed" desc=" CHANGE DIRECTORY ">
+                    case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS path pode vir a null ou ser uma path que não exista
+                        this.setClientWorkingDir(requestMessage.getPathToChange());
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
                     // </editor-fold>
                 }
@@ -370,10 +373,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         return true;
     }
     
-    private File[] getWorkingDirContent(String path){
-        File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + path).listFiles();
-        file[file.length - 1] = new File("ola tiago");
-        return file;
+    private ArrayList<File> getWorkingDirContent(){       
+        File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
+        
+        ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
+        filesToSend.add(new File("(Ola Tiago)"));
+        
+        return filesToSend;
     }
     
     private String getClientWorkingDir(){
@@ -381,7 +387,8 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private void setClientWorkingDir(String newWorkingDir){
-        this.clientWorkingDir = newWorkingDir;
+        //this.clientParentWorkingDir = this.clientWorkingDir;
+        this.clientWorkingDir = newWorkingDir + File.separator;
     }
     
     private String getClientParentWorkingDir(){
