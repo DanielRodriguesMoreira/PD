@@ -25,7 +25,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 /**
@@ -245,10 +244,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // <editor-fold defaultstate="collapsed" desc=" Events ">
     private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
         // TODO add your handling code here:
-        if (!this.jListServers.isSelectionEmpty()) {
+        popup = new JPopupMenu();
+        JMenuItem itemLogin, itemLogout, itemRegister;
+        
+        if(!this.jListServers.isSelectionEmpty()) {
             if (evt.getButton() == 3) {
-                popup = new JPopupMenu();
-                JMenuItem itemLogin, itemLogout, itemRegister;
                 // <editor-fold defaultstate="collapsed" desc=" Login Item (PopUpMenu) ">
                 itemLogin = new JMenuItem("Login");
                 itemLogin.addActionListener(new ActionListener() {
@@ -261,7 +261,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             do {
                                 JTextField inputUsernameTextField = new JTextField();
                                 JTextField inputPasswordTextField = new JTextField();
-
+                                
                                 Object[] message = {"Username:", inputUsernameTextField, "Password:", inputPasswordTextField};
                                 option = JOptionPane.showConfirmDialog(null, message, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
                                 if(option == JOptionPane.OK_OPTION) {
@@ -276,7 +276,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             
                             if (cancelLoginCycle == false) {
                                 try {
-                                client.Login(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                                    client.Login(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
                                 } catch (ServerConnectionException | UsernameOrPasswordIncorrectException ex) {
                                     repeatDialogInput = true;
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Login error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);

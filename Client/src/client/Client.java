@@ -112,7 +112,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public boolean checkClientExists() {
         
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
-       // this.receiveMessageFromServiceDirectory();
+        this.receiveMessageFromServiceDirectory();
         boolean exists = message.isExists();
         System.out.println("Exists = " + exists);
         if(exists){
