@@ -186,7 +186,8 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public ArrayList<File> ChangeDirecotry(String serverName, String newPath) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+    public ArrayList<File> ChangeDirectory(String serverName, String newPath) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
         ClientServerMessage message = new ClientServerMessage(dataAddress, newPath);
