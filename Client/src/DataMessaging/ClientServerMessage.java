@@ -8,6 +8,7 @@ import static Constants.ClientServerRequests.LOGIN;
 import static Constants.ClientServerRequests.LOGOUT;
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * @author Daniel Moreira
@@ -24,7 +25,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     private DataAddress clientAddress;
     
     private String workingDirectoryPath;
-    private File[] workingDirectoryContent;
+    private ArrayList<File> workingDirectoryContent;
     
     public ClientServerMessage(){
         this.login = null;
@@ -68,20 +69,16 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
      * 
      * @param myAddress address of the client who sends the request
      * @param getContent true if is to get the content of the working directory, false if is to get the working directory path
-     * @param firstTime (only if getContent equals false) true if is to show the first time
      */
-    public ClientServerMessage(DataAddress myAddress, boolean getContent, boolean firstTime){
+    public ClientServerMessage(DataAddress myAddress, boolean getContent){
         this.clientAddress = myAddress;
         if(getContent){
-            this.workingDirectoryContent = null;
+            this.workingDirectoryContent = new ArrayList<>();
             this.request = GET_WORKING_DIR_CONTENT;
         }
         else{
             this.workingDirectoryPath = null;
-            if(firstTime)
-                this.request = GET_WORKING_DIR_PATH_TO_SHOW;
-            else
-                this.request = GET_WORKING_DIR_PATH;
+            this.request = GET_WORKING_DIR_PATH;
         }
     }
     
@@ -106,7 +103,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         return this.clientAddress;
     }
     
-    public File[] getWorkingDirContent(){
+    public ArrayList<File> getWorkingDirContent(){
         return this.workingDirectoryContent;
     }
     
@@ -117,10 +114,8 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Set's ">
-    public void setWorkingDirectoryContent(File[] files){
-        this.workingDirectoryContent = new File[files.length];
-        System.arraycopy(files, 0, this.workingDirectoryContent, 0, files.length );
-        System.out.println("dirContent = " + this.workingDirectoryContent.length);
+    public void setWorkingDirectoryContent(ArrayList<File> files){
+        this.workingDirectoryContent = files;
     }
     
     public void setWorkingDirectoryPath(String workingDirectoryPath){

@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,16 +180,16 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public File[] GetWorkingDirContent(DataAddress serverToSend)
+    public ArrayList<File> GetWorkingDirContent(DataAddress serverToSend)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
-        ClientServerMessage message = new ClientServerMessage(dataAddress, true, false);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, true);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
 
     @Override
     public String GetWorkingDirPath(DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
-        ClientServerMessage message = new ClientServerMessage(dataAddress, false, true);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirectoryPath();
     }
