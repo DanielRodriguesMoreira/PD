@@ -9,6 +9,8 @@ import Exceptions.ServerConnectionException;
 import Exceptions.UsernameOrPasswordIncorrectException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -23,12 +25,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  * @author Daniel Moreira
  * @author Hugo Santos
  * @author Tiago Santos 
  */
+
 public class ClientGUI extends JFrame implements Constants, Observer {
     Client client;
     static String username;
@@ -223,6 +227,30 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         root = new DefaultMutableTreeNode("Root");
         tree = new javax.swing.JTree(root);
         jScrollPane1.setViewportView(tree);
+        
+        tree.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent me) {
+              doMouseClicked(me);
+            }
+        });
+    }
+
+    void doMouseClicked(MouseEvent me) {
+        TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
+        if (tp != null) {
+            if (me.getButton() == 1 && me.getClickCount() == 2)
+                if (tp.getPathCount() == 3)
+                    if (tp.getLastPathComponent().toString().equals("..."))
+                        System.out.println("Andar para tras");
+                    else
+                    {
+                        if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
+                            System.out.println("É pasta");
+                        else
+                            System.out.println("É ficheiro");
+                    }
+        } else
+            System.out.println("Nada selecionado");
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Events ">
