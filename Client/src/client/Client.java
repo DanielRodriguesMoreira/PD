@@ -190,7 +190,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, newPath);
+        ClientServerMessage message = new ClientServerMessage(dataAddress, newPath, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
@@ -203,6 +203,16 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         ClientServerMessage message = new ClientServerMessage(dataAddress, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirectoryPath();
+    }
+    
+    @Override
+    public ArrayList<File> MakeDir(String serverName, String newDirName) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        System.out.println("SERVER NAME = " + serverName);
+        DataAddress serverToSend = findServerByName(serverName);
+        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+        ClientServerMessage message = new ClientServerMessage(dataAddress, newDirName, true);
+        message = sendMessageToServer(message, serverToSend);
+        return message.getWorkingDirContent();
     }
     
     @Override

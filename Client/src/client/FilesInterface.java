@@ -30,5 +30,7 @@ public interface FilesInterface {
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public String GetWorkingDirPath(String serverName) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
+    public ArrayList<File> MakeDir(String serverName, String newDirName)
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public boolean GetFilesInDirectory(File directory);
 }
