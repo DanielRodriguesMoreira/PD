@@ -186,6 +186,13 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
+    
+    @Override
+    public ArrayList<File> ChangeDirecotry(DataAddress servertToSend, String newPath) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        ClientServerMessage message = new ClientServerMessage(dataAddress, newPath);
+        message = sendMessageToServer(message, servertToSend);
+        return message.getWorkingDirContent();
+    }
 
     @Override
     public String GetWorkingDirPath(DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {

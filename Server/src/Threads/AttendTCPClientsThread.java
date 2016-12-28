@@ -90,7 +90,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                                 this.addUserToList(requestMessage.getClientAddress());
                             }
                             success = true;
-                            this.setClientWorkingDir(requestMessage.getLogin().getUsername() + File.separator);
+                            this.setClientWorkingDir(requestMessage.getLogin().getUsername());
                         }else{
                             success = false;
                         }
@@ -125,10 +125,15 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         requestMessage.setWorkingDirectoryPath(this.getClientWorkingDir());
                         break;
                     // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc="GET_WORKING_DIR_CONTENT">
+                    // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR CONTENT">
                     case GET_WORKING_DIR_CONTENT:
-                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent(requestMessage.getWorkingDirectoryPath()));
-                        //requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent("Hugo"));
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" CHANGE DIRECTORY ">
+                    case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS
+                        this.setClientWorkingDir(requestMessage.getPathToChange());
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
                     // </editor-fold>
                 }
@@ -368,11 +373,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         return true;
     }
     
-    private ArrayList<File> getWorkingDirContent(String path){       
-        File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + path).listFiles();
+    private ArrayList<File> getWorkingDirContent(){       
+        File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
         
         ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
-        filesToSend.add(new File("Ola Tiago"));
+        filesToSend.add(new File("(Ola Tiago)"));
         
         return filesToSend;
     }
@@ -383,7 +388,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     
     private void setClientWorkingDir(String newWorkingDir){
         //this.clientParentWorkingDir = this.clientWorkingDir;
-        this.clientWorkingDir = newWorkingDir;
+        this.clientWorkingDir = newWorkingDir + File.separator;
     }
     
     private String getClientParentWorkingDir(){

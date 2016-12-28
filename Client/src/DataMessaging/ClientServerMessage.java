@@ -26,12 +26,14 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     private String workingDirectoryPath;
     private ArrayList<File> workingDirectoryContent;
+    private String pathToChange;
     
     public ClientServerMessage(){
         this.login = null;
         this.request = null;
         this.success = false;
         this.clientAddress = null;
+        this.pathToChange = null;
     }
     
     /**
@@ -82,6 +84,12 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         }
     }
     
+    public ClientServerMessage(DataAddress myAddress, String path){
+        this.clientAddress = myAddress;
+        this.pathToChange = path;
+        this.request = CHANGE_DIRECTORY;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Get's ">
     public boolean getSuccess(){
         return this.success;
@@ -109,6 +117,10 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     public String getWorkingDirectoryPath(){
         return this.workingDirectoryPath;
+    }
+    
+    public String getPathToChange(){
+        return this.pathToChange;
     }
     
     // </editor-fold>
