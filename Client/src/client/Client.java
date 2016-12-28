@@ -65,7 +65,17 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         } catch (UnknownHostException ex) {
             System.err.println("Can't find directory service");
         }
-    }    
+    }
+    
+    private DataAddress findServerByName(String server) {
+        DataAddress search = null;
+        
+        for(int i = 0; i < this.OnlineServers.size(); i++) {
+            if (this.OnlineServers.get(i).getName().equals(server))
+                search = this.OnlineServers.get(i);
+        }
+        return search;
+    }
 
     private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
         this.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, usernameToSend, message);

@@ -46,7 +46,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     private javax.swing.JTree tree;
-    DefaultMutableTreeNode root;
+    DefaultMutableTreeNode root, home;
     public JPopupMenu popup;
     
     public ClientGUI() {
@@ -224,19 +224,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     private void initTree(){
         root = new DefaultMutableTreeNode("Root");
-        DefaultMutableTreeNode base;
-        // <editor-fold defaultstate="collapsed" desc=" Verificar o sistema operativo ">
-        if(System.getProperty("os.name").equals("Mac OS X"))
-            base = new DefaultMutableTreeNode("/home");
-        else
-            base = new DefaultMutableTreeNode("C:");
-        // </editor-fold>
-        root.add(base);
-        addFiles(File.listRoots()[0].listFiles(), base);
         tree = new javax.swing.JTree(root);
+        home = new DefaultMutableTreeNode("C:");
+        root.add(home);
+        addFiles(File.listRoots()[0].listFiles(),home);
         jScrollPane1.setViewportView(tree);
         
         tree.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent me) {
               doMouseClicked(me);
             }
@@ -244,65 +239,23 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }
 
     void doMouseClicked(MouseEvent me) {
+        popup = new JPopupMenu();
+        JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove;
         TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
+        
         if (tp != null) {
             if (me.getButton() == 1 && me.getClickCount() == 2) {
+                //É para abrir
                 if (tp.getPathCount() == 3) {
-                    if (tp.getLastPathComponent().toString().equals(".."))
-                        System.out.println("Andar para tras");
+                    if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
+                        System.out.println("É pasta");
                     else
-                    {
-                        System.out.println(((File[])File.listRoots()).toString());
-                        if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
-                            System.out.println("É pasta");
-                        else
-                            System.out.println("É ficheiro");
-                    }
+                        System.out.println("É ficheiro");
                 }
             } else if (me.getButton() == 3) {
-                popup = new JPopupMenu();
-                JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove, itemOpen;
-                // <editor-fold defaultstate="collapsed" desc=" Open Folder/File ">
-                itemOpen = new JMenuItem("Open");
-                itemOpen.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar Open para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
-                itemCopy = new JMenuItem("Copy");
-                itemCopy.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar Copy para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" Paste Folder/File ">
-                itemPaste = new JMenuItem("Paste");
-                itemPaste.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar Paste para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" Cut Folder/File ">
-                itemCut = new JMenuItem("Cut");
-                itemCut.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar Cut para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" MakeDir ">
+                if (tp.getPathCount() == 2) {
+                    //Botao direito e servidor
+                    // <editor-fold defaultstate="collapsed" desc=" MakeDir ">
                 itemMakedir = new JMenuItem("MakeDir");
                 itemMakedir.addActionListener(new ActionListener() {
                     @Override
@@ -311,8 +264,47 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         //client.GetFilesInDirectory(me.);
                     }
                 });
+                popup.add(itemMakedir);
                 // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" Remove Folder/File ">
+                    // <editor-fold defaultstate="collapsed" desc=" Paste Folder/File ">
+                itemPaste = new JMenuItem("Paste");
+                itemPaste.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Enviar Paste para o servidor.");
+                        //client.GetFilesInDirectory(me.);
+                    }
+                });
+                popup.add(itemPaste);
+                // </editor-fold>
+                } else if(tp.getPathCount() == 3) {
+                    if(!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
+                        //Botao direito nos ficheiros
+                        // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
+                        itemCopy = new JMenuItem("Copy");
+                        itemCopy.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                System.out.println("Enviar Copy para o servidor.");
+                                //client.GetFilesInDirectory(me.);
+                            }
+                        });
+                        popup.add(itemCopy);
+                        // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" Cut Folder/File ">
+                    itemCut = new JMenuItem("Cut");
+                    itemCut.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("Enviar Cut para o servidor.");
+                            //client.GetFilesInDirectory(me.);
+                        }
+                    });
+                    popup.add(itemCut);
+                    // </editor-fold>
+                    }
+                    //Pasta e ficheiro botão direito
+                    // <editor-fold defaultstate="collapsed" desc=" Remove Folder/File ">
                 itemRemove = new JMenuItem("Remove");
                 itemRemove.addActionListener(new ActionListener() {
                     @Override
@@ -321,17 +313,10 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         //client.GetFilesInDirectory(me.);
                     }
                 });
-                // </editor-fold>
-                
-                // <editor-fold defaultstate="collapsed" desc=" Adicionar itens ao PopUpMenu/ Mostrar PopUpMenu ">
-                popup.add(itemOpen);
-                popup.add(itemCopy);
-                popup.add(itemPaste);
-                popup.add(itemCut);
-                popup.add(itemMakedir);
                 popup.add(itemRemove);
-                popup.show(this.jScrollPane1, me.getX(), me.getY());
                 // </editor-fold>
+                }
+                popup.show(this.jScrollPane1, me.getX(), me.getY());
             }
         } else
             System.out.println("Nada selecionado");
@@ -378,18 +363,20 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 } catch (ClientNotLoggedInException | CreateAccountException ex) {}
                             }
                         } while(repeatDialogInput);
-                        DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
-                        root.add(server);
-                        try {
-                            addFiles(client.GetWorkingDirContent(onlineServer.get(jListServers.getSelectedIndex())), server);
-                        } catch (ServerConnectionException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (UsernameOrPasswordIncorrectException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ClientNotLoggedInException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (CreateAccountException ex) {
-                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        if(!cancelLoginCycle){
+                            DefaultMutableTreeNode server = new DefaultMutableTreeNode(onlineServer.get(jListServers.getSelectedIndex()).getName());
+                            root.add(server);
+                            try {
+                                addFiles(client.GetWorkingDirContent( onlineServer.get(jListServers.getSelectedIndex())), server);
+                            } catch (ServerConnectionException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (UsernameOrPasswordIncorrectException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (ClientNotLoggedInException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (CreateAccountException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 });
@@ -519,6 +506,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             }
         } else
             System.out.println("Files are null");
+        tree.updateUI();
         jScrollPane1.repaint();
     }
     
