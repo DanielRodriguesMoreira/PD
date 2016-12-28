@@ -28,3 +28,5 @@ hs_err_pid*
 /DirectoryService/build/
 Batch Files/Run Client.bat
 Batch Files/
+
+Server/login.txt
