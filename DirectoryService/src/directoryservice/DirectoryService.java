@@ -1,5 +1,6 @@
 package directoryservice;
 
+import Threads.CommandThread;
 import Constants.Constants;
 import static Constants.Constants.HEARTBEAT;
 import DataMessaging.ClientMessage;
@@ -48,7 +49,7 @@ public class DirectoryService implements Constants {
         List<DataAddress> listServers;
         DataAddress addr;
         
-        CommandThread ct = new CommandThread();
+        CommandThread ct = new CommandThread(mapServers,listClients);
         ct.start();
         
         try {

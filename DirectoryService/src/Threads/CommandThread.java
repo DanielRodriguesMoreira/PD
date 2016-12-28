@@ -1,15 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package directoryservice;
+package Threads;
 
 import DataMessaging.DataAddress;
-import static directoryservice.DirectoryService.mapServers;
-import static directoryservice.DirectoryService.listClients;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -18,6 +12,15 @@ import java.util.Scanner;
  * @author Tiago Santos 
  */
 public class CommandThread extends Thread{
+    
+    static Map<DataAddress,List<DataAddress>> mapServers;
+    static List<DataAddress> listClients;
+
+    public CommandThread(Map<DataAddress, List<DataAddress>> mapServers,
+            List<DataAddress> listClients) {
+        this.mapServers = mapServers;
+        this.listClients = listClients;
+    }
     
     @Override
     public void run(){

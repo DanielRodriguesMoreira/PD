@@ -221,6 +221,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     private void initTree(){
         root = new DefaultMutableTreeNode("Root");
+        DefaultMutableTreeNode base = new DefaultMutableTreeNode("C:");
+        root.add(base);
+        addFiles(new File("C:").listFiles(),base);
         tree = new javax.swing.JTree(root);
         jScrollPane1.setViewportView(tree);
     }
@@ -396,15 +399,17 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
     
-    private void addFiles(File [] files, DefaultMutableTreeNode node) {
+    private void addFiles(File [] files, DefaultMutableTreeNode remote) {
         if(files != null){
-            node.add(new DefaultMutableTreeNode("..."));
+            remote.add(new DefaultMutableTreeNode(".."));
             for(File f: files){
-                node.add( new DefaultMutableTreeNode(f.getName()));
+                DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
+                if(!f.isDirectory())
+                    node.setAllowsChildren(false);
+                remote.add(node);
             }
         } else
-            System.out.println("Files estão a null");
-        System.out.println("tentar atualizar");
+            System.out.println("Files are null");
         jScrollPane1.repaint();
     }
     

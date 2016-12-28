@@ -289,4 +289,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             receiveMessageFromServiceDirectory();
         }
     }
+
+    @Override
+    public String GetWorkingDirPath(String path, DataAddress serverToSend) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
