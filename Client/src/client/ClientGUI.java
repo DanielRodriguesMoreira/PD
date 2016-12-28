@@ -227,7 +227,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         root = new DefaultMutableTreeNode("Root");
         DefaultMutableTreeNode base = new DefaultMutableTreeNode("C:");
         root.add(base);
-        addFiles(new File("C:").listFiles(),base);
+        addFiles(new File("C:" + File.separator).listFiles(),base);
         tree = new javax.swing.JTree(root);
         jScrollPane1.setViewportView(tree);
         
