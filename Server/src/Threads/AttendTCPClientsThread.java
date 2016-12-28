@@ -110,6 +110,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         if(this.isUserLoggedIn(requestMessage.getClientAddress())){
                             this.removeUserFromList(requestMessage.getClientAddress());
                             this.removeUserNameFromList(requestMessage.getLogin().getUsername());
+                            resetWorkingDir();
                             success = true;
                         }else{
                             success = false;
@@ -443,6 +444,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             this.clientActualDir = newWorkingDir + File.separator;
             this.clientWorkingDir += newWorkingDir + File.separator;
         }
+    }
+    
+    private void resetWorkingDir(){
+        this.clientWorkingDir = "";
+        this.clientActualDir = "";
     }
     
     private String convertWorkingDirToShow(){
