@@ -12,4 +12,5 @@ public interface Constants {
     public static final String SERVER_MSG_HEARTBEAT = "ServerHeartbeat";
     public static final String SERVER_MSG_CHECK_USERNAME = "ServerCheckUsername";
     public static final String SERVER_MSG_UPDATE_LIST = "ServerUpdateList";
+    public static final String REMOTE_NAME = "remote";
 }
