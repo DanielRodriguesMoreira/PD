@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Scanner;
 import DataMessaging.Login;
 import Exceptions.WriteOnFileException;
+import java.util.Arrays;
 
 /**
  * @author Daniel Moreira
@@ -122,9 +123,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // <editor-fold defaultstate="collapsed" desc=" GET WORKING DIR PATH ">
                     case GET_WORKING_DIR_PATH:
                         requestMessage.setWorkingDirectoryPath(this.getClientWorkingDir());
-                        break;
-                    case GET_WORKING_DIR_PATH_TO_SHOW:
-                        requestMessage.setWorkingDirectoryPath(REMOTE_NAME+this.myAddress.getName());
                         break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc="GET_WORKING_DIR_CONTENT">
@@ -370,10 +368,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         return true;
     }
     
-    private File[] getWorkingDirContent(String path){
+    private ArrayList<File> getWorkingDirContent(String path){       
         File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + path).listFiles();
-        file[file.length - 1] = new File("ola tiago");
-        return file;
+        
+        ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
+        filesToSend.add(new File("Ola Tiago"));
+        
+        return filesToSend;
     }
     
     private String getClientWorkingDir(){
@@ -381,6 +382,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private void setClientWorkingDir(String newWorkingDir){
+        //this.clientParentWorkingDir = this.clientWorkingDir;
         this.clientWorkingDir = newWorkingDir;
     }
     

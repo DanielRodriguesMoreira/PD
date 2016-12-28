@@ -13,5 +13,4 @@ public interface ClientServerRequests {
     public static final String CREATE_ACCOUNT = "CREATE_ACCOUNT";
     public static final String GET_WORKING_DIR_CONTENT = "GET_WORKING_DIR_CONTENT";
     public static final String GET_WORKING_DIR_PATH = "GET_WORKING_DIR_PATH";
-    public static final String GET_WORKING_DIR_PATH_TO_SHOW = "GET_WORKING_DIR_PATH_TO_SHOW";
 }

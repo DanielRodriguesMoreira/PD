@@ -8,6 +8,7 @@ import Exceptions.CreateAccountException;
 import Exceptions.ServerConnectionException;
 import Exceptions.UsernameOrPasswordIncorrectException;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author Daniel Moreira
@@ -23,7 +24,7 @@ public interface FilesInterface {
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public void CreateAccount(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
-    public File[] GetWorkingDirContent(DataAddress serverToSend) 
+    public ArrayList<File> GetWorkingDirContent(DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;
     public String GetWorkingDirPath(DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException;

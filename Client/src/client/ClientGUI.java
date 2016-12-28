@@ -238,90 +238,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             }
         });
     }
-
-    void doMouseClicked(MouseEvent me) {
-        popup = new JPopupMenu();
-        JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove;
-        TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
-        
-        if (tp != null) {
-            if (me.getButton() == 1 && me.getClickCount() == 2) {
-                //É para abrir
-                if (tp.getPathCount() == 3) {
-                    if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
-                        System.out.println("É pasta");
-                    else
-                        System.out.println("É ficheiro");
-                }
-            } else if (me.getButton() == 3) {
-                if (tp.getPathCount() == 2) {
-                    //Botao direito e servidor
-                    // <editor-fold defaultstate="collapsed" desc=" MakeDir ">
-                itemMakedir = new JMenuItem("MakeDir");
-                itemMakedir.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar MakeDir para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                popup.add(itemMakedir);
-                // </editor-fold>
-                    // <editor-fold defaultstate="collapsed" desc=" Paste Folder/File ">
-                itemPaste = new JMenuItem("Paste");
-                itemPaste.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar Paste para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                popup.add(itemPaste);
-                // </editor-fold>
-                } else if(tp.getPathCount() == 3) {
-                    if(!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
-                        //Botao direito nos ficheiros
-                        // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
-                        itemCopy = new JMenuItem("Copy");
-                        itemCopy.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                System.out.println("Enviar Copy para o servidor.");
-                                //client.GetFilesInDirectory(me.);
-                            }
-                        });
-                        popup.add(itemCopy);
-                        // </editor-fold>
-                        // <editor-fold defaultstate="collapsed" desc=" Cut Folder/File ">
-                    itemCut = new JMenuItem("Cut");
-                    itemCut.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            System.out.println("Enviar Cut para o servidor.");
-                            //client.GetFilesInDirectory(me.);
-                        }
-                    });
-                    popup.add(itemCut);
-                    // </editor-fold>
-                    }
-                    //Pasta e ficheiro botão direito
-                    // <editor-fold defaultstate="collapsed" desc=" Remove Folder/File ">
-                itemRemove = new JMenuItem("Remove");
-                itemRemove.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Enviar Remove para o servidor.");
-                        //client.GetFilesInDirectory(me.);
-                    }
-                });
-                popup.add(itemRemove);
-                // </editor-fold>
-                }
-                popup.show(this.jScrollPane1, me.getX(), me.getY());
-            }
-        } else
-            System.out.println("Nada selecionado");
-    }
     
     // <editor-fold defaultstate="collapsed" desc=" Events ">
     private void jListServersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListServersMouseClicked
@@ -478,6 +394,89 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if(!aux.isEmpty() || aux != null)
             client.sendMessageToAll(message);
     }//GEN-LAST:event_jButtonBroadcastMouseClicked
+
+    private void doMouseClicked(MouseEvent me) {
+        popup = new JPopupMenu();
+        JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove;
+        TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
+
+        if (tp != null) {   //Se estiver alguma coisa selecionada
+            if (me.getButton() == 1 && me.getClickCount() == 2) {    //É para abrir
+                if (tp.getPathCount() == 3) {
+                    if(((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren())
+                        System.out.println("É pasta");
+                    else
+                        System.out.println("É ficheiro");
+                }
+            } else if (me.getButton() == 3) {
+                if (tp.getPathCount() == 2) {
+                    //Botao direito e servidor
+                    // <editor-fold defaultstate="collapsed" desc=" MakeDir ">
+                    itemMakedir = new JMenuItem("MakeDir");
+                    itemMakedir.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("Enviar MakeDir para o servidor.");
+                            //client.GetFilesInDirectory(me.);
+                        }
+                    });
+                    popup.add(itemMakedir);
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" Paste Folder/File ">
+                    itemPaste = new JMenuItem("Paste");
+                    itemPaste.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("Enviar Paste para o servidor.");
+                            //client.GetFilesInDirectory(me.);
+                        }
+                    });
+                    popup.add(itemPaste);
+                    // </editor-fold>
+                } else if(tp.getPathCount() == 3) {
+                    if(!((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()) {
+                        //Botao direito nos ficheiros
+                        // <editor-fold defaultstate="collapsed" desc=" Copy Folder/File ">
+                        itemCopy = new JMenuItem("Copy");
+                        itemCopy.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                System.out.println("Enviar Copy para o servidor.");
+                                //client.GetFilesInDirectory(me.);
+                            }
+                        });
+                        popup.add(itemCopy);
+                        // </editor-fold>
+                        // <editor-fold defaultstate="collapsed" desc=" Cut Folder/File ">
+                        itemCut = new JMenuItem("Cut");
+                        itemCut.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                System.out.println("Enviar Cut para o servidor.");
+                                //client.GetFilesInDirectory(me.);
+                            }
+                        });
+                        popup.add(itemCut);
+                        // </editor-fold>
+                    }
+                    //Botão direito na pasta ou ficheiro
+                    // <editor-fold defaultstate="collapsed" desc=" Remove Folder/File ">
+                    itemRemove = new JMenuItem("Remove");
+                    itemRemove.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("Enviar Remove para o servidor.");
+                            //client.GetFilesInDirectory(me.);
+                        }
+                    });
+                    popup.add(itemRemove);
+                    // </editor-fold>
+                }
+                popup.show(this.jScrollPane1, me.getX(), me.getY());
+            }
+        } else
+            System.out.println("No selection");
+    }    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
