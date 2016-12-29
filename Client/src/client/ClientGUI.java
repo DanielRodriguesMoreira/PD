@@ -471,22 +471,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Copy and Paste error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | GetFileContentException | UploadException ex) {}
                             } else{
-                                String serverOrigem = copy.substring(0, copy.indexOf(File.separator));
-                                String serverDestino = tp.getLastPathComponent().toString();
-                                byte[] barray;
-                                if(serverOrigem.equals("C:\\")){
-                                    barray = HomeDownload(copy);
-                                } else 
-                                    try {
-                                        //barray = client.Download(serverOrigem.replace("remote", ""), copy);
-                                        client.Download(serverOrigem.replace("remote", ""), copy);
-                                } catch (ServerConnectionException | GetFileContentException ex) {
-                                    JOptionPane.showConfirmDialog(rootPane, ex, "Download error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | UploadException ex) {}
+                                String serverOrigem = copy.substring(0, copy.indexOf(File.separator)+1);
+                                //String serverDestino = tp.getLastPathComponent().toString();
+                                try {
+                                    client.Download(serverOrigem.replace("remote", ""), copy);
                                 
-                                if(serverDestino.equals("C:\\")){
-                                    
-                                } else 
                                     try {
                                         UpdateWorkingDirectory(findNode(root, tp.getLastPathComponent().toString()), client.Upload(tp.getLastPathComponent().toString().replace("remote", "")));
                                         if(isToCut){
@@ -496,10 +485,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                             fatherNode.remove(childNode);
                                             UpdateTree();
                                             isToCut = false;
-                                        }    
-                                } catch (ServerConnectionException | UploadException ex) {
-                                    JOptionPane.showConfirmDialog(rootPane, ex, "Upload error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException ex) {}
+                                        }
+                                    } catch (ServerConnectionException | UploadException ex) {
+                                        JOptionPane.showConfirmDialog(rootPane, ex, "Upload error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                    } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException ex) {}
+                                } catch (ServerConnectionException | GetFileContentException ex) {
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Download error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | UploadException ex) {}    
                             }
                         }
                     });

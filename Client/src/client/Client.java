@@ -20,6 +20,8 @@ import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -250,7 +252,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             message = sendMessageToServer(message, serverToSend);
             return message.getWorkingDirectoryPath();
         } else {
-            return homePath;
+            return homePath + File.separator;
         }
     }
     
@@ -319,23 +321,45 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, DOWNLOAD);
-        message = sendMessageToServer(message, serverToSend);
-        this.fileName = originalFilePath.substring(originalFilePath.lastIndexOf(File.separator)+1, originalFilePath.length());
-        this.fileContent = message.getFileContent();
+        if (!serverName.equals("C:\\")){
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, DOWNLOAD);
+            message = sendMessageToServer(message, serverToSend);
+            this.fileName = originalFilePath.substring(originalFilePath.lastIndexOf(File.separator)+1, originalFilePath.length());
+            this.fileContent = message.getFileContent();
+        } else {
+            try {
+                this.fileName = originalFilePath.substring(originalFilePath.lastIndexOf(File.separator)+1, originalFilePath.length());
+                this.fileContent = Files.readAllBytes(new File(originalFilePath).toPath());
+            } catch (IOException ex) {
+                throw new GetFileContentException();
+            }
+        }
     }
     
         @Override
     public ArrayList<File> Upload(String serverName) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, this.fileContent, this.fileName);
-        message = sendMessageToServer(message, serverToSend);
-        return message.getWorkingDirContent();
+        if (!serverName.equals("C:\\")){
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, this.fileContent, this.fileName);
+            message = sendMessageToServer(message, serverToSend);
+            return message.getWorkingDirContent();
+        } else {
+            FileOutputStream localFileOutputStream = null;
+            try {
+                localFileOutputStream = new FileOutputStream(homePath + File.separator + fileName);
+                localFileOutputStream.write(fileContent);
+            } catch (FileNotFoundException ex) {
+                throw new UploadException();
+            } catch (IOException ex) {
+                throw new UploadException();
+            }
+            return new ArrayList<>(Arrays.asList((new File(homePath)).listFiles()));
+        }
     }
     
     @Override
