@@ -350,8 +350,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         } catch (ServerConnectionException | ClientNotLoggedInException ex) {
                            JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                         }catch (UsernameOrPasswordIncorrectException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException ex) {/*ignorar*/}
-                        root.remove(findNode(root.getChildCount(), "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
-                        updateTree();
+                        root.remove(findNode(root, "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
+                        UpdateTree();
                     }
                 });
                 // </editor-fold>
@@ -414,7 +414,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         String fatherName = tp.getParentPath().getLastPathComponent().toString();
                         if (!fatherName.equals("C:")) {
                             try {
-                                DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
+                                DefaultMutableTreeNode fatherNode = findNode(root, fatherName);
                                 fatherNode.removeAllChildren();
                                 addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
 
@@ -422,7 +422,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 JOptionPane.showConfirmDialog(rootPane, ex, "Change dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                             } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException ex) {} catch (CopyFileException ex) {}
                         } else {
-                            DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
+                            DefaultMutableTreeNode fatherNode = findNode(root, fatherName);
                             fatherNode.removeAllChildren();
                             addFiles(HomeChangeDirectory(tp.getLastPathComponent().toString()), fatherNode);
                         }
@@ -444,15 +444,15 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             if (!aux.isEmpty() || aux != null) {
                                 if (tp.getLastPathComponent().toString().equals("C:")) {
                                     if(HomeMakeDir(aux)){
-                                        findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
-                                        updateTree();
+                                        findNode(root, tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                        UpdateTree();
                                     } else
                                         JOptionPane.showConfirmDialog(rootPane, "It's impossible to create that directory.\nTry again later.", "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } else {
                                     try {
                                         client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
-                                        findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
-                                        updateTree();
+                                        findNode(root, tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                        UpdateTree();
                                     } catch (ServerConnectionException | MakeDirException ex) {
                                         JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                     } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | RemoveFileOrDirException | CopyFileException ex) {}
@@ -467,12 +467,12 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     itemPaste.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            if (tp.getParentPath().getLastPathComponent().toString().equals(copy.substring(0, copy.indexOf(File.separator))))
+                            if (tp.getLastPathComponent().toString().equals(copy.substring(0, copy.indexOf(File.separator))))
                                 try {
-                                    client.CopyAndPaste(tp.getLastPathComponent().toString().replace("remote", ""), copy);
-                            } catch (ServerConnectionException | CopyFileException ex) {
-                                JOptionPane.showConfirmDialog(rootPane, ex, "Copy and Paste error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException ex) {}
+                                    UpdateWorkingDirectory(findNode(root, tp.getParentPath().getLastPathComponent().toString()), client.CopyAndPaste(tp.getLastPathComponent().toString().replace("remote", ""), copy));
+                                } catch (ServerConnectionException | CopyFileException ex) {
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Copy and Paste error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException ex) {}
                         }
                     });
                     popup.add(itemPaste);
@@ -487,7 +487,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             public void actionPerformed(ActionEvent e) {
                                 System.out.println("Enviar Copy para o servidor.");
                                 try {
-                                    copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote",""));
+                                    copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote","")) + tp.getLastPathComponent().toString();
                                 } catch (ServerConnectionException ex) {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException ex) {}
@@ -530,15 +530,21 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     }    
     // </editor-fold>
     
-    private void updateTree(){
+    private void UpdateTree(){
         tree.updateUI();
         jScrollPane1.repaint();
     }
     
-    private DefaultMutableTreeNode findNode(int size, String name){
-        for(int i= 0; i < size; i++)
-            if(root.getChildAt(i).toString().equals(name))
-                return (DefaultMutableTreeNode) root.getChildAt(i);
+    private void UpdateWorkingDirectory(DefaultMutableTreeNode fatherNode, ArrayList<File> files){
+        fatherNode.removeAllChildren();
+        addFiles(files, fatherNode);
+        UpdateTree();
+    }
+    
+    private DefaultMutableTreeNode findNode(DefaultMutableTreeNode fatherNode, String name){
+        for(int i= 0; i < fatherNode.getChildCount(); i++)
+            if(fatherNode.getChildAt(i).toString().equals(name))
+                return (DefaultMutableTreeNode) fatherNode.getChildAt(i);
         return null;
     }
     
@@ -585,8 +591,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (files != null){
             for (File f: files){
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
-                if (f.isFile())
+                if (f.isFile()){
                     node.setAllowsChildren(false);
+                    System.out.println("ficheiro: " + f.getName());
+                } else
+                    System.out.println("directoria: " + f.getName());
                 remote.add(node);
             }
             if (remote.toString().contains("remote")){
@@ -601,7 +610,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 remote.add( new DefaultMutableTreeNode("[ " + homePath + " ]"));
         } else
             System.out.println("Files are null");
-        updateTree();
+        UpdateTree();
     }
     
     private void fillServersList() {
