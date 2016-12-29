@@ -15,4 +15,5 @@ public interface ClientServerRequests {
     public static final String GET_WORKING_DIR_PATH = "GET_WORKING_DIR_PATH";
     public static final String CHANGE_DIRECTORY = "CHANGE_DIRECTORY";
     public static final String MAKE_NEW_DIR = "MAKE_NEW_DIR";
+    public static final String REMOVE = "REMOVE";
 }

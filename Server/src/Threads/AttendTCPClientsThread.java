@@ -154,6 +154,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" REMOVE ">
+                    case REMOVE:
+                        success = this.removeEmptyDirOrFile(requestMessage.getNewDirName());
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
+                        requestMessage.setSuccess(success);
+                        break;
+                    // </editor-fold>
                 }
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Write response ">
@@ -478,6 +485,14 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private boolean makeDir(String newDirName) {
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         if(!file.mkdir())
+            return false;
+        
+        return true;
+    }
+
+    private boolean removeEmptyDirOrFile(String newDirName) {
+        File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
+        if(!file.delete())
             return false;
         
         return true;

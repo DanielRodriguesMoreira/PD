@@ -85,15 +85,34 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         }
     }
     
-    public ClientServerMessage(DataAddress myAddress, String pathOrName, boolean isToMake){
+    /**
+     * Prepare ClientServerMessage to change working directory
+     * 
+     * @param myAddress address of the client who sends the request
+     * @param newWorkingDir new Working dir
+     */
+    public ClientServerMessage(DataAddress myAddress, String newWorkingDir){
         this.clientAddress = myAddress;
+        this.pathToChange = newWorkingDir;
+        this.request = CHANGE_DIRECTORY;
+    }
+    
+    /**
+     * Prepare ClientServerMessage to make a dir or to remove a dir
+     * 
+     * @param myAddress address of the client who sends the request
+     * @param fileOrDirName name of the file or directory to make/remove
+     * @param isToMake true if is to make, false if is to remove
+     */
+    public ClientServerMessage(DataAddress myAddress, String fileOrDirName, boolean isToMake){
+        this.clientAddress = myAddress;
+        this.workingDirectoryContent = new ArrayList<>();
+        this.newDirName = fileOrDirName;
+        
         if(isToMake){
-            this.workingDirectoryContent = new ArrayList<>();
-            this.newDirName = pathOrName;
             this.request = MAKE_NEW_DIR;
         }else{
-            this.pathToChange = pathOrName;
-            this.request = CHANGE_DIRECTORY;
+            this.request = REMOVE;
         }
     }
     
