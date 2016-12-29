@@ -29,6 +29,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     private String pathToChange;
     private String newDirName;
     private String originalFilePath;
+    private byte[] fileContent;
     
     public ClientServerMessage(){
         this.login = null;
@@ -128,6 +129,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         this.clientAddress = myAddress;
         this.workingDirectoryContent = new ArrayList<>();
         this.originalFilePath = originalFilePath;
+        
         this.request = request;
     }
     
@@ -172,6 +174,10 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         return this.originalFilePath;
     }
     
+    public byte[] getFileContent(){
+        return this.fileContent;
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Set's ">
@@ -181,6 +187,10 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     public void setWorkingDirectoryPath(String workingDirectoryPath){
         this.workingDirectoryPath = workingDirectoryPath;
+    }
+    
+    public void setFileContent(byte[] fileContent){
+        this.fileContent = fileContent;
     }
     // </editor-fold>
 }

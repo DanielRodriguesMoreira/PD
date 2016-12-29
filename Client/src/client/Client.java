@@ -9,6 +9,7 @@ import DataMessaging.DataAddress;
 import Exceptions.ClientNotLoggedInException;
 import Exceptions.CopyFileException;
 import Exceptions.CreateAccountException;
+import Exceptions.GetFileContentException;
 import Exceptions.MakeDirException;
 import Exceptions.RemoveFileOrDirException;
 import Exceptions.ServerConnectionException;
@@ -162,7 +163,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public void Login(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         ClientServerMessage message = new ClientServerMessage(login, true, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
@@ -170,7 +171,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public void Logout(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
@@ -178,7 +179,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public void CreateAccount(Login login, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         ClientServerMessage message = new ClientServerMessage(login, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
@@ -186,7 +187,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public ArrayList<File> GetWorkingDirContent(DataAddress serverToSend)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         ClientServerMessage message = new ClientServerMessage(dataAddress, true);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
@@ -195,7 +196,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public ArrayList<File> ChangeDirectory(String serverName, String newPath) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -207,7 +208,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public String GetWorkingDirPath(String serverName) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -219,7 +220,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public ArrayList<File> MakeDir(String serverName, String newDirName) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -231,7 +232,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public ArrayList<File> Remove(String serverName, String fileOrDirName) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -243,12 +244,23 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     @Override
     public ArrayList<File> CopyAndPaste(String serverName, String originalFilePath) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
         ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, COPY_AND_PASTE);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
+    }
+    
+    @Override
+    public byte[] Download(String serverName, String originalFilePath) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
+        DataAddress serverToSend = findServerByName(serverName);
+        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+        ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, DOWNLOAD);
+        message = sendMessageToServer(message, serverToSend);
+        return message.getFileContent();
     }
     
     @Override
@@ -317,7 +329,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
 
     private ClientServerMessage sendMessageToServer(ClientServerMessage message, DataAddress serverToSend) 
             throws UsernameOrPasswordIncorrectException, ServerConnectionException, ClientNotLoggedInException, 
-            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException{
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         
         try {
             this.createSocket(serverToSend);
@@ -328,7 +340,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             
             out.writeUnshared(message);
             out.flush();
-    //SE FOR O DOWNLOAD TEM QUE LER DOUTRA MANEIRA
             message = (ClientServerMessage)in.readObject();
             switch(message.getRequest()){
                 case LOGIN: 
@@ -348,6 +359,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
                     break;
                 case COPY_AND_PASTE:
                     if(message.getSuccess() != true) throw new CopyFileException(message.getOriginalFilePath());
+                    break;
+                case DOWNLOAD:
+                    if(message.getSuccess() != true) throw new GetFileContentException();
                     break;
             }
             return message;

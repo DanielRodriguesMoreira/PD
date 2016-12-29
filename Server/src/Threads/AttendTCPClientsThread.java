@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Scanner;
 import DataMessaging.Login;
 import Exceptions.WriteOnFileException;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -170,6 +171,17 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case COPY_AND_PASTE:
                         success = this.copyAndPaste(requestMessage.getOriginalFilePath());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
+                        requestMessage.setSuccess(success);
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" DOWNLOAD ">
+                    case DOWNLOAD:
+                        try{
+                            requestMessage.setFileContent(this.downloadFile(requestMessage.getOriginalFilePath()));
+                            success = true;
+                        }catch(IOException ex){
+                            success = false;
+                        }
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
@@ -447,7 +459,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private ArrayList<File> getWorkingDirContent(){  
         System.out.println("Vou procurar em: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
         File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
-        
         ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
 
         return filesToSend;
@@ -517,5 +528,9 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         }
         
         return true;
+    }
+
+    private byte[] downloadFile(String originalFilePath) throws IOException {
+        return Files.readAllBytes(new File(originalFilePath).toPath());
     }
 }
