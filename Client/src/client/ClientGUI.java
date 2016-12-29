@@ -283,6 +283,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                     repeatDialogInput = true;
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Login error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (ClientNotLoggedInException | CreateAccountException | MakeDirException ex) {}
+
                             }
                         } while(repeatDialogInput);
                         if(!cancelLoginCycle){
@@ -331,6 +332,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             } catch (ServerConnectionException | CreateAccountException ex) {
                                 JOptionPane.showConfirmDialog(rootPane, ex, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                             } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | MakeDirException ex) {/*ignore*/}
+
                         }
                     }
                 });
@@ -345,7 +347,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         } catch (ServerConnectionException | ClientNotLoggedInException ex) {
                            JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                         }catch (UsernameOrPasswordIncorrectException | CreateAccountException | MakeDirException ex) {/*ignorar*/}
-                        
                         root.remove(findNode(root.getChildCount(), "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
                         updateTree();
                     }
@@ -413,9 +414,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
                                 fatherNode.removeAllChildren();
                                 addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
+
                             } catch (ServerConnectionException ex) { //apanhar
                                 JOptionPane.showConfirmDialog(rootPane, ex, "Change dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                             } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException ex) {}
+
                         } else {
                             DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
                             fatherNode.removeAllChildren();
@@ -438,8 +441,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
                             if (!aux.isEmpty() || aux != null)
                                 try {
-                                    client.MakeDir(tp.getLastPathComponent().toString(), aux);
-                                    findNode(root.getChildCount(), tp.getParentPath().getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                    client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
+                                    findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
                                     updateTree();
                                     client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
                             } catch (ServerConnectionException | MakeDirException ex) {
