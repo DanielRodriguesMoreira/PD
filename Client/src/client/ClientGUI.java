@@ -607,11 +607,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (files != null){
             for (File f: files){
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(f.getName());
-                if (f.isFile()){
+                if (f.getName().lastIndexOf(".") != -1)
                     node.setAllowsChildren(false);
-                    System.out.println("ficheiro: " + f.getName());
-                } else
-                    System.out.println("directoria: " + f.getName());
                 remote.add(node);
             }
             if (remote.toString().contains("remote")){
