@@ -18,4 +18,5 @@ public interface ClientServerRequests {
     public static final String REMOVE = "REMOVE";
     public static final String COPY_AND_PASTE = "COPY_AND_PASTE";
     public static final String DOWNLOAD = "DOWNLOAD";
+    public static final String UPLOAD = "UPLOAD";
 }

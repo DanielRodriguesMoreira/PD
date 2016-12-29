@@ -49,7 +49,7 @@ public interface FilesInterface {
     public ArrayList<File> CopyAndPaste(String serverName, String originalFilePath)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException;
-    public byte[] Download(String serverName, String originalFilePath)
+    public void Download(String serverName, String originalFilePath)
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException;
     public boolean GetFilesInDirectory(File directory);

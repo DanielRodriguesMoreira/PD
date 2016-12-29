@@ -53,6 +53,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     private int serverDirectoryPort;
     private List<DataAddress> OnlineServers;
     private List<DataAddress> OnlineClients;
+    private byte[] fileContent;
     // </editor-fold>
     
     private Map<DataAddress, Socket> serversMap = null;
@@ -253,14 +254,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public byte[] Download(String serverName, String originalFilePath) 
+    public void Download(String serverName, String originalFilePath) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, GetFileContentException{
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
         ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, DOWNLOAD);
         message = sendMessageToServer(message, serverToSend);
-        return message.getFileContent();
+        this.fileContent = message.getFileContent();
     }
     
     @Override
