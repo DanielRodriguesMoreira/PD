@@ -55,6 +55,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static boolean repeatDialogInput = false;
     static boolean cancelLoginCycle = false;
     static boolean cancelCreateAccountCycle = false;
+    static boolean isToCut = false;
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
     private javax.swing.JTree tree;
@@ -500,6 +501,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 } else 
                                     try {
                                         UpdateWorkingDirectory(findNode(root, tp.getLastPathComponent().toString()), client.Upload(tp.getLastPathComponent().toString().replace("remote", "")));
+                                        if(isToCut){
+                                            client.Remove(serverOrigem.replace("remote", ""), copy.substring(copy.lastIndexOf(File.separator)+1, copy.length()));
+                                            DefaultMutableTreeNode fatherNode = findNode(root, serverOrigem);
+                                            DefaultMutableTreeNode childNode = findNode(fatherNode, copy.substring(copy.lastIndexOf(File.separator)+1, copy.length()));
+                                            fatherNode.remove(childNode);
+                                            UpdateTree();
+                                            isToCut = false;
+                                        }    
                                 } catch (ServerConnectionException | UploadException ex) {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Upload error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException ex) {}
@@ -532,7 +541,12 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 System.out.println("Enviar Cut para o servidor.");
-                                //client.GetFilesInDirectory(me.);
+                                try {
+                                    copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote","")) + tp.getLastPathComponent().toString();
+                                    isToCut = true;
+                                } catch (ServerConnectionException ex) {
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
                             }
                         });
                         popup.add(itemCut);
