@@ -438,25 +438,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
                             if (!aux.isEmpty() || aux != null)
                                 try {
-<<<<<<< Updated upstream
                                     client.MakeDir(tp.getLastPathComponent().toString(), aux);
                                     findNode(root.getChildCount(), tp.getParentPath().getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
                                     updateTree();
-                            } catch (ServerConnectionException ex) {
-                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (UsernameOrPasswordIncorrectException ex) {
-                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (ClientNotLoggedInException ex) {
-                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (CreateAccountException ex) {
-                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-=======
                                     client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
                             } catch (ServerConnectionException | MakeDirException ex) {
                                 JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                             } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException ex) {}
->>>>>>> Stashed changes
                         }
                     });
                     popup.add(itemMakedir);
@@ -484,14 +472,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 try {
                                     copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote",""));
                                 } catch (ServerConnectionException ex) {
-                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (UsernameOrPasswordIncorrectException ex) {
-                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (ClientNotLoggedInException ex) {
-                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (CreateAccountException ex) {
-                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException ex) {}
                             }
                         });
                         popup.add(itemCopy);
