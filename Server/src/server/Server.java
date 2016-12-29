@@ -182,7 +182,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
         } catch(NumberFormatException e){
             System.err.println("The server port must be a positive integer.");
         } catch(SocketTimeoutException e){
-            System.err.println("Não foi recebida qualquer resposta:\n\t"+e);
+            System.err.println("Timeout exceeded:\n\t"+e);
         } catch(SocketException ex) {
             System.err.println("An error occurred with the UDP socket level:\n\t" + ex);
         } catch(IOException ex) {

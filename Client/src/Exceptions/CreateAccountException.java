@@ -1,10 +1,11 @@
 
 package Exceptions;
 
-/*
+/**
  * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
  */
-
 public class CreateAccountException extends Exception{
 
     private String error;

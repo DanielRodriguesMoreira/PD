@@ -26,14 +26,10 @@ import java.util.List;
 import java.util.Scanner;
 import DataMessaging.Login;
 import Exceptions.WriteOnFileException;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -80,7 +76,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             boolean success = false;
             while(true){
                 success = false;
-                System.out.println("estou a atender um cliente!");
                 // <editor-fold defaultstate="collapsed" desc=" Prepare ObjectOutput and ObjectInput stream ">
                 out = new ObjectOutputStream(toClientSocket.getOutputStream());
                 in = new ObjectInputStream(toClientSocket.getInputStream());
@@ -133,7 +128,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                             System.err.println(ex);
                             success = false;
                         }
-                        System.out.println("Success = " + success);
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
@@ -148,8 +142,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         break;
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" CHANGE DIRECTORY ">
-                    case CHANGE_DIRECTORY:                                                                                          //FALTA VERIFICAR ERROS path pode vir a null ou ser uma path que não exista
-                        System.out.println("Vou tentar mudar para = " + requestMessage.getPathToChange());
+                    case CHANGE_DIRECTORY:
                         this.setClientWorkingDir(requestMessage.getPathToChange());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
@@ -303,7 +296,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private boolean isUserLoggedIn(DataAddress clientAddress){
         for(DataAddress da : this.usersLoggedIn){
             if(da.equals(clientAddress)) {
-                System.out.println("<USER LOGGED IN> " + da.getName());
                 return true;
             }
         }
@@ -420,12 +412,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             
             DatagramPacket packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), this.directoryServiceIP, this.directoryServicePort);
             socketUDP.send(packet);
-            
-            System.out.println("Mandei para o directory service:");
-            for(DataAddress da : this.usersLoggedIn){
-                System.out.println(da.getName());
-            }
-            
         } catch (SocketException ex) {
             System.out.println("An error occurred with the UDP socket level:\n\t" + ex);
         } catch (IOException ex) {
@@ -465,7 +451,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private ArrayList<File> getWorkingDirContent(){  
-        System.out.println("Vou procurar em: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
+        System.out.println("I'll search the folder: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
         File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
         ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
 
@@ -519,7 +505,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
 
     private boolean removeEmptyDirOrFile(String newDirName) {
-        System.out.println("Vou tentar remover: " + this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
+        System.out.println("I'll try to remove: " + this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         return file.delete();
     }
@@ -528,8 +514,8 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         try {
             originalFilePath = originalFilePath.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
             String fileName = new File(originalFilePath).getName();
-            System.out.println("Vou copiar de: " + new File(originalFilePath).toPath());
-            System.out.println("Vou colar em: " + new File(this.rootDirectory + File.separator + this.getClientWorkingDir()+ fileName).toPath());
+            System.out.println("I'll try to copy the file '" + fileName + "' from: " + new File(originalFilePath).toPath());
+            System.out.println("I'll try to paste the file '" + fileName + "' on: " + new File(this.rootDirectory + File.separator + this.getClientWorkingDir()+ fileName).toPath());
             Files.copy(new File(originalFilePath).toPath(), new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + fileName).toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
             return false;
@@ -546,7 +532,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private boolean uploadFile(byte[] fileContent, String fileName) {
         FileOutputStream localFileOutputStream = null;
         try {
-            System.out.println("vou tentar criar este ficheiro: " + this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
+            System.out.println("I'll try to create the file: " + this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
             localFileOutputStream = new FileOutputStream(this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
             localFileOutputStream.write(fileContent);
             return true;
