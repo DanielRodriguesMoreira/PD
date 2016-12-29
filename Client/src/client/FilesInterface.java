@@ -67,5 +67,9 @@ public interface FilesInterface {
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException;
+    public void GetFileContent(String serverName, String fileToOpen)
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
+            GetFileContentException, UploadException;
     public boolean GetFilesInDirectory(File directory);
 }

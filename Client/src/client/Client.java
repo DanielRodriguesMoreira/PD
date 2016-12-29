@@ -16,6 +16,7 @@ import Exceptions.ServerConnectionException;
 import Exceptions.UploadException;
 import Exceptions.UsernameOrPasswordIncorrectException;
 import Threads.ImAliveThread;
+import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,11 +29,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests, Runnable {
@@ -286,6 +290,24 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         ClientServerMessage message = new ClientServerMessage(dataAddress, this.fileContent, this.fileName);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
+    }
+    
+    @Override
+    public void GetFileContent(String serverName, String fileToOpen) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
+            GetFileContentException, UploadException{
+         DataAddress serverToSend = findServerByName(serverName);
+        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+        ClientServerMessage message = new ClientServerMessage(dataAddress, fileToOpen, DOWNLOAD);
+        message = sendMessageToServer(message, serverToSend);
+        this.fileName = fileToOpen.substring(fileToOpen.lastIndexOf(File.separator)+1, fileToOpen.length());
+        this.fileContent = message.getFileContent();
+        Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.open(Files.write(new File(this.fileName).toPath(), this.fileContent).toFile());
+        } catch (IOException ex) {
+            throw new GetFileContentException();
+        }
     }
     
     @Override
