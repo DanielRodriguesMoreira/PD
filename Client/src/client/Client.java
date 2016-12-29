@@ -8,6 +8,7 @@ import DataMessaging.ClientServerMessage;
 import DataMessaging.DataAddress;
 import Exceptions.ClientNotLoggedInException;
 import Exceptions.CreateAccountException;
+import Exceptions.MakeDirException;
 import Exceptions.ServerConnectionException;
 import Exceptions.UsernameOrPasswordIncorrectException;
 import Threads.ImAliveThread;
@@ -158,35 +159,41 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
     @Override
     public void Login(Login login, DataAddress serverToSend) 
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         ClientServerMessage message = new ClientServerMessage(login, true, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
 
     @Override
     public void Logout(Login login, DataAddress serverToSend) 
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
 
     @Override
     public void CreateAccount(Login login, DataAddress serverToSend) 
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         ClientServerMessage message = new ClientServerMessage(login, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
     
     @Override
     public ArrayList<File> GetWorkingDirContent(DataAddress serverToSend)
-            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException{
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         ClientServerMessage message = new ClientServerMessage(dataAddress, true);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirContent();
     }
     
     @Override
-    public ArrayList<File> ChangeDirectory(String serverName, String newPath) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+    public ArrayList<File> ChangeDirectory(String serverName, String newPath) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -196,7 +203,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
 
     @Override
-    public String GetWorkingDirPath(String serverName) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+    public String GetWorkingDirPath(String serverName) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -206,7 +215,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public ArrayList<File> MakeDir(String serverName, String newDirName) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, CreateAccountException {
+    public ArrayList<File> MakeDir(String serverName, String newDirName) 
+            throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
         if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -280,7 +291,8 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
 
     private ClientServerMessage sendMessageToServer(ClientServerMessage message, DataAddress serverToSend) 
-            throws UsernameOrPasswordIncorrectException, ServerConnectionException, ClientNotLoggedInException, CreateAccountException{
+            throws UsernameOrPasswordIncorrectException, ServerConnectionException, ClientNotLoggedInException, 
+            CreateAccountException, MakeDirException{
         
         try {
             this.createSocket(serverToSend);
