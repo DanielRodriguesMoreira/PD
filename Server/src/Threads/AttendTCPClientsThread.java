@@ -500,13 +500,18 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
 
     private boolean removeEmptyDirOrFile(String newDirName) {
+        System.out.println("Vou tentar remover: " + this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         return file.delete();
     }
 
     private boolean copyAndPaste(String originalFilePath) {
         try {
-            Files.copy(new File(originalFilePath).toPath(), new File(this.rootDirectory + File.pathSeparator + this.getClientWorkingDir()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+            originalFilePath = originalFilePath.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
+            String fileName = new File(originalFilePath).getName();
+            System.out.println("Vou copiar de: " + new File(originalFilePath).toPath());
+            System.out.println("Vou colar em: " + new File(this.rootDirectory + File.separator + this.getClientWorkingDir()+ fileName).toPath());
+            Files.copy(new File(originalFilePath).toPath(), new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + fileName).toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
             return false;
         }
