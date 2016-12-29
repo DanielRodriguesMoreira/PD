@@ -30,12 +30,15 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests, Runnable {
@@ -239,12 +242,16 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        System.out.println("SERVER NAME = " + serverName);
-        DataAddress serverToSend = findServerByName(serverName);
-        if (serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, false);
-        message = sendMessageToServer(message, serverToSend);
-        return message.getWorkingDirectoryPath();
+        if (!serverName.equals("C:")){
+            System.out.println("SERVER NAME = " + serverName);
+            DataAddress serverToSend = findServerByName(serverName);
+            if (serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, false);
+            message = sendMessageToServer(message, serverToSend);
+            return message.getWorkingDirectoryPath();
+        } else {
+            return homePath;
+        }
     }
     
     @Override
@@ -290,11 +297,21 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, COPY_AND_PASTE);
-        message = sendMessageToServer(message, serverToSend);
-        return message.getWorkingDirContent();
+        if (!serverName.equals("C:")){
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, COPY_AND_PASTE);
+            message = sendMessageToServer(message, serverToSend);
+            return message.getWorkingDirContent();
+        } else {
+            String fileName = originalFilePath.substring(originalFilePath.lastIndexOf(File.separator)+1, originalFilePath.length());
+            try {
+                Files.copy(new File(originalFilePath).toPath(), new File(homePath + File.separator + fileName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                return new ArrayList<>(Arrays.asList((new File(homePath)).listFiles()));
+            } catch (IOException ex) {
+                throw new CopyFileException(fileName);
+            }
+        }
     }
     
     @Override
