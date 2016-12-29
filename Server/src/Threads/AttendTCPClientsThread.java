@@ -151,6 +151,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case MAKE_NEW_DIR:
                         success = this.makeDir(requestMessage.getNewDirName());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
+                        requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
                 }
