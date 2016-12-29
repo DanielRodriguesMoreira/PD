@@ -147,6 +147,12 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         break;
                     // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" MAKE DIR ">
+                    case MAKE_NEW_DIR:
+                        success = this.makeDir(requestMessage.getNewDirName());
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
+                        break;
+                    // </editor-fold>
                 }
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Write response ">
@@ -466,5 +472,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             }
         }
         return false;
+    }
+
+    private boolean makeDir(String newDirName) {
+        File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
+        if(!file.mkdir())
+            return false;
+        
+        return true;
     }
 }

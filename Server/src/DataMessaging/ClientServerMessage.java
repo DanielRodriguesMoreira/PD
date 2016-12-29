@@ -27,6 +27,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     private String workingDirectoryPath;
     private ArrayList<File> workingDirectoryContent;
     private String pathToChange;
+    private String newDirName;
     
     public ClientServerMessage(){
         this.login = null;
@@ -84,10 +85,16 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         }
     }
     
-    public ClientServerMessage(DataAddress myAddress, String path){
+    public ClientServerMessage(DataAddress myAddress, String pathOrName, boolean isToMake){
         this.clientAddress = myAddress;
-        this.pathToChange = path;
-        this.request = CHANGE_DIRECTORY;
+        if(isToMake){
+            this.workingDirectoryContent = new ArrayList<>();
+            this.newDirName = pathOrName;
+            this.request = MAKE_NEW_DIR;
+        }else{
+            this.pathToChange = pathOrName;
+            this.request = CHANGE_DIRECTORY;
+        }
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Get's ">
@@ -121,6 +128,10 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     public String getPathToChange(){
         return this.pathToChange;
+    }
+    
+    public String getNewDirName(){
+        return this.newDirName;
     }
     
     // </editor-fold>
