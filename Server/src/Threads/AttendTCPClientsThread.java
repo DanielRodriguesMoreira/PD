@@ -484,17 +484,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
 
     private boolean makeDir(String newDirName) {
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
-        if(!file.mkdir())
-            return false;
-        
-        return true;
+        return file.mkdir();
     }
 
     private boolean removeEmptyDirOrFile(String newDirName) {
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
-        if(!file.delete())
-            return false;
-        
-        return true;
+        return file.delete();
     }
 }
