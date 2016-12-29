@@ -350,6 +350,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                            JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                         }catch (UsernameOrPasswordIncorrectException | CreateAccountException ex) {/*ignorar*/}
                         root.remove(findNode(root.getChildCount(), "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
+                        tree.updateUI();
+                        jScrollPane1.repaint();
                     }
                 });
                 // </editor-fold>
@@ -553,7 +555,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             }
             if (remote.toString().contains("remote")){
                 try {
-                    remote.add( new DefaultMutableTreeNode("[ " + client.GetWorkingDirPath(remote.toString().replace("remote","")) + " ]"));
+                    String name = client.GetWorkingDirPath(remote.toString().replace("remote",""));
+                    if(!name.equals(remote.toString() + File.separator))
+                        remote.add( new DefaultMutableTreeNode("[ " + name + " ]"));
                 } catch (ServerConnectionException ex) {
                     Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (UsernameOrPasswordIncorrectException ex) {
