@@ -17,4 +17,5 @@ public interface ClientServerRequests {
     public static final String MAKE_NEW_DIR = "MAKE_NEW_DIR";
     public static final String REMOVE = "REMOVE";
     public static final String COPY_AND_PASTE = "COPY_AND_PASTE";
+    public static final String DOWNLOAD = "DOWNLOAD";
 }
