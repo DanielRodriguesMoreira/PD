@@ -433,25 +433,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     } else
                             try {
                                 client.GetFileContent(tp.getParentPath().getLastPathComponent().toString().replace("remote", ""), client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote", "")) + tp.getLastPathComponent().toString());
-                    } catch (ServerConnectionException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UsernameOrPasswordIncorrectException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ClientNotLoggedInException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (CreateAccountException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (MakeDirException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (RemoveFileOrDirException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (CopyFileException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (GetFileContentException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UploadException ex) {
-                        Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    } catch (ServerConnectionException | GetFileContentException ex) {
+                        JOptionPane.showConfirmDialog(rootPane, ex, "GetFileContent error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                    } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | UploadException ex) {}
                 }
             } else if (me.getButton() == 3) {
                 if (tp.getPathCount() == 2) {
