@@ -15,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
@@ -467,12 +469,26 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     itemPaste.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            if (tp.getLastPathComponent().toString().equals(copy.substring(0, copy.indexOf(File.separator))))
+                            if (tp.getLastPathComponent().toString().equals(copy.substring(0, copy.indexOf(File.separator)))){
                                 try {
                                     UpdateWorkingDirectory(findNode(root, tp.getParentPath().getLastPathComponent().toString()), client.CopyAndPaste(tp.getLastPathComponent().toString().replace("remote", ""), copy));
                                 } catch (ServerConnectionException | CopyFileException ex) {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Copy and Paste error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException ex) {}
+                            } else{
+                                String serverOrigem = copy.substring(0, copy.indexOf(File.separator));
+                                String serverDestino = tp.getLastPathComponent().toString();
+                                byte[] barray;
+                                if(serverOrigem.equals("C:")){
+                                    barray = HomeDownload(copy);
+                                } else 
+                                    barray = client.Download(serverOrigem.replace("remote", ""), copy);
+                                
+                                if(serverDestino.equals("C:")){
+                                    
+                                } else 
+                                    ;//client.Upload(tp.getLastPathComponent().toString().replace("remote", ""), barray);
+                            }
                         }
                     });
                     popup.add(itemPaste);
@@ -560,6 +576,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             if(fatherNode.getChildAt(i).toString().equals(name))
                 return (DefaultMutableTreeNode) fatherNode.getChildAt(i);
         return null;
+    }
+    
+    private byte[] HomeDownload(String path){
+        try {
+            return Files.readAllBytes((new File(path)).toPath());
+        } catch (IOException ex) {
+            return null;
+        }
     }
     
     private boolean HomeRemove(String fileName){
