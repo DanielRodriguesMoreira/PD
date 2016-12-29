@@ -467,10 +467,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             newWorkingDir = newWorkingDir.replace("[ ", "");
             newWorkingDir = newWorkingDir.replace(" ]", "");
             newWorkingDir = newWorkingDir.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
-            newWorkingDir = newWorkingDir.replace(this.clientActualDir, "");
+            newWorkingDir = newWorkingDir.substring(0, newWorkingDir.lastIndexOf(this.clientActualDir));
             newWorkingDir = newWorkingDir.replace(this.rootDirectory + File.separator, "");
+
             this.clientWorkingDir = newWorkingDir;
-            this.clientActualDir = newWorkingDir.replace(this.clientRootDir, "");
+            this.clientActualDir = newWorkingDir.substring(0, newWorkingDir.lastIndexOf(this.clientRootDir));
         }else{
             this.clientActualDir = newWorkingDir + File.separator;
             this.clientWorkingDir += newWorkingDir + File.separator;

@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -338,6 +336,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         if (cancelCreateAccountCycle == false) {
                             try {
                                 client.CreateAccount(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                                // <editor-fold defaultstate="collapsed" desc=" Update Tree ">
+                                    DefaultMutableTreeNode server = new DefaultMutableTreeNode("remote" + onlineServer.get(jListServers.getSelectedIndex()).getName());
+                                    root.add(server);
+                                    addFiles(client.GetWorkingDirContent(onlineServer.get(jListServers.getSelectedIndex())), server);
+                                // </editor-fold>
                             } catch (ServerConnectionException | CreateAccountException ex) {
                                 JOptionPane.showConfirmDialog(rootPane, ex, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                             } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {/*ignore*/}
