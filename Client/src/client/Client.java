@@ -315,6 +315,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
                 case CREATE_ACCOUNT:
                     if(message.getSuccess() != true) throw new CreateAccountException();
                     break;
+                case MAKE_NEW_DIR:
+                    if(message.getSuccess() != true) throw new MakeDirException();
+                    break;
             }
             return message;
         } catch (IOException | ClassNotFoundException ex) {
