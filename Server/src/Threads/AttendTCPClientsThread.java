@@ -82,7 +82,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Receive requestMessage ">
                 requestMessage = (ClientServerMessage)in.readObject();
-                System.out.println("Request - " + requestMessage.getRequest());
+                System.out.println("[AttendTCPClientsThread]Request - " + requestMessage.getRequest());
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Attend request ">
                 switch(requestMessage.getRequest()){
@@ -125,7 +125,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         try {
                             success = this.CreateAccount(requestMessage.getLogin(), requestMessage.getClientAddress());
                         } catch (WriteOnFileException ex) {
-                            System.err.println(ex);
+                            System.err.println("[AttendTCPClientsThread]" + ex);
                             success = false;
                         }
                         requestMessage.setSuccess(success);
@@ -194,7 +194,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                 // </editor-fold>                
             }    
         } catch (ClassNotFoundException | IOException ex) {
-                System.out.println("Client " + 
+                System.out.println("[AttendTCPClientsThread]Client " + 
                         toClientSocket.getInetAddress().getHostAddress() + ":" +
                         toClientSocket.getPort() + " communication error\n\t" + ex);
         } finally{
@@ -202,7 +202,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                 try {
                     this.toClientSocket.close();
                 } catch (IOException ex1) {
-                    System.err.println(ex1);
+                    System.err.println("[AttendTCPClientsThread]" + ex1);
                 }
             } 
             this.removeUserFromList(requestMessage.getClientAddress());
@@ -242,18 +242,18 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         this.loginsList.add(new Login(username, password));
 
                     }catch(Exception e){
-                        System.err.print("> Incorrect entry in file ");
-                        System.err.println(this.loginFile + ": \"" + linha + "\"");
+                        System.err.print("[AttendTCPClientsThread]> Incorrect entry in file ");
+                        System.err.println("[AttendTCPClientsThread]" + this.loginFile + ": \"" + linha + "\"");
                         continue;
                     }
                 }
             }
         } catch (FileNotFoundException ex) {
             System.err.println();
-            System.err.println("File impossible to open: " + this.loginFile + "\n\t" + ex);
+            System.err.println("[AttendTCPClientsThread]File impossible to open: " + this.loginFile + "\n\t" + ex);
         } catch (IOException ex) {
             System.err.println(); 
-            System.err.println(ex);
+            System.err.println("[AttendTCPClientsThread]" + ex);
         } finally{
             try {
                 if(inFile != null){
@@ -413,9 +413,9 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             DatagramPacket packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), this.directoryServiceIP, this.directoryServicePort);
             socketUDP.send(packet);
         } catch (SocketException ex) {
-            System.out.println("An error occurred with the UDP socket level:\n\t" + ex);
+            System.out.println("[AttendTCPClientsThread]An error occurred with the UDP socket level:\n\t" + ex);
         } catch (IOException ex) {
-            System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+            System.out.println("[AttendTCPClientsThread]An error occurred in accessing the socket:\n\t" + ex);
         }
     }
 
@@ -451,7 +451,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
     
     private ArrayList<File> getWorkingDirContent(){  
-        System.out.println("I'll search the folder: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
+        System.out.println("[AttendTCPClientsThread]I'll search the folder: " + this.rootDirectory + File.separator + this.getClientWorkingDir());
         File[] file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir()).listFiles();
         ArrayList<File> filesToSend = new ArrayList<>(Arrays.asList(file));
 
@@ -505,7 +505,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
 
     private boolean removeEmptyDirOrFile(String newDirName) {
-        System.out.println("I'll try to remove: " + this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
+        System.out.println("[AttendTCPClientsThread]I'll try to remove: " + this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         return file.delete();
     }
@@ -514,8 +514,8 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         try {
             originalFilePath = originalFilePath.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
             String fileName = new File(originalFilePath).getName();
-            System.out.println("I'll try to copy the file '" + fileName + "' from: " + new File(originalFilePath).toPath());
-            System.out.println("I'll try to paste the file '" + fileName + "' on: " + new File(this.rootDirectory + File.separator + this.getClientWorkingDir()+ fileName).toPath());
+            System.out.println("[AttendTCPClientsThread]I'll try to copy the file '" + fileName + "' from: " + new File(originalFilePath).toPath());
+            System.out.println("[AttendTCPClientsThread]I'll try to paste the file '" + fileName + "' on: " + new File(this.rootDirectory + File.separator + this.getClientWorkingDir()+ fileName).toPath());
             Files.copy(new File(originalFilePath).toPath(), new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + fileName).toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
             return false;
@@ -532,7 +532,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private boolean uploadFile(byte[] fileContent, String fileName) {
         FileOutputStream localFileOutputStream = null;
         try {
-            System.out.println("I'll try to create the file: " + this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
+            System.out.println("[AttendTCPClientsThread]I'll try to create the file: " + this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
             localFileOutputStream = new FileOutputStream(this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
             localFileOutputStream.write(fileContent);
             return true;

@@ -80,7 +80,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
         // </editor-fold>
         
         if(args.length != 5){
-            System.out.println("Sintaxe: java Server <username> <DirectoryServiceAddress> <DirectoryServicePort> <user/pass file> <root directory>");
+            System.out.println("[ServerMainThread]Sintaxe: java Server <username> <DirectoryServiceAddress> <DirectoryServicePort> <user/pass file> <root directory>");
             return;
         }
         
@@ -104,7 +104,6 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
             // <editor-fold defaultstate="collapsed" desc=" Create TCP Socket ">
             serverSocket = new ServerSocket(0);
             socketTCPPort = serverSocket.getLocalPort();
-            System.out.println("TCP port = " + socketTCPPort);
             // </editor-fold>
             
             // <editor-fold defaultstate="collapsed" desc=" Create ServerMessage and send it to Directory Service (by UDP) ">
@@ -150,7 +149,7 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
             
             // <editor-fold defaultstate="collapsed" desc=" Accept commands from System.in ">
             BufferedReader bufferReaderIn = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Command: ");
+            System.out.println("[ServerMainThread]Command: ");
             while(true){
                 localRequest = bufferReaderIn.readLine();
                 switch(localRequest.toUpperCase()){
@@ -158,39 +157,39 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                         showCommandList();
                         break;
                     case SERVER_GET_USERNAME: 
-                        System.out.println(serverName); 
+                        System.out.println("[ServerMainThread]" + serverName); 
                         break;
                     case SERVER_GET_DIRECTORYSERVICE_ADDRESS:
-                        System.out.println("Directory Service address: " + directoryServiceAddress +
+                        System.out.println("[ServerMainThread]Directory Service address: " + directoryServiceAddress +
                                 ":" + directoryServicePort);
                         break;
                     case SERVER_GET_MYADDRESS:
-                        System.out.println("My address: " + InetAddress.getLocalHost());
-                        System.out.println("UDP port: " + socket.getLocalPort());
-                        System.out.println("TCP port: " + socketTCPPort);
+                        System.out.println("[ServerMainThread]My address: " + InetAddress.getLocalHost());
+                        System.out.println("[ServerMainThread]UDP port: " + socket.getLocalPort());
+                        System.out.println("[ServerMainThread]TCP port: " + socketTCPPort);
                         break;
                     default:
-                        System.out.println("Command not found.");
+                        System.out.println("[ServerMainThread]Command not found.");
                 }
-             System.out.println("\nCommand: ");   
+             System.out.println("\n[ServerMainThread]Command: ");   
             }
             // </editor-fold>
         } catch(ServerAlreadyExistsException ex) {
-            System.err.println(ex);
+            System.err.println("[ServerMainThread]" + ex);
         } catch(UnknownHostException ex) {
-            System.err.println("Can't find directory service " + serverName);
+            System.err.println("[ServerMainThread]Can't find directory service " + serverName);
         } catch(NumberFormatException e){
-            System.err.println("The server port must be a positive integer.");
+            System.err.println("[ServerMainThread]The server port must be a positive integer.");
         } catch(SocketTimeoutException e){
-            System.err.println("Timeout exceeded:\n\t"+e);
+            System.err.println("[ServerMainThread]Timeout exceeded:\n\t"+e);
         } catch(SocketException ex) {
-            System.err.println("An error occurred with the UDP socket level:\n\t" + ex);
+            System.err.println("[ServerMainThread]An error occurred with the UDP socket level:\n\t" + ex);
         } catch(IOException ex) {
             System.err.println("An error occurred in accessing the socket:\n\t" + ex);
         } catch(ClassNotFoundException ex) {
-            System.err.println("The object received is not the expected type:\n\t" + ex);
+            System.err.println("[ServerMainThread]The object received is not the expected type:\n\t" + ex);
         } catch (DirectoryNotExistsException | ItsNotADirectoryException | DirectoryPermissionsDeniedException ex) {
-            System.err.println(ex);
+            System.err.println("[ServerMainThread]" + ex);
         }
     }
     
@@ -215,11 +214,11 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
     }
     
     private static void showCommandList(){
-        System.out.println("Commands list:");
-        System.out.println("GetUsername - Get server username");
-        System.out.println("GetDirectoryServiceAddress - Get directory service address");
-        System.out.println("GetMyAddress - Get server address");
-        System.out.println("GetList - Get commands list");
+        System.out.println("[ServerMainThread]Commands list:");
+        System.out.println("[ServerMainThread]GetUsername - Get server username");
+        System.out.println("[ServerMainThread]GetDirectoryServiceAddress - Get directory service address");
+        System.out.println("[ServerMainThread]GetMyAddress - Get server address");
+        System.out.println("[ServerMainThread]GetList - Get commands list");
     }
     
     @Override
@@ -239,10 +238,10 @@ public class Server implements Constants, Runnable, ServerRequestsConstants{
                  try {
                      Thread.sleep(HEARTBEAT);
                  } catch (InterruptedException ex) {
-                     System.err.println(ex);
+                     System.err.println("[ServerMainThread]" + ex);
                  }  
             } catch (IOException ex) {
-                System.out.println("An error occurred in accessing the socket:\n\t" + ex);
+                System.out.println("[ServerMainThread]An error occurred in accessing the socket:\n\t" + ex);
             }   
         }
     } 
