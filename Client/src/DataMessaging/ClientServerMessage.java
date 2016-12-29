@@ -28,6 +28,7 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     private ArrayList<File> workingDirectoryContent;
     private String pathToChange;
     private String newDirName;
+    private String originalFilePath;
     
     public ClientServerMessage(){
         this.login = null;
@@ -116,6 +117,20 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         }
     }
     
+    /**
+     * Prepare ClientServerMessage to copy&Paste
+     * 
+     * @param myAddress address of the client who sends the request
+     * @param originalFilePath path of the file to copy
+     * @param request
+     */
+    public ClientServerMessage(DataAddress myAddress, String originalFilePath, String request){
+        this.clientAddress = myAddress;
+        this.workingDirectoryContent = new ArrayList<>();
+        this.originalFilePath = originalFilePath;
+        this.request = request;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Get's ">
     public boolean getSuccess(){
         return this.success;
@@ -151,6 +166,10 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     
     public String getNewDirName(){
         return this.newDirName;
+    }
+    
+    public String getOriginalFilePath(){
+        return this.originalFilePath;
     }
     
     // </editor-fold>

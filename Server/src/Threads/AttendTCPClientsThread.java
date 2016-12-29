@@ -26,7 +26,12 @@ import java.util.List;
 import java.util.Scanner;
 import DataMessaging.Login;
 import Exceptions.WriteOnFileException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -157,6 +162,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     // <editor-fold defaultstate="collapsed" desc=" REMOVE ">
                     case REMOVE:
                         success = this.removeEmptyDirOrFile(requestMessage.getNewDirName());
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
+                        requestMessage.setSuccess(success);
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" COPY&PASTE ">
+                    case COPY_AND_PASTE:
+                        success = this.copyAndPaste(requestMessage.getOriginalFilePath());
                         requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         requestMessage.setSuccess(success);
                         break;
@@ -490,5 +502,15 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private boolean removeEmptyDirOrFile(String newDirName) {
         File file = new File(this.rootDirectory + File.separator + this.getClientWorkingDir() + newDirName);
         return file.delete();
+    }
+
+    private boolean copyAndPaste(String originalFilePath) {
+        try {
+            Files.copy(new File(originalFilePath).toPath(), new File(this.rootDirectory + File.pathSeparator + this.getClientWorkingDir()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            return false;
+        }
+        
+        return true;
     }
 }
