@@ -31,6 +31,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     private String username;
     private String directoryServiceIP;
     private String directoryServicePort;
+    private String homePath;
     private DatagramSocket dataSocket = null;
     private DataAddress dataAddress = null;
 
@@ -69,6 +71,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
         this.serversMap = new HashMap<>();
+        this.homePath = "";
         try {
             this.dataSocket = new DatagramSocket();
             this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
@@ -205,16 +208,32 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     @Override
-    public ArrayList<File> ChangeDirectory(String serverName, String newPath) 
+    public ArrayList<File> ChangeDirectory(String serverName, String dirName) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
         System.out.println("SERVER NAME = " + serverName);
-        DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, newPath);
-        message = sendMessageToServer(message, serverToSend);
-        return message.getWorkingDirContent();
+        if (!serverName.equals("C:")){
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, dirName);
+            message = sendMessageToServer(message, serverToSend);
+            return message.getWorkingDirContent();
+        } else {
+            if (dirName.contains(homePath)){
+                homePath = homePath.replace(homePath.substring(homePath.lastIndexOf(File.separator),homePath.length()),"");
+                if (homePath.equals("C:"))
+                    homePath+=File.separator;
+             }else{
+                if (!(homePath.charAt(homePath.length()-1) == File.separatorChar))
+                    homePath += File.separator;
+                homePath += dirName;
+            }
+            File f = new File(homePath);
+            if (f.listFiles() != null)
+                return new ArrayList<>(Arrays.asList(f.listFiles()));
+            return null;
+        }
     }
 
     @Override
@@ -224,7 +243,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             GetFileContentException, UploadException{
         System.out.println("SERVER NAME = " + serverName);
         DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+        if (serverToSend == null) throw new ServerConnectionException("Server not found!");
         ClientServerMessage message = new ClientServerMessage(dataAddress, false);
         message = sendMessageToServer(message, serverToSend);
         return message.getWorkingDirectoryPath();
@@ -235,12 +254,18 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        System.out.println("SERVER NAME = " + serverName);
-        DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, newDirName, true);
-        message = sendMessageToServer(message, serverToSend);
-        return message.getWorkingDirContent();
+        if (!serverName.equals("C:")){
+            System.out.println("SERVER NAME = " + serverName);
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, newDirName, true);
+            message = sendMessageToServer(message, serverToSend);
+            return message.getWorkingDirContent();
+        } else {
+            File file = new File(homePath + File.separator + newDirName);
+            if(!file.mkdir()) throw new MakeDirException();
+            return new ArrayList<>(Arrays.asList((new File(homePath)).listFiles()));
+        }
     }
     
     @Override
@@ -248,12 +273,18 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        System.out.println("SERVER NAME = " + serverName);
-        DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, fileOrDirName, false);
-        message = sendMessageToServer(message, serverToSend);
-        return message.getWorkingDirContent();
+        if (!serverName.equals("C:")){
+            System.out.println("SERVER NAME = " + serverName);
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, fileOrDirName, false);
+            message = sendMessageToServer(message, serverToSend);
+            return message.getWorkingDirContent();
+        } else {
+            File file = new File(homePath + File.separator + fileOrDirName);
+            if(!file.delete()) throw new RemoveFileOrDirException();
+            return new ArrayList<>(Arrays.asList((new File(homePath)).listFiles()));
+        }
     }
     
     @Override
@@ -418,6 +449,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         } catch (IOException | ClassNotFoundException ex) {
             throw new ServerConnectionException("Error with Server connection!\n(" + ex + ")");
         }
+    }
+    
+    public String getHomePath() {
+        return homePath;
+    }
+
+    public void setHomePath(String homePath) {
+        this.homePath = homePath;
     }
     
     private Socket getServerTCPSocket(DataAddress server){
