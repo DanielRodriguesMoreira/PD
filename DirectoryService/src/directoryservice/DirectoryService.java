@@ -69,7 +69,7 @@ public class DirectoryService implements Constants {
                 //Receber resposta
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
-                System.out.println("<DIR> Recebi um pacote");
+                System.out.println("<DIR> packet received");
             
                 //Criar object inputStream
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
@@ -194,7 +194,7 @@ public class DirectoryService implements Constants {
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Erros, Exceptions & Closes ">
                 } else {
-                    System.out.println("Não sei que tipo e' a mensagem.");
+                    throw new ClassNotFoundException();
                 }
             }
         } catch (SocketException ex) {
