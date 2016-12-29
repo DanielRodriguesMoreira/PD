@@ -355,11 +355,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     public void actionPerformed(ActionEvent e) {
                         try {
                             client.Logout(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
+                            root.remove(findNode(root, "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
+                            UpdateTree();
                         } catch (ServerConnectionException | ClientNotLoggedInException ex) {
                            JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                         }catch (UsernameOrPasswordIncorrectException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {/*ignorar*/}
-                        root.remove(findNode(root, "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
-                        UpdateTree();
                     }
                 });
                 // </editor-fold>
