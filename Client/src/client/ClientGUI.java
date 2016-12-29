@@ -5,6 +5,7 @@ import DataMessaging.DataAddress;
 import DataMessaging.Login;
 import Exceptions.ClientNotLoggedInException;
 import Exceptions.CreateAccountException;
+import Exceptions.MakeDirException;
 import Exceptions.ServerConnectionException;
 import Exceptions.UsernameOrPasswordIncorrectException;
 import java.awt.event.ActionEvent;
@@ -281,7 +282,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 } catch (ServerConnectionException | UsernameOrPasswordIncorrectException ex) {
                                     repeatDialogInput = true;
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Login error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                                } catch (ClientNotLoggedInException | CreateAccountException ex) {}
+                                } catch (ClientNotLoggedInException | CreateAccountException ex) {} catch (MakeDirException ex) {
+                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                }
                             }
                         } while(repeatDialogInput);
                         if(!cancelLoginCycle){
@@ -296,6 +299,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             } catch (ClientNotLoggedInException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (CreateAccountException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (MakeDirException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
@@ -335,7 +340,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 client.CreateAccount(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
                             } catch (ServerConnectionException | CreateAccountException ex) {
                                 JOptionPane.showConfirmDialog(rootPane, ex, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException ex) {/*ignore*/}
+                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException ex) {/*ignore*/} catch (MakeDirException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 });
@@ -349,7 +356,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             client.Logout(new Login(username, password), onlineServer.get(jListServers.getSelectedIndex()));
                         } catch (ServerConnectionException | ClientNotLoggedInException ex) {
                            JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                        }catch (UsernameOrPasswordIncorrectException | CreateAccountException ex) {/*ignorar*/}
+                        }catch (UsernameOrPasswordIncorrectException | CreateAccountException ex) {/*ignorar*/} catch (MakeDirException ex) {
+                            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         root.remove(findNode(root.getChildCount(), "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
                         updateTree();
                     }
@@ -425,6 +434,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (CreateAccountException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (MakeDirException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         } else {
                             DefaultMutableTreeNode fatherNode = findNode(root.getChildCount(), fatherName);
@@ -446,8 +457,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
                             if (!aux.isEmpty() || aux != null)
                                 try {
-                                    client.MakeDir(tp.getLastPathComponent().toString(), aux);
-                                    findNode(root.getChildCount(), tp.getParentPath().getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                    client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
+                                    findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
                                     updateTree();
                             } catch (ServerConnectionException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -456,6 +467,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             } catch (ClientNotLoggedInException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (CreateAccountException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (MakeDirException ex) {
                                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
@@ -491,6 +504,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 } catch (ClientNotLoggedInException ex) {
                                     Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                                 } catch (CreateAccountException ex) {
+                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (MakeDirException ex) {
                                     Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
@@ -592,6 +607,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 } catch (ClientNotLoggedInException ex) {
                     Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (CreateAccountException ex) {
+                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (MakeDirException ex) {
                     Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else if(!homePath.equals(File.listRoots()[0].toString()))
