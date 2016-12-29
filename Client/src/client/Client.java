@@ -357,6 +357,13 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
                 throw new UploadException();
             } catch (IOException ex) {
                 throw new UploadException();
+            } finally {
+                try {
+                    if(localFileOutputStream != null)
+                        localFileOutputStream.close();
+                } catch (IOException ex) {
+                    throw new UploadException();
+                }
             }
             return new ArrayList<>(Arrays.asList((new File(homePath)).listFiles()));
         }
@@ -366,17 +373,27 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public void GetFileContent(String serverName, String fileToOpen) throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-         DataAddress serverToSend = findServerByName(serverName);
-        if(serverToSend == null) throw new ServerConnectionException("Server not found!");
-        ClientServerMessage message = new ClientServerMessage(dataAddress, fileToOpen, DOWNLOAD);
-        message = sendMessageToServer(message, serverToSend);
-        this.fileName = fileToOpen.substring(fileToOpen.lastIndexOf(File.separator)+1, fileToOpen.length());
-        this.fileContent = message.getFileContent();
-        Desktop desktop = Desktop.getDesktop();
-        try {
-            desktop.open(Files.write(new File(this.fileName).toPath(), this.fileContent).toFile());
-        } catch (IOException ex) {
-            throw new GetFileContentException();
+        if (!serverName.equals("C:\\")){
+            DataAddress serverToSend = findServerByName(serverName);
+            if(serverToSend == null) throw new ServerConnectionException("Server not found!");
+            ClientServerMessage message = new ClientServerMessage(dataAddress, fileToOpen, DOWNLOAD);
+            message = sendMessageToServer(message, serverToSend);
+            this.fileName = fileToOpen.substring(fileToOpen.lastIndexOf(File.separator)+1, fileToOpen.length());
+            this.fileContent = message.getFileContent();
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.open(Files.write(new File(this.fileName).toPath(), this.fileContent).toFile());
+            } catch (IOException ex) {
+                throw new GetFileContentException();
+            }
+        } else {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.open(new File(fileToOpen));
+                //desktop.open(new File((homePath + File.separator + fileToOpen).replace(File.separator + File.separator, File.separator)));
+            } catch (IOException ex) {
+                throw new GetFileContentException();
+            }
         }
     }
     // </editor-fold>

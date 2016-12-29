@@ -471,7 +471,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Copy and Paste error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | GetFileContentException | UploadException ex) {}
                             } else{
-                                String serverOrigem = copy.substring(0, copy.indexOf(File.separator)+1);
+                                String serverOrigem = copy.substring(0, copy.indexOf(File.separator));
+                                if(serverOrigem.equals("C:"))
+                                    serverOrigem += File.separator;
                                 //String serverDestino = tp.getLastPathComponent().toString();
                                 try {
                                     client.Download(serverOrigem.replace("remote", ""), copy);
