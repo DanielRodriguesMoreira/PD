@@ -133,6 +133,13 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         this.request = request;
     }
     
+    public ClientServerMessage(DataAddress myAddress, byte[] fileContent, String fileName){
+        this.clientAddress = myAddress;
+        this.fileContent = fileContent;
+        this.newDirName = fileName;
+        this.request = UPLOAD;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Get's ">
     public boolean getSuccess(){
         return this.success;

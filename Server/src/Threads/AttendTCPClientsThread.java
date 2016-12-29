@@ -27,6 +27,7 @@ import java.util.Scanner;
 import DataMessaging.Login;
 import Exceptions.WriteOnFileException;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -182,6 +183,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         }catch(IOException ex){
                             success = false;
                         }
+                        requestMessage.setSuccess(success);
+                        break;
+                    // </editor-fold>
+                    // <editor-fold defaultstate="collapsed" desc=" UPLOAD ">
+                    case UPLOAD:
+                        success = this.uploadFile(requestMessage.getFileContent(), requestMessage.getNewDirName());
+                        requestMessage.setWorkingDirectoryContent(this.getWorkingDirContent());
                         requestMessage.setSuccess(success);
                         break;
                     // </editor-fold>
@@ -531,6 +539,28 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     }
 
     private byte[] downloadFile(String originalFilePath) throws IOException {
+        originalFilePath = originalFilePath.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
         return Files.readAllBytes(new File(originalFilePath).toPath());
+    }
+
+    private boolean uploadFile(byte[] fileContent, String fileName) {
+        FileOutputStream localFileOutputStream = null;
+        try {
+            System.out.println("vou tentar criar este ficheiro: " + this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
+            localFileOutputStream = new FileOutputStream(this.rootDirectory + File.separator + this.clientWorkingDir + fileName);
+            localFileOutputStream.write(fileContent);
+            return true;
+        } catch (FileNotFoundException ex) {
+            return false;
+        } catch (IOException ex) {
+            return false;
+        } finally {
+            try {
+                if(localFileOutputStream != null)
+                    localFileOutputStream.close();
+            } catch (IOException ex) {
+                return false;
+            }
+        }
     }
 }
