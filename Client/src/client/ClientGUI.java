@@ -41,6 +41,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String password;
     static String passwordConfirmation;
     static String homePath;
+    static String copy;
     static int option;
     static boolean repeatDialogInput = false;
     static boolean cancelLoginCycle = false;
@@ -350,8 +351,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                            JOptionPane.showConfirmDialog(rootPane, ex, "Logout error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                         }catch (UsernameOrPasswordIncorrectException | CreateAccountException ex) {/*ignorar*/}
                         root.remove(findNode(root.getChildCount(), "remote" + onlineServer.get(jListServers.getSelectedIndex()).getName()));
-                        tree.updateUI();
-                        jScrollPane1.repaint();
+                        updateTree();
                     }
                 });
                 // </editor-fold>
@@ -445,7 +445,19 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             //  JFrame frame = new JFrame(title);
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
                             if (!aux.isEmpty() || aux != null)
-                                client.MakeDir(tp.getLastPathComponent().toString(), aux);
+                                try {
+                                    client.MakeDir(tp.getLastPathComponent().toString(), aux);
+                                    findNode(root.getChildCount(), tp.getParentPath().getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                    updateTree();
+                            } catch (ServerConnectionException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (UsernameOrPasswordIncorrectException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (ClientNotLoggedInException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (CreateAccountException ex) {
+                                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     });
                     popup.add(itemMakedir);
@@ -470,7 +482,17 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 System.out.println("Enviar Copy para o servidor.");
-                                //client.GetFilesInDirectory(me.);
+                                try {
+                                    copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote",""));
+                                } catch (ServerConnectionException ex) {
+                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (UsernameOrPasswordIncorrectException ex) {
+                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (ClientNotLoggedInException ex) {
+                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (CreateAccountException ex) {
+                                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                }
                             }
                         });
                         popup.add(itemCopy);
@@ -506,6 +528,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             System.out.println("No selection");
     }    
     // </editor-fold>
+    
+    private void updateTree(){
+        tree.updateUI();
+        jScrollPane1.repaint();
+    }
     
     private DefaultMutableTreeNode findNode(int size, String name){
         for(int i= 0; i < size; i++)
@@ -571,8 +598,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 remote.add( new DefaultMutableTreeNode("[ " + homePath + " ]"));
         } else
             System.out.println("Files are null");
-        tree.updateUI();
-        jScrollPane1.repaint();
+        updateTree();
     }
     
     private void fillServersList() {
