@@ -36,8 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests, Runnable {
@@ -339,11 +337,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         } catch (IOException ex) {
             throw new GetFileContentException();
         }
-    }
-    
-    @Override
-    public boolean GetFilesInDirectory(File directory) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     // </editor-fold>
     

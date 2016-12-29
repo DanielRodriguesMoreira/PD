@@ -31,6 +31,9 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
     private String originalFilePath;
     private byte[] fileContent;
     
+    /**
+     * Default constructor
+     */
     public ClientServerMessage(){
         this.login = null;
         this.request = null;
@@ -133,6 +136,13 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
         this.request = request;
     }
     
+    /**
+     * Prepare ClientServerMessage to Upload a file to a server
+     * 
+     * @param myAddress address of the client who sends the request
+     * @param fileContent byte array of the file to upload
+     * @param fileName name of the file to upload
+     */
     public ClientServerMessage(DataAddress myAddress, byte[] fileContent, String fileName){
         this.clientAddress = myAddress;
         this.fileContent = fileContent;

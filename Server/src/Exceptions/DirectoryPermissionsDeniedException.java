@@ -3,8 +3,10 @@ package Exceptions;
 
 import java.io.File;
 
-/*
+/**
  * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
  */
 
 public class DirectoryPermissionsDeniedException extends Exception{

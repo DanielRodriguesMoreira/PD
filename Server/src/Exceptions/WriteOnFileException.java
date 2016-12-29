@@ -1,8 +1,10 @@
 
 package Exceptions;
 
-/*
+/**
  * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
  */
 
 public class WriteOnFileException extends Exception{
