@@ -49,7 +49,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String portAddress;
     static String password;
     static String passwordConfirmation;
-    static String homePath;
     static String copy;
     static int option;
     static boolean repeatDialogInput = false;
@@ -65,7 +64,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     
     public ClientGUI() {
         initComponents();
-        initTree();
         
         // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o nome/IPServerDirectory/PortServerDirectory ">
         do {
@@ -99,6 +97,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             
         } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
         // </editor-fold>
+        
+        initTree();
         
         // <editor-fold defaultstate="collapsed" desc=" Enviar/Receber mensagem para atualizar as listas ">
         client.getAllLists();
@@ -241,7 +241,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         tree = new javax.swing.JTree(root);
         home = new DefaultMutableTreeNode("C:");
         root.add(home);
-        homePath = File.listRoots()[0].toString();
+        client.setHomePath(File.listRoots()[0].toString());
         addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())), home);
         jScrollPane1.setViewportView(tree);
         
@@ -417,23 +417,16 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 if (tp.getPathCount() == 3) {
                     if (((DefaultMutableTreeNode)tp.getLastPathComponent()).getAllowsChildren()){   // Se é ficheiro
                         String fatherName = tp.getParentPath().getLastPathComponent().toString();
-                        if (!fatherName.equals("C:")) {
-                            try {
-                                DefaultMutableTreeNode fatherNode = findNode(root, fatherName);
-                                fatherNode.removeAllChildren();
-                                addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
-
-                            } catch (ServerConnectionException ex) { //apanhar
-                                JOptionPane.showConfirmDialog(rootPane, ex, "Change dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
-                        } else {
+                        try {
                             DefaultMutableTreeNode fatherNode = findNode(root, fatherName);
                             fatherNode.removeAllChildren();
-                            addFiles(HomeChangeDirectory(tp.getLastPathComponent().toString()), fatherNode);
-                        }
+                            addFiles(client.ChangeDirectory(fatherName.replace("remote",""), tp.getLastPathComponent().toString()), fatherNode);
+                        } catch (ServerConnectionException ex) { //apanhar
+                            JOptionPane.showConfirmDialog(rootPane, ex, "Change dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                        } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
                     } else
-                            try {
-                                client.GetFileContent(tp.getParentPath().getLastPathComponent().toString().replace("remote", ""), client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote", "")) + tp.getLastPathComponent().toString());
+                        try {
+                            client.GetFileContent(tp.getParentPath().getLastPathComponent().toString().replace("remote", ""), client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote", "")) + tp.getLastPathComponent().toString());
                     } catch (ServerConnectionException | GetFileContentException ex) {
                         JOptionPane.showConfirmDialog(rootPane, ex, "GetFileContent error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                     } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | UploadException ex) {}
@@ -451,21 +444,13 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             JFrame frame = new JFrame(title);
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
                             if (!aux.isEmpty() || aux != null) {
-                                if (tp.getLastPathComponent().toString().equals("C:")) {
-                                    if(HomeMakeDir(aux)){
-                                        findNode(root, tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
-                                        UpdateTree();
-                                    } else
-                                        JOptionPane.showConfirmDialog(rootPane, "It's impossible to create that directory.\nTry again later.", "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                                } else {
-                                    try {
-                                        client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
-                                        findNode(root, tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
-                                        UpdateTree();
-                                    } catch (ServerConnectionException | MakeDirException ex) {
-                                        JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                                    } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
-                                }
+                                try {
+                                    client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
+                                    findNode(root, tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                    UpdateTree();
+                                } catch (ServerConnectionException | MakeDirException ex) {
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
                             }
                         }
                     });
@@ -558,25 +543,15 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     itemRemove.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            if(tp.getParentPath().getLastPathComponent().toString().equals("C:")){
-                                if(HomeRemove(tp.getLastPathComponent().toString())){
-                                    DefaultMutableTreeNode fatherNode = findNode(root, tp.getParentPath().getLastPathComponent().toString());
-                                    DefaultMutableTreeNode childNode = findNode(fatherNode, tp.getLastPathComponent().toString());
-                                    fatherNode.remove(childNode);
-                                    UpdateTree();
-                                } else
-                                    JOptionPane.showConfirmDialog(rootPane, "It's impossible to remove the file. If it is a directory, make sure it is empty.", "Remove error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                            } else {
-                                try{
-                                    client.Remove(tp.getParentPath().getLastPathComponent().toString().replace("remote", ""), tp.getLastPathComponent().toString());
-                                    DefaultMutableTreeNode fatherNode = findNode(root, tp.getParentPath().getLastPathComponent().toString());
-                                    DefaultMutableTreeNode childNode = findNode(fatherNode, tp.getLastPathComponent().toString());
-                                    fatherNode.remove(childNode);
-                                    UpdateTree();
-                                } catch (ServerConnectionException | RemoveFileOrDirException ex) {
-                                    JOptionPane.showConfirmDialog(rootPane, ex, "Remove error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | CopyFileException | GetFileContentException | UploadException ex) {}
-                            }
+                            try{
+                                client.Remove(tp.getParentPath().getLastPathComponent().toString().replace("remote", ""), tp.getLastPathComponent().toString());
+                                DefaultMutableTreeNode fatherNode = findNode(root, tp.getParentPath().getLastPathComponent().toString());
+                                DefaultMutableTreeNode childNode = findNode(fatherNode, tp.getLastPathComponent().toString());
+                                fatherNode.remove(childNode);
+                                UpdateTree();
+                            } catch (ServerConnectionException | RemoveFileOrDirException ex) {
+                                JOptionPane.showConfirmDialog(rootPane, ex, "Remove error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | CopyFileException | GetFileContentException | UploadException ex) {}
                         }
                     });
                     popup.add(itemRemove);
@@ -615,31 +590,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         }
     }
     
-    private boolean HomeRemove(String fileName){
-        File file = new File(homePath + File.separator + fileName);
-        return file.delete();
-    }
-    
-    private boolean HomeMakeDir(String newDirName){
-        File file = new File(homePath + File.separator + newDirName);
-        return file.mkdir();
-    }
-    
-    private ArrayList<File> HomeChangeDirectory(String file){
-        if(file.contains(homePath)){
-            homePath = homePath.replace(homePath.substring(homePath.lastIndexOf(File.separator),homePath.length()),"");
-            if(homePath.equals("C:"))
-                homePath+=File.separator;
-        }else{
-            if(!(homePath.charAt(homePath.length()-1) == File.separatorChar))
-                homePath += File.separator;
-            homePath += file;
-        }
-        File f = new File(homePath);
-        if (f.listFiles() != null)
-            return new ArrayList<>(Arrays.asList(f.listFiles()));
-        return null;
-    }
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBroadcast;
@@ -672,8 +622,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 } catch (ServerConnectionException ex) {
                     JOptionPane.showConfirmDialog(rootPane, ex, "Get working dir path error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
-            } else if(!homePath.equals(File.listRoots()[0].toString()))
-                remote.add( new DefaultMutableTreeNode("[ " + homePath + " ]"));
+            } else if(!client.getHomePath().equals(File.listRoots()[0].toString()))
+                remote.add( new DefaultMutableTreeNode("[ " + client.getHomePath() + " ]"));
         } else
             System.out.println("Files are null");
         UpdateTree();
