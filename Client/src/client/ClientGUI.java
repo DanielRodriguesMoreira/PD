@@ -513,11 +513,25 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     itemRemove.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            try {
-                                client.Remove(tp.getLastPathComponent().toString().replace("remote", ""), tp.getLastPathComponent().toString());
-                            } catch (ServerConnectionException | RemoveFileOrDirException ex) {
-                                JOptionPane.showConfirmDialog(rootPane, ex, "Remove error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | CopyFileException ex) {}
+                            if(tp.getParentPath().getLastPathComponent().toString().equals("C:")){
+                                if(HomeRemove(tp.getLastPathComponent().toString())){
+                                    DefaultMutableTreeNode fatherNode = findNode(root, tp.getParentPath().getLastPathComponent().toString());
+                                    DefaultMutableTreeNode childNode = findNode(fatherNode, tp.getLastPathComponent().toString());
+                                    fatherNode.remove(childNode);
+                                    UpdateTree();
+                                } else
+                                    JOptionPane.showConfirmDialog(rootPane, "It's impossible to remove the file. If it is a directory, make sure it is empty.", "Remove error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                try{
+                                    client.Remove(tp.getParentPath().getLastPathComponent().toString().replace("remote", ""), tp.getLastPathComponent().toString());
+                                    DefaultMutableTreeNode fatherNode = findNode(root, tp.getParentPath().getLastPathComponent().toString());
+                                    DefaultMutableTreeNode childNode = findNode(fatherNode, tp.getLastPathComponent().toString());
+                                    fatherNode.remove(childNode);
+                                    UpdateTree();
+                                } catch (ServerConnectionException | RemoveFileOrDirException ex) {
+                                    JOptionPane.showConfirmDialog(rootPane, ex, "Remove error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | CopyFileException ex) {}
+                            }
                         }
                     });
                     popup.add(itemRemove);
@@ -548,12 +562,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         return null;
     }
     
+    private boolean HomeRemove(String fileName){
+        File file = new File(homePath + File.separator + fileName);
+        return file.delete();
+    }
+    
     private boolean HomeMakeDir(String newDirName){
         File file = new File(homePath + File.separator + newDirName);
-        if(!file.mkdir())
-            return false;
-        
-        return true;
+        return file.mkdir();
     }
     
     private ArrayList<File> HomeChangeDirectory(String file){
