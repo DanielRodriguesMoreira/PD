@@ -438,7 +438,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         //3º adicionar utilizador à lista
         this.addUserToList(clientAddress);
         
-        //4º criar pasta raiz para esse username
+        //4º adicionar a lista dos usernames logados
+        this.addUserToListNamesLoggedIn(login.getUsername());
+        
+        //5º adicionar a lista de logins
+        this.loginsList.add(login);
+        
+        //6º criar pasta raiz para esse username
         File file = new File(this.rootDirectory + File.separator + login.getUsername());
         if(!file.mkdir())
             return false;
