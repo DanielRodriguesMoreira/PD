@@ -440,14 +440,21 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             JFrame frame = new JFrame(title);
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
                             if (!aux.isEmpty() || aux != null)
-                                try {
-                                    client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
-                                    findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
-                                    updateTree();
-                                    client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
-                            } catch (ServerConnectionException | MakeDirException ex) {
-                                JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException ex) {}
+                                if (tp.getLastPathComponent().toString().equals("C:")){
+                                    if(HomeMakeDir(aux)){
+                                        findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                        updateTree();
+                                    } else
+                                        JOptionPane.showConfirmDialog(rootPane, "It's impossible to create that directory.\nTry again later.", "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                } else {
+                                    try {
+                                        client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
+                                        findNode(root.getChildCount(), tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
+                                        updateTree();
+                                    } catch (ServerConnectionException | MakeDirException ex) {
+                                        JOptionPane.showConfirmDialog(rootPane, ex, "Make dir error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+                                    } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException ex) {}
+                                }
                         }
                     });
                     popup.add(itemMakedir);
@@ -523,6 +530,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             if(root.getChildAt(i).toString().equals(name))
                 return (DefaultMutableTreeNode) root.getChildAt(i);
         return null;
+    }
+    
+    private boolean HomeMakeDir(String newDirName){
+        File file = new File(homePath + File.separator + newDirName);
+        if(!file.mkdir())
+            return false;
+        
+        return true;
     }
     
     private ArrayList<File> HomeChangeDirectory(String file){
