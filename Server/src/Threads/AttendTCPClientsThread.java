@@ -438,7 +438,13 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         //3º adicionar utilizador à lista
         this.addUserToList(clientAddress);
         
-        //4º criar pasta raiz para esse username
+        //4º adicionar a lista dos usernames logados
+        this.addUserToListNamesLoggedIn(login.getUsername());
+        
+        //5º adicionar a lista de logins
+        this.loginsList.add(login);
+        
+        //6º criar pasta raiz para esse username
         File file = new File(this.rootDirectory + File.separator + login.getUsername());
         if(!file.mkdir())
             return false;
@@ -467,10 +473,11 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             newWorkingDir = newWorkingDir.replace("[ ", "");
             newWorkingDir = newWorkingDir.replace(" ]", "");
             newWorkingDir = newWorkingDir.replace(("remote" + this.myAddress.getName() + File.separator), this.rootDirectory + File.separator + this.clientRootDir);
-            newWorkingDir = newWorkingDir.replace(this.clientActualDir, "");
+            newWorkingDir = newWorkingDir.substring(0, newWorkingDir.lastIndexOf(this.clientActualDir));
             newWorkingDir = newWorkingDir.replace(this.rootDirectory + File.separator, "");
+
             this.clientWorkingDir = newWorkingDir;
-            this.clientActualDir = newWorkingDir.replace(this.clientRootDir, "");
+            this.clientActualDir = newWorkingDir.substring(0, newWorkingDir.lastIndexOf(this.clientRootDir));
         }else{
             this.clientActualDir = newWorkingDir + File.separator;
             this.clientWorkingDir += newWorkingDir + File.separator;
