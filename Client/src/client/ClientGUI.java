@@ -239,7 +239,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private void initTree(){
         root = new DefaultMutableTreeNode("Root");
         tree = new javax.swing.JTree(root);
-        home = new DefaultMutableTreeNode("C:");
+        home = new DefaultMutableTreeNode("C:\\");
         root.add(home);
         client.setHomePath(File.listRoots()[0].toString());
         addFiles(new ArrayList<>(Arrays.asList(File.listRoots()[0].listFiles())), home);
@@ -442,7 +442,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             //  JFrame frame = new JFrame(title);
                             String title = "MakeDir";
                             JFrame frame = new JFrame(title);
-                            String aux = JOptionPane.showInputDialog(null, "Choose folder name", JOptionPane.OK_OPTION);
+                            String aux = JOptionPane.showInputDialog(null, "Choose folder name");
                             if (!aux.isEmpty() || aux != null) {
                                 try {
                                     client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
@@ -461,9 +461,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                     itemPaste.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            if (tp.getLastPathComponent().toString().equals(copy.substring(0, copy.indexOf(File.separator)))){
+                            if (tp.getLastPathComponent().toString().equals(copy.substring(0, copy.indexOf(File.separator)+1))){
                                 try {
-                                    UpdateWorkingDirectory(findNode(root, tp.getParentPath().getLastPathComponent().toString()), client.CopyAndPaste(tp.getLastPathComponent().toString().replace("remote", ""), copy));
+                                    UpdateWorkingDirectory(findNode(root, tp.getLastPathComponent().toString()), client.CopyAndPaste(tp.getLastPathComponent().toString().replace("remote", ""), copy));
                                 } catch (ServerConnectionException | CopyFileException ex) {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Copy and Paste error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | GetFileContentException | UploadException ex) {}
@@ -471,7 +471,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 String serverOrigem = copy.substring(0, copy.indexOf(File.separator));
                                 String serverDestino = tp.getLastPathComponent().toString();
                                 byte[] barray;
-                                if(serverOrigem.equals("C:")){
+                                if(serverOrigem.equals("C:\\")){
                                     barray = HomeDownload(copy);
                                 } else 
                                     try {
@@ -481,7 +481,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                     JOptionPane.showConfirmDialog(rootPane, ex, "Download error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
                                 } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | UploadException ex) {}
                                 
-                                if(serverDestino.equals("C:")){
+                                if(serverDestino.equals("C:\\")){
                                     
                                 } else 
                                     try {

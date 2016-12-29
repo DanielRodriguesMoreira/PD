@@ -214,7 +214,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
         System.out.println("SERVER NAME = " + serverName);
-        if (!serverName.equals("C:")){
+        if (!serverName.equals("C:\\")){
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
             ClientServerMessage message = new ClientServerMessage(dataAddress, dirName);
@@ -242,7 +242,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        if (!serverName.equals("C:")){
+        if (!serverName.equals("C:\\")){
             System.out.println("SERVER NAME = " + serverName);
             DataAddress serverToSend = findServerByName(serverName);
             if (serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -259,7 +259,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        if (!serverName.equals("C:")){
+        if (!serverName.equals("C:\\")){
             System.out.println("SERVER NAME = " + serverName);
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -278,7 +278,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        if (!serverName.equals("C:")){
+        if (!serverName.equals("C:\\")){
             System.out.println("SERVER NAME = " + serverName);
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -297,7 +297,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        if (!serverName.equals("C:")){
+        if (!serverName.equals("C:\\")){
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
             ClientServerMessage message = new ClientServerMessage(dataAddress, originalFilePath, COPY_AND_PASTE);
