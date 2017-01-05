@@ -26,10 +26,12 @@ import java.util.Observable;
 import java.util.Observer;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -101,7 +103,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         client.getAllLists();
         // </editor-fold>
         
-        this.setTitle(username);
+        this.setTitle("Distributed File System - " + username);
         this.setVisible(true);
     }
 
@@ -130,10 +132,19 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         jLabel3 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(MAXIMIZED_BOTH);
         setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabelServers.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabelServers.setText("List of Servers:");
@@ -209,6 +220,35 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel3.setText("File System:");
 
+        jMenuBar1.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+
+        jMenu1.setText("File");
+        jMenu1.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+        jMenuItem1.setText("Refresh Lists");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem2.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+        jMenuItem2.setText("About");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -245,7 +285,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(50, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelServers)
                     .addComponent(jButtonRefreshLists)
@@ -265,7 +305,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             .addComponent(jLabelClients))
                         .addGap(3, 3, 3)
                         .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(8, 12, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -471,6 +511,30 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             client.sendMessageToAll(message);
     }//GEN-LAST:event_jButtonBroadcastMouseClicked
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        // TODO add your handling code here:
+        this.client.getAllLists();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.client.exit(false);
+    }//GEN-LAST:event_formWindowClosing
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        String title = "Distributed File System";
+        String message = "<html>Work done in the Distributed Programming class (Prof. José Marinho) in the first semester<br/>"
+                + "of the 3rd year of the ISEC Computer Engineering course(2016/2017).<br/>"
+                + "Authors:<br/>"
+                + "&#9Daniel Moreira&#9Nº21240321<br/>"
+                + "&#9Hugo Santos&#9Nº21220702<br/>"
+                + "&#9Tiago Santos&#9Nº21230530";
+        JLabel txtMessage = new JLabel(message);
+        txtMessage.setFont(new Font("Tahoma", Font.PLAIN, 22));
+        JOptionPane.showMessageDialog(null, txtMessage, title, JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     private void doMouseClicked(MouseEvent me) {
         popup = new JPopupMenu();
         JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove;
@@ -660,6 +724,10 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private javax.swing.JList jList1;
     private javax.swing.JList<String> jListClients;
     private javax.swing.JList<String> jListServers;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;

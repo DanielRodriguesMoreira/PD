@@ -81,10 +81,10 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
         } catch (SocketException ex) {
             System.err.println("[Client]An error occurred with the UDP socket level:\n\t" + ex);
-            this.exit();
+            this.exit(true);
         } catch (UnknownHostException ex) {
             System.err.println("[Client]Can't find directory service");
-            this.exit();
+            this.exit(true);
         }
     }
     
@@ -453,12 +453,12 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         } catch(SocketTimeoutException ex){
             if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME)){
                 System.err.println("[Client]Timeout exceeded!");
-                this.exit();
+                this.exit(true);
             }
         } catch (IOException | ClassNotFoundException ex) {
             System.err.println("[Client]" + ex);
             if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME))
-                this.exit();
+                this.exit(true);
         }
     }
 
@@ -539,20 +539,26 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         }
     }
 
-    private void exit() {
+    /**
+     * Close the streams (ByteArrayOutput, ObjectInput and ObjectInput)
+     * It's not necessary to close the socket because the we close the streams
+     * 
+     * @param error true if is to return a error, false if isn't
+     */
+    public void exit(boolean error) {
         try {
             if(bOut != null)
                 this.bOut.close();
-            if(this.dataSocket != null)
-                this.dataSocket.close();
             if(this.in != null)
                 this.in.close();
             if(this.out != null)
                 this.out.close();
-        } catch (IOException ex) {
-            System.err.println("[Client]" + ex);
+        } catch(Exception ex){
         } finally{
-            System.exit(-1);
+            if(error)
+                System.exit(-1);
+            else
+                System.exit(0);
         }
     }
 }
