@@ -488,7 +488,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             String title = "MakeDir";
                             JFrame frame = new JFrame(title);
                             String aux = JOptionPane.showInputDialog(null, "Choose folder name");
-                            if (!aux.isEmpty() || aux != null) {
+                            if (aux != null) {
                                 try {
                                     client.MakeDir(tp.getLastPathComponent().toString().replace("remote", ""), aux);
                                     findNode(root, tp.getLastPathComponent().toString()).add(new DefaultMutableTreeNode(aux));
