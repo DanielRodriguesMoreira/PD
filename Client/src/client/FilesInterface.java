@@ -23,11 +23,11 @@ import java.util.ArrayList;
 
 public interface FilesInterface {
 
-    public void Login(Login login, DataAddress serverToSend) 
+    public void Login(String password, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException;
-    public void Logout(Login login, DataAddress serverToSend) 
+    public void Logout(DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException;

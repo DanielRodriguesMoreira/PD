@@ -46,12 +46,12 @@ public class ClientServerMessage implements Serializable, ClientServerRequests{
      * Prepare ClientServerMessage to Login the client in the server or to logout 
      * if the second param it's false
      *
-     * @param login     the Login of the client
+     * @param password     the password of the client
      * @param isToLogin true if is to login, false if is to logout
      * @param myAddress address of the client who sends the request
      */
-    public ClientServerMessage(Login login, boolean isToLogin, DataAddress myAddress){
-        this.login = login;
+    public ClientServerMessage(String password, boolean isToLogin, DataAddress myAddress){
+        this.login = new Login(myAddress.getName(), password);
         this.clientAddress = myAddress;
         if(isToLogin){
             this.request = LOGIN;

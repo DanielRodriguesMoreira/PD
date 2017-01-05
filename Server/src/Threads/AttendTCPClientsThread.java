@@ -42,9 +42,9 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     private DataAddress myAddress = null;
     private InetAddress directoryServiceIP = null;
     private int directoryServicePort = -1;
-    private List<DataAddress> usersLoggedIn = null;
-    private List<String> usersNamesLoggedIn = null;
-    private List<Login> loginsList = null;
+    private List<DataAddress> usersLoggedIn = null; //Lista de clientes logados
+    //private List<String> usersNamesLoggedIn = null;
+    private List<Login> loginsList = null;  //Lista de username/password que lê do ficheiro
     private File rootDirectory = null;
     private String loginFile = null;
     private ObjectInputStream in = null;
@@ -67,7 +67,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         this.rootDirectory = rootDirectory;
         this.loginFile = loginFile;
         this.updateLoginsList();
-        this.usersNamesLoggedIn = usernamesLoggedIn;
+        //this.usersNamesLoggedIn = usernamesLoggedIn;
     }
     
     @Override
@@ -91,11 +91,8 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                         //1º Verificar se username e password estão correctos
                         //2º Só adiciona se não existir
                         if(this.isUsernameAndPasswordCorrect(requestMessage.getLogin()) 
-                                && !this.isUserLoggedIn(requestMessage.getClientAddress()) 
-                                && !this.isUserNameLoggedIn(requestMessage.getLogin().getUsername())) {
+                                && !this.isUserLoggedIn(requestMessage.getClientAddress()) ) {
                             this.addUserToList(requestMessage.getClientAddress());
-                            //Adicionar nome do login a uma lista
-                            this.addUserToListNamesLoggedIn(this.requestMessage.getLogin().getUsername());
                             success = true;
                             // <editor-fold defaultstate="collapsed" desc=" Configure directories ">
                             this.setClientWorkingDir(requestMessage.getLogin().getUsername());
@@ -111,7 +108,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
                     case LOGOUT:
                         if(this.isUserLoggedIn(requestMessage.getClientAddress())){
                             this.removeUserFromList(requestMessage.getClientAddress());
-                            this.removeUserNameFromList(requestMessage.getLogin().getUsername());
                             resetWorkingDir();
                             success = true;
                         }else{
@@ -316,19 +312,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
     
     /**
      * Este método vai ser chamado:
-     *      -   login
-     *      -   createAccount
-     *  serve para adicionar as strings do login numa lista para depois comparar cada vez que tentamos fazer login
-     */
-    private void addUserToListNamesLoggedIn(String username) {
-        synchronized(this.usersNamesLoggedIn){
-            this.usersNamesLoggedIn.add(username);
-        }
-        //this.notifyDirectoryServiceAboutUsersList();
-    }
-    
-    /**
-     * Este método vai ser chamado:
      *      -   logout
      *      -   caso haja algum erro de comunicação com o cliente
      */
@@ -347,21 +330,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         
         if(isToNofify){
             this.notifyDirectoryServiceAboutUsersList();
-        }
-    }
-    
-    /**
-     * Este método vai ser chamado:
-     *      -   logout
-     */
-    private void removeUserNameFromList(String username) {
-        synchronized(this.usersNamesLoggedIn){
-            for(String nome : this.usersNamesLoggedIn){
-                if(nome.equals(username)){
-                    this.usersNamesLoggedIn.remove(username);
-                    break;
-                }
-            }
         }
     }
     
@@ -424,7 +392,7 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
      *      -   create account
      */
     private boolean CreateAccount(Login login, DataAddress clientAddress) throws WriteOnFileException {
-        //1º verificar se já existe
+        //1º verificar se já existe no ficheiro
         if(this.usernameAlreadyExistsInFile(login))
             return false;
         
@@ -435,11 +403,8 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
             throw new WriteOnFileException(this.loginFile, ex.toString());
         }
         
-        //3º adicionar utilizador à lista
+        //3º adicionar utilizador à lista dos clientes logados
         this.addUserToList(clientAddress);
-        
-        //4º adicionar a lista dos usernames logados
-        this.addUserToListNamesLoggedIn(login.getUsername());
         
         //5º adicionar a lista de logins
         this.loginsList.add(login);
@@ -493,17 +458,6 @@ public class AttendTCPClientsThread extends Thread implements Constants, ClientS
         String aux = this.rootDirectory + File.separator + this.getClientWorkingDir();
         clientWorkingDirPathToShow = aux.replace(this.rootDirectory + File.separator + this.clientRootDir, ("remote" + this.myAddress.getName() + File.separator));
         return clientWorkingDirPathToShow;
-    }
-
-    private boolean isUserNameLoggedIn(String username) {
-        if(this.usersNamesLoggedIn != null) {
-            for(String nome: this.usersNamesLoggedIn){
-                if(nome.equals(username)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private boolean makeDir(String newDirName) {

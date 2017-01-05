@@ -174,20 +174,20 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     
     // <editor-fold defaultstate="collapsed" desc=" FilesInterface ">
     @Override
-    public void Login(Login login, DataAddress serverToSend) 
+    public void Login(String password, DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        ClientServerMessage message = new ClientServerMessage(login, true, dataAddress);
+        ClientServerMessage message = new ClientServerMessage(password, true, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
 
     @Override
-    public void Logout(Login login, DataAddress serverToSend) 
+    public void Logout(DataAddress serverToSend) 
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        ClientServerMessage message = new ClientServerMessage(login, false, dataAddress);
+        ClientServerMessage message = new ClientServerMessage(null, false, dataAddress);
         sendMessageToServer(message, serverToSend);
     }
 
