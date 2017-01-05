@@ -123,8 +123,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             dataSocket.send(packet);
             
             System.out.println("<Client> Message Sended\n");
-        } catch(SocketTimeoutException ex){
-            System.err.println("Timeout exceeded!\n" + ex);
         } catch (IOException ex) {
             System.err.println("DirectoryServiceIP/Port IOException\n" + ex);
         }
@@ -457,9 +455,10 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             setChanged();
             notifyObservers();
         } catch(SocketTimeoutException ex){
-            System.err.println("[Client]Timeout exceeded!");
-            if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME))
+            if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME)){
+                System.err.println("[Client]Timeout exceeded!");
                 this.exit();
+            }
         } catch (IOException | ClassNotFoundException ex) {
             System.err.println("[Client]" + ex);
             if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME))

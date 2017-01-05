@@ -50,8 +50,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     static String passwordConfirmation;
     static String copy;
     static int option;
-    static boolean repeatDialogInput = false;
-    static boolean cancelLoginCycle = false;
     static boolean isToCut = false;
     ArrayList<DataAddress> onlineServer = null;
     ArrayList<DataAddress> onlineClient = null;
@@ -290,45 +288,46 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 itemLogin.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        boolean isToRepeat = true;
+                        boolean isToLogin = false;
+                        // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
                         do {
-                            repeatDialogInput = false;
-                            cancelLoginCycle = false;
-                            // <editor-fold defaultstate="collapsed" desc=" Mostrar InputDialog para escolher o username e password ">
-                            do {
-                                JTextField inputUsernameTextField = new JTextField();
-                                inputUsernameTextField.setText(username);
-                                inputUsernameTextField.setEditable(false);
-                                JPasswordField inputPasswordTextField = new JPasswordField();
+                            JTextField inputUsernameTextField = new JTextField();
+                            inputUsernameTextField.setText(username);
+                            inputUsernameTextField.setEditable(false);
+                            JPasswordField inputPasswordTextField = new JPasswordField();
+
+                            Object[] message = {"Username:", inputUsernameTextField, "Password:", inputPasswordTextField};
+                            option = JOptionPane.showConfirmDialog(null, message, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                            if(option == JOptionPane.OK_OPTION) {
+                                username = inputUsernameTextField.getText();
+                                password = String.valueOf(inputPasswordTextField.getPassword());
+                                isToLogin = true;
                                 
-                                Object[] message = {"Username:", inputUsernameTextField, "Password:", inputPasswordTextField};
-                                option = JOptionPane.showConfirmDialog(null, message, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                                if(option == JOptionPane.OK_OPTION) {
-                                    username = inputUsernameTextField.getText();
-                                    password = String.valueOf(inputPasswordTextField.getPassword());
-                                } else if(option == JOptionPane.CANCEL_OPTION) {
-                                    cancelLoginCycle = true;
-                                    break;
-                                }
-                            } while (username.isEmpty() || password.isEmpty());
-                            // </editor-fold>
-                            
-                            if (cancelLoginCycle == false) {
-                                try {
-                                    client.Login(password, onlineServer.get(jListServers.getSelectedIndex()));
-                                } catch (ServerConnectionException | UsernameOrPasswordIncorrectException ex) {
-                                    repeatDialogInput = true;
-                                    JOptionPane.showMessageDialog(rootPane, ex, "Login error", JOptionPane.ERROR_MESSAGE);
-                                } catch (ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
+                                if(password.isEmpty())
+                                    isToRepeat = true;
+                                else
+                                    isToRepeat = false;
+                            } else if(option == JOptionPane.CANCEL_OPTION) {
+                                isToRepeat = false;
+                                isToLogin = false;
                             }
-                        } while(repeatDialogInput);
-                        if(!cancelLoginCycle){
-                            DefaultMutableTreeNode server = new DefaultMutableTreeNode("remote" + onlineServer.get(jListServers.getSelectedIndex()).getName());
-                            root.add(server);
+                        } while (isToRepeat);
+                        // </editor-fold>
+
+                        if (isToLogin) {
                             try {
-                                addFiles(client.GetWorkingDirContent(onlineServer.get(jListServers.getSelectedIndex())), server);
-                            } catch (ServerConnectionException ex) {
-                                JOptionPane.showMessageDialog(rootPane, ex, "Get Dir Content error", JOptionPane.ERROR_MESSAGE);
-                            } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
+                                client.Login(password, onlineServer.get(jListServers.getSelectedIndex()));
+                                try {
+                                    DefaultMutableTreeNode server = new DefaultMutableTreeNode("remote" + onlineServer.get(jListServers.getSelectedIndex()).getName());
+                                    root.add(server);
+                                    addFiles(client.GetWorkingDirContent(onlineServer.get(jListServers.getSelectedIndex())), server);
+                                } catch (ServerConnectionException ex) {
+                                    JOptionPane.showMessageDialog(rootPane, ex, "Get Dir Content error", JOptionPane.ERROR_MESSAGE);
+                                } catch (UsernameOrPasswordIncorrectException | ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
+                            } catch (ServerConnectionException | UsernameOrPasswordIncorrectException ex) {
+                                JOptionPane.showMessageDialog(rootPane, ex, "Login error", JOptionPane.ERROR_MESSAGE);
+                            } catch (ClientNotLoggedInException | CreateAccountException | MakeDirException | RemoveFileOrDirException | CopyFileException | GetFileContentException | UploadException ex) {}
                         }
                     }
                 });
@@ -433,7 +432,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 
                 String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
                 String message = "[" + username + " - To " + usernameToSend.getName() + "] -> " + aux;
-                if (!aux.isEmpty() || aux != null)
+                if (aux != null)
                     client.sendMessageTo(usernameToSend, message);
             }
         }
@@ -448,7 +447,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         JFrame frame = new JFrame(title);
         String aux = JOptionPane.showInputDialog(frame, "Input your message", title, JOptionPane.OK_CANCEL_OPTION);
         String message = "[" + username + " - To All] -> " + aux;
-        if (!aux.isEmpty() || aux != null)
+        if (aux != null)
             client.sendMessageToAll(message);
     }//GEN-LAST:event_jButtonBroadcastMouseClicked
 
