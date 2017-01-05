@@ -27,6 +27,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -286,6 +287,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             if (evt.getButton() == 3) {
                 // <editor-fold defaultstate="collapsed" desc=" Login Item (PopUpMenu) ">
                 itemLogin = new JMenuItem("Login");
+                itemLogin.setEnabled(!client.isLoggedIn());
                 itemLogin.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -297,7 +299,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 JTextField inputUsernameTextField = new JTextField();
                                 inputUsernameTextField.setText(username);
                                 inputUsernameTextField.setEditable(false);
-                                JTextField inputPasswordTextField = new JTextField();
+                                JPasswordField inputPasswordTextField = new JPasswordField();
                                 
                                 Object[] message = {"Username:", inputUsernameTextField, "Password:", inputPasswordTextField};
                                 option = JOptionPane.showConfirmDialog(null, message, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -334,6 +336,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" New Account Item (PopUpMenu) ">
                 itemRegister = new JMenuItem("New account");
+                itemRegister.setEnabled(!client.isLoggedIn());
                 itemRegister.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -342,8 +345,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             JTextField inputUsernameTextField = new JTextField();
                             inputUsernameTextField.setText(username);
                             inputUsernameTextField.setEditable(false);
-                            JTextField inputPasswordTextField = new JTextField();
-                            JTextField inputPasswordAgainTextField = new JTextField();
+                            JPasswordField inputPasswordTextField = new JPasswordField();
+                            JPasswordField inputPasswordAgainTextField = new JPasswordField();
 
                             Object[] message = {"Username:", inputUsernameTextField, 
                                                 "Password:", inputPasswordTextField,
@@ -354,11 +357,11 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 password = inputPasswordTextField.getText();
                                 passwordConfirmation = inputPasswordAgainTextField.getText();
                                 cancelCreateAccountCycle = false;
+                                if(!password.equals(passwordConfirmation) && cancelCreateAccountCycle == false)
+                               JOptionPane.showConfirmDialog(rootPane, "Palavra pass não coincide", "Error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
                             } else if (option == JOptionPane.CANCEL_OPTION) {
                                 cancelCreateAccountCycle = true;
                             }
-                            if(!password.equals(passwordConfirmation) && cancelCreateAccountCycle == false)
-                               JOptionPane.showConfirmDialog(rootPane, "Palavra pass não coincide", "Error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
                         } while (username.isEmpty() || password.isEmpty());
                         // </editor-fold>
                         
@@ -379,6 +382,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Logout Item (PopUpMenu) ">
                 itemLogout =  new JMenuItem("Logout");
+                itemLogout.setEnabled(client.isLoggedIn());
                 itemLogout.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {

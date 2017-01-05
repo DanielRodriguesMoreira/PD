@@ -63,6 +63,8 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     private List<DataAddress> OnlineClients;
     private byte[] fileContent;
     private String fileName;
+    
+    private boolean isLoggedIn = false;
     // </editor-fold>
     
     private Map<DataAddress, Socket> serversMap = null;
@@ -481,12 +483,15 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             message = (ClientServerMessage)in.readObject();
             switch(message.getRequest()){
                 case LOGIN: 
+                    this.isLoggedIn = message.getSuccess();
                     if(message.getSuccess() != true) throw new UsernameOrPasswordIncorrectException();
                     break;
                 case LOGOUT:
+                    this.isLoggedIn = !message.getSuccess();
                     if(message.getSuccess() != true) throw new ClientNotLoggedInException();
                     break;
                 case CREATE_ACCOUNT:
+                    this.isLoggedIn = message.getSuccess();
                     if(message.getSuccess() != true) throw new CreateAccountException();
                     break;
                 case MAKE_NEW_DIR:
@@ -517,6 +522,10 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
 
     public void setHomePath(String homePath) {
         this.homePath = homePath;
+    }
+    
+    public boolean isLoggedIn(){
+        return this.isLoggedIn;
     }
     
     private Socket getServerTCPSocket(DataAddress server){
