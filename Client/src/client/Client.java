@@ -80,10 +80,10 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             this.dataSocket.setSoTimeout(HEARTBEAT+5000);
             this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
         } catch (SocketException ex) {
-            System.err.println("An error occurred with the UDP socket level:\n\t" + ex);
+            System.err.println("[Client]An error occurred with the UDP socket level:\n\t" + ex);
             this.exit();
         } catch (UnknownHostException ex) {
-            System.err.println("Can't find directory service");
+            System.err.println("[Client]Can't find directory service");
             this.exit();
         }
     }
@@ -122,9 +122,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
             
-            System.out.println("<Client> Message Sended\n");
+            System.out.println("[Client]Message Sended\n");
         } catch (IOException ex) {
-            System.err.println("DirectoryServiceIP/Port IOException\n" + ex);
+            System.err.println("[Client]DirectoryServiceIP/Port IOException\n" + ex);
         }
     }
     
@@ -134,7 +134,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         sendMessageToServiceDirectory(CLIENT_MSG_CHECK_USERNAME);
         this.receiveMessageFromServiceDirectory();
         boolean exists = message.isExists();
-        System.out.println("Exists = " + exists);
+        System.out.println("[Client]Exists = " + exists);
         if(exists){
             return true;
         } else {
@@ -218,7 +218,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             throws ServerConnectionException, UsernameOrPasswordIncorrectException, ClientNotLoggedInException, 
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
-        System.out.println("SERVER NAME = " + serverName);
         if (!serverName.equals("C:\\")){
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
@@ -248,7 +247,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
         if (!serverName.equals("C:\\")){
-            System.out.println("SERVER NAME = " + serverName);
             DataAddress serverToSend = findServerByName(serverName);
             if (serverToSend == null) throw new ServerConnectionException("Server not found!");
             ClientServerMessage message = new ClientServerMessage(dataAddress, false);
@@ -265,7 +263,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
         if (!serverName.equals("C:\\")){
-            System.out.println("SERVER NAME = " + serverName);
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
             ClientServerMessage message = new ClientServerMessage(dataAddress, newDirName, true);
@@ -284,7 +281,6 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             CreateAccountException, MakeDirException, RemoveFileOrDirException, CopyFileException, 
             GetFileContentException, UploadException{
         if (!serverName.equals("C:\\")){
-            System.out.println("SERVER NAME = " + serverName);
             DataAddress serverToSend = findServerByName(serverName);
             if(serverToSend == null) throw new ServerConnectionException("Server not found!");
             ClientServerMessage message = new ClientServerMessage(dataAddress, fileOrDirName, false);
@@ -425,9 +421,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             
             ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(packetGram.getData(), 0, packetGram.getLength()));
             
-            System.out.println("<Client> Packet received");
+            System.out.println("[Client]Packet received");
             message = (ClientMessage) input.readObject();
-            System.out.println("Recebi a resposta de " + message.getRequest());
+            System.out.println("[Client]Request received" + message.getRequest());
             switch(message.getRequest()) {
                 // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
                 case CLIENT_GET_ALL_LISTS:

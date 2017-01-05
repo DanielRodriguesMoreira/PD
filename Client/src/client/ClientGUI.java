@@ -548,7 +548,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         itemCopy.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                System.out.println("Enviar Copy para o servidor.");
+                                System.out.println("[ClientGUI]Send Copy to server.");
                                 try {
                                     copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote","")) + tp.getLastPathComponent().toString();
                                 } catch (ServerConnectionException ex) {
@@ -563,7 +563,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                         itemCut.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                System.out.println("Enviar Cut para o servidor.");
+                                System.out.println("[ClientGUI]Send Cut to server.");
                                 try {
                                     copy = client.GetWorkingDirPath(tp.getParentPath().getLastPathComponent().toString().replace("remote","")) + tp.getLastPathComponent().toString();
                                     isToCut = true;
@@ -598,7 +598,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 popup.show(this.jScrollPane1, me.getX(), me.getY());
             }
         } else
-            System.out.println("No selection");
+            System.out.println("[ClientGUI]No selection");
     }    
     // </editor-fold>
     
@@ -667,7 +667,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             } else if(!client.getHomePath().equals(File.listRoots()[0].toString()))
                 remote.add( new DefaultMutableTreeNode("[ " + client.getHomePath() + " ]"));
         } else
-            System.out.println("Files are null");
+            System.out.println("[ClientGUI]Files are null");
         UpdateTree();
     }
     
