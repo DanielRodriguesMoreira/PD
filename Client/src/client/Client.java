@@ -30,6 +30,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -39,9 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 public class Client extends Observable implements Constants, FilesInterface, ClientServerRequests, Runnable {
     
@@ -77,11 +75,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         this.homePath = "";
         try {
             this.dataSocket = new DatagramSocket();
+            this.dataSocket.setSoTimeout(HEARTBEAT+5000);
             this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
         } catch (SocketException ex) {
             System.err.println("An error occurred with the UDP socket level:\n\t" + ex);
+            this.exit();
         } catch (UnknownHostException ex) {
             System.err.println("Can't find directory service");
+            this.exit();
         }
     }
     
@@ -120,6 +121,8 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             dataSocket.send(packet);
             
             System.out.println("<Client> Message Sended\n");
+        } catch(SocketTimeoutException ex){
+            System.err.println("Timeout exceeded!\n" + ex);
         } catch (IOException ex) {
             System.err.println("DirectoryServiceIP/Port IOException\n" + ex);
         }
@@ -451,8 +454,14 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             }
             setChanged();
             notifyObservers();
+        } catch(SocketTimeoutException ex){
+            System.err.println("[Client]Timeout exceeded!");
+            if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME))
+                this.exit();
         } catch (IOException | ClassNotFoundException ex) {
-            System.err.println(ex);
+            System.err.println("[Client]" + ex);
+            if(message.getRequest().equals(CLIENT_MSG_CHECK_USERNAME))
+                this.exit();
         }
     }
 
@@ -523,6 +532,23 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     public void run() {
         while(true){
             receiveMessageFromServiceDirectory();
+        }
+    }
+
+    private void exit() {
+        try {
+            if(bOut != null)
+                this.bOut.close();
+            if(this.dataSocket != null)
+                this.dataSocket.close();
+            if(this.in != null)
+                this.in.close();
+            if(this.out != null)
+                this.out.close();
+        } catch (IOException ex) {
+            System.err.println("[Client]" + ex);
+        } finally{
+            System.exit(-1);
         }
     }
 }
