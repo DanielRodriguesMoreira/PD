@@ -305,7 +305,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                                 option = JOptionPane.showConfirmDialog(null, message, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
                                 if(option == JOptionPane.OK_OPTION) {
                                     username = inputUsernameTextField.getText();
-                                    password = inputPasswordTextField.getText();
+                                    password = String.valueOf(inputPasswordTextField.getPassword());
                                 } else if(option == JOptionPane.CANCEL_OPTION) {
                                     cancelLoginCycle = true;
                                     break;
@@ -354,8 +354,8 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                             option = JOptionPane.showConfirmDialog(null, message, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
                             if (option == JOptionPane.OK_OPTION) {
                                 username = inputUsernameTextField.getText();
-                                password = inputPasswordTextField.getText();
-                                passwordConfirmation = inputPasswordAgainTextField.getText();
+                                password = String.valueOf(inputPasswordTextField.getPassword());
+                                passwordConfirmation = String.valueOf(inputPasswordAgainTextField.getPassword());
                                 cancelCreateAccountCycle = false;
                                 if(!password.equals(passwordConfirmation) && cancelCreateAccountCycle == false)
                                JOptionPane.showConfirmDialog(rootPane, "Palavra pass não coincide", "Error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
