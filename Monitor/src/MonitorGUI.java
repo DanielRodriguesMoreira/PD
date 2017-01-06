@@ -1,7 +1,9 @@
 
+import java.awt.Font;
 import java.rmi.RemoteException;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -71,12 +73,13 @@ public class MonitorGUI extends javax.swing.JFrame implements Observer{
         jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Servers Monitoring");
 
+        jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
         jTextArea1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jTextArea1.setRows(5);
@@ -95,10 +98,20 @@ public class MonitorGUI extends javax.swing.JFrame implements Observer{
         jMenuBar1.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
 
         jMenu1.setText("File");
-        jMenu1.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        jMenu1.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem2.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+        jMenuItem2.setText("About");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
         jMenuItem1.setText("Exit");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -109,10 +122,6 @@ public class MonitorGUI extends javax.swing.JFrame implements Observer{
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("About");
-        jMenu2.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        jMenuBar1.add(jMenu2);
-
         setJMenuBar(jMenuBar1);
 
         pack();
@@ -120,16 +129,30 @@ public class MonitorGUI extends javax.swing.JFrame implements Observer{
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
-        System.exit(0);
+        this.monitor.exit();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        String title = "Distributed File System - Monitor RMI";
+        String message = "<html>Work done in the Distributed Programming class (Prof. José Marinho) in the first semester<br/>"
+                + "of the 3rd year of the ISEC Computer Engineering course(2016/2017).<br/>"
+                + "Authors:<br/>"
+                + "&#9Daniel Moreira&#9Nº21240321<br/>"
+                + "&#9Hugo Santos&#9Nº21220702<br/>"
+                + "&#9Tiago Santos&#9Nº21230530";
+        JLabel txtMessage = new JLabel(message);
+        txtMessage.setFont(new Font("Tahoma", Font.PLAIN, 22));
+        JOptionPane.showMessageDialog(null, txtMessage, title, JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     // <editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables

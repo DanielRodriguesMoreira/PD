@@ -1,6 +1,4 @@
 
-
-import Constants.Constants;
 import Exceptions.ClientNotLoggedInException;
 import Exceptions.CopyFileException;
 import Exceptions.CreateAccountException;
@@ -112,9 +110,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jTextAreaMessages = new javax.swing.JTextArea();
         jButtonBroadcast = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jListServers = new javax.swing.JList<String>();
+        jListServers = new javax.swing.JList();
         jScrollPane6 = new javax.swing.JScrollPane();
-        jListClients = new javax.swing.JList<String>();
+        jListClients = new javax.swing.JList();
         jButtonRefreshLists = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
@@ -711,9 +709,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabelClients;
     private javax.swing.JLabel jLabelServers;
-    private javax.swing.JList<String> jListClients;
+    private javax.swing.JList jListClients;
     private javax.swing.JList jListRMIServers;
-    private javax.swing.JList<String> jListServers;
+    private javax.swing.JList jListServers;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
@@ -754,7 +752,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (client.getOnlineServers() == null ) return;
         this.onlineServer = new ArrayList<>(client.getOnlineServers());
         
-        DefaultListModel<String> listServersModel = new DefaultListModel<String>();
+        DefaultListModel<String> listServersModel = new DefaultListModel<>();
         for(DataAddress da : onlineServer) {
             listServersModel.addElement(da.getName());
         }
@@ -765,7 +763,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         if (client.getOnlineClients() == null ) return;
         this.onlineClient = new ArrayList<>(client.getOnlineClients());
         
-        DefaultListModel<String> listClientsModel = new DefaultListModel<String>();
+        DefaultListModel<String> listClientsModel = new DefaultListModel<>();
         for(DataAddress da : onlineClient) {
             listClientsModel.addElement(da.getName());
         }

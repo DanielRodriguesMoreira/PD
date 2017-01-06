@@ -21,6 +21,8 @@ public class Monitor extends Observable{
     private String serviceDirectoryIP = null;
     private int serviceDirectoryPort = -1;
     private String serversInformation = null;
+    MonitorRemote monitorRemote = null;
+    private RemoteGetServersInterface serviceRemote = null;
     
     public Monitor(String sdIP, int sdPort){
     
@@ -28,9 +30,9 @@ public class Monitor extends Observable{
         this.serviceDirectoryPort = sdPort;
         
         try {
-            MonitorRemote monitorRemote = new MonitorRemote();
+            monitorRemote = new MonitorRemote();
             String url = "rmi://" + sdIP + "/RemoteGetServers";
-            RemoteGetServersInterface serviceRemote = (RemoteGetServersInterface)Naming.lookup(url);
+            serviceRemote = (RemoteGetServersInterface)Naming.lookup(url);
             serviceRemote.addMonitorObserver(monitorRemote);
         } catch (RemoteException | NotBoundException | MalformedURLException ex) {
             System.err.println("[Monitor - Remote] " + ex);
@@ -40,6 +42,15 @@ public class Monitor extends Observable{
     
     public String getServersInformation(){
         return this.serversInformation;
+    }
+
+    void exit() {
+        try {
+            serviceRemote.removeMonitorObserver(monitorRemote);
+            System.exit(0);
+        } catch (RemoteException ex) {
+            System.err.println("[Monitor - Remote] " + ex);
+        }
     }
     
     class MonitorRemote extends UnicastRemoteObject implements RemoteMonitorObserverInterface{

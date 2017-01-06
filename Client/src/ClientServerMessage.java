@@ -1,11 +1,5 @@
 
 
-
-import Constants.ClientServerRequests;
-import static Constants.ClientServerRequests.CREATE_ACCOUNT;
-import static Constants.ClientServerRequests.GET_WORKING_DIR_CONTENT;
-import static Constants.ClientServerRequests.LOGIN;
-import static Constants.ClientServerRequests.LOGOUT;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
