@@ -15,11 +15,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -78,8 +85,23 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 System.exit(0);
             
             // <editor-fold defaultstate="collapsed" desc=" Create Client ">
-            this.client = new Client(username, ipAddress, portAddress);
-            this.client.addObserver(this);
+            try {
+                this.client = new Client(username, ipAddress, portAddress);
+                this.client.addObserver(this);
+            } catch (SocketException ex) {
+                String error = "An error occurred with the UDP socket level:\n" + ex;
+                JOptionPane.showMessageDialog(null, error, "Socket Exception", JOptionPane.ERROR_MESSAGE);
+                this.client.exit(true);
+            } catch (UnknownHostException ex) {
+                String error = "Can't find directory service";
+                JOptionPane.showMessageDialog(null, error, "UnknownHost Exception", JOptionPane.ERROR_MESSAGE);
+                this.client.exit(true);
+            } catch (RemoteException | NotBoundException | MalformedURLException ex) {
+                JOptionPane.showMessageDialog(null, ex, "Exception", JOptionPane.ERROR_MESSAGE);
+                this.client.exit(true);
+            }
+            // </editor-fold>
+            
             // </editor-fold>
             
         } while (username.isEmpty() || ipAddress.isEmpty() || portAddress.isEmpty() || option != JOptionPane.OK_OPTION || client.checkClientExists());
@@ -124,6 +146,9 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(MAXIMIZED_BOTH);
@@ -234,6 +259,31 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jMenu1.add(jMenuItem2);
 
         jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("RMI");
+        jMenu2.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem3.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+        jMenuItem3.setText("Add/Join Observer");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem3);
+
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem4.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
+        jMenuItem4.setText("Remove Observer");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem4);
+
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -523,6 +573,24 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         JOptionPane.showMessageDialog(null, txtMessage, title, JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        try {
+            // TODO add your handling code here:
+            this.client.addObserver();
+        } catch (RemoteException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex, "Remote Exception", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        try {
+            // TODO add your handling code here:
+            this.client.removeObserver();
+        } catch (RemoteException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex, "Remote Exception", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
     private void doMouseClicked(MouseEvent me) {
         popup = new JPopupMenu();
         JMenuItem itemCopy, itemPaste, itemCut, itemMakedir, itemRemove;
@@ -713,9 +781,12 @@ public class ClientGUI extends JFrame implements Constants, Observer {
     private javax.swing.JList jListRMIServers;
     private javax.swing.JList jListServers;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;

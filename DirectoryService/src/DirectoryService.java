@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -166,6 +168,7 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
                                     null, CLIENT_GET_ONLINE_SERVERS, null, null, false);
                             messageToSend.setListServers(listServers);
                             sendMessage(messageToSend);
+                            notifyClientObservers();
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ONLINE_CLIENTS ">
@@ -174,6 +177,7 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
                                     null, CLIENT_GET_ONLINE_CLIENTS, null, null, false);
                             messageToSend.setListClients(listClients);
                             sendMessage(messageToSend);
+                            notifyClientObservers();
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_GET_ALL_LISTS ">
@@ -186,6 +190,7 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
                             messageToSend.setListServers(listServers);
                             messageToSend.setListClients(listClients);
                             sendMessage(messageToSend);
+                            notifyClientObservers();
                             break;
                         // </editor-fold>
                         // <editor-fold defaultstate="collapsed" desc=" CLIENT_SENDMESSAGE ">
@@ -322,8 +327,8 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
     
     @Override
     public synchronized void addClientObserver(RemoteClientObserverInterface clientRef, DataAddress myAddress) throws RemoteException {
-        if(!this.clientsObserversList.containsKey(clientRef)){
-            this.clientsObserversList.put(clientRef, myAddress);
+        if(!clientsObserversList.containsKey(clientRef)){
+            clientsObserversList.put(clientRef, myAddress);
             System.out.println("[DirectoryService - RemoteService] Add a Client Observer");
         }
         
@@ -331,28 +336,31 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
 
     @Override
     public synchronized void removeClientObserver(RemoteClientObserverInterface clientRef) throws RemoteException {
-        DataAddress clientRemoved = this.clientsObserversList.remove(clientRef);
+        DataAddress clientRemoved = clientsObserversList.remove(clientRef);
         if(clientRemoved != null)
             System.out.println("[DirectoryService - RemoteService] Remove a Client Observer");
     }
     
     @Override
     public synchronized void addMonitorObserver(RemoteMonitorObserverInterface monitorRef) throws RemoteException {
-        if(!this.monitorsObserversList.contains(monitorRef)){
-            this.monitorsObserversList.add(monitorRef);
+        if(!monitorsObserversList.contains(monitorRef)){
+            monitorsObserversList.add(monitorRef);
             System.out.println("[DirectoryService - RemoteService] Add a Monitor Observer");
         }
     }
 
     @Override
     public synchronized void removeMonitorObserver(RemoteMonitorObserverInterface monitorRef) throws RemoteException {
-        if(this.monitorsObserversList.remove(monitorRef)){
+        if(monitorsObserversList.remove(monitorRef)){
             System.out.println("[DirectoryService - RemoteService] Remove a Monitor Observer");
         }
     }
 
     private synchronized static void notifyMonitorsObservers(){
         String msg = "";
+        
+        if(mapServers.isEmpty())
+            return;
         
         // <editor-fold defaultstate="collapsed" desc=" Constroi mensagem ">
         for(DataAddress server: mapServers.keySet()){
@@ -375,35 +383,51 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
             }
         }
         // </editor-fold>
-        
     }
     
-    private synchronized void notifyClientObservers()
+    private synchronized static void notifyClientObservers()
     {
-        String msg = "";
-        /*
-        for(RemoteClientObserverInterface clientRef: this.clientsObserversList.keySet()){
-            List<String> serversNameList = new ArrayList<>();
-            
-            for(DataAddress client: mapServers.keySet()){
-                if(!client.equals(this.clientsObserversList.get(clientRef))){
-                    if(!serversNameList.contains()){
-                        serversNameList.add();
+        ArrayList<String> listToSend = new ArrayList<>();
+        Map<DataAddress, List<DataAddress>> mapServersCopy = new HashMap<>(mapServers);
+        List<RemoteClientObserverInterface> listOfClientsToRemote = new ArrayList<>();
+        
+        if(mapServersCopy.isEmpty()){
+            return;
+        }
+        /**
+         * Por cada RemoteClient:
+         *      Verifica se esse RemoteClient está no servidor:
+         *          Se não estiver então adiciona o servidor à lista
+         *      Tenta enviar a lista para o RemoteClient
+         *          Se deu erro então guarda numa lista e no fim remove-o
+         */
+        for(RemoteClientObserverInterface clientRef: clientsObserversList.keySet()){
+            listToSend.clear();
+            for(DataAddress server: mapServersCopy.keySet()){
+                if(mapServersCopy.get(server) != null){
+                    if(!mapServersCopy.get(server).contains(clientsObserversList.get(clientRef))){
+                        listToSend.add(server.getName());
                     }
+                }else{
+                    listToSend.add(server.getName());
+                }
+            }
+            
+            try {
+                clientRef.updateServersList(listToSend);
+            } catch (RemoteException ex) {
+                if(!listOfClientsToRemote.contains(clientRef)){
+                    listOfClientsToRemote.add(clientRef);
                 }
             }
             
         }
         
-        
-        for(i=0; i < observers.size(); i++){
-            try{       
-                observers.get(i).notifyNewOperationConcluded(msg);
-            }catch(RemoteException e){
-                observers.remove(i--);
-                System.out.println("- um observador (observador inacessivel).");
+        for(RemoteClientObserverInterface clientRef: listOfClientsToRemote){
+            if(clientsObserversList.remove(clientRef) != null){
+                System.out.println("[DirectoryService - RemoteService] Remove a Client Observer (Client inaccessible).");
             }
-        }*/
+        }
     }
     // </editor-fold>
 

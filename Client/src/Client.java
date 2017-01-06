@@ -66,36 +66,27 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     
     private boolean isLoggedIn = false;
     private List<String> serversWhereImNotAuthenticated;
+    ClientRemote clientRemote = null;
+    RemoteGetServersInterface serviceRemote = null;
     // </editor-fold>
     
     private Map<DataAddress, Socket> serversMap = null;
             
-    public Client (String username, String directoryServiceIP, String directoryServicePort) {
+    public Client (String username, String directoryServiceIP, String directoryServicePort) throws SocketException, UnknownHostException, RemoteException, NotBoundException, MalformedURLException {
         this.username = username;
         this.directoryServiceIP = directoryServiceIP;
         this.directoryServicePort = directoryServicePort;
         this.serversMap = new HashMap<>();
         this.homePath = "";
-        try {
-            this.dataSocket = new DatagramSocket();
-            this.dataSocket.setSoTimeout(HEARTBEAT+5000);
-            this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
-            // <editor-fold defaultstate="collapsed" desc=" REMOTE ">
-            ClientRemote clientRemote = new ClientRemote();
-            String url = "rmi://" + directoryServiceIP + "/RemoteGetServers";
-            RemoteGetServersInterface serviceRemote = (RemoteGetServersInterface)Naming.lookup(url);
-            serviceRemote.addClientObserver(clientRemote, dataAddress);
-            // </editor-fold>
-        } catch (SocketException ex) {
-            System.err.println("[Client]An error occurred with the UDP socket level:\n\t" + ex);
-            this.exit(true);
-        } catch (UnknownHostException ex) {
-            System.err.println("[Client]Can't find directory service");
-            this.exit(true);
-        } catch (RemoteException | NotBoundException | MalformedURLException ex) {
-            System.err.println("[Client-Remote] " + ex);
-            this.exit(true);
-        }
+        this.dataSocket = new DatagramSocket();
+        this.dataSocket.setSoTimeout(HEARTBEAT+5000);
+        this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
+        // <editor-fold defaultstate="collapsed" desc=" REMOTE ">
+        clientRemote = new ClientRemote();
+        String url = "rmi://" + directoryServiceIP + "/RemoteGetServers";
+        serviceRemote = (RemoteGetServersInterface)Naming.lookup(url);
+        serviceRemote.addClientObserver(clientRemote, dataAddress);
+        // </editor-fold>
     }
     
     private DataAddress findServerByName(String server) {
@@ -557,6 +548,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
      */
     public void exit(boolean error) {
         try {
+            serviceRemote.removeClientObserver(clientRemote);
             if(bOut != null)
                 this.bOut.close();
             if(this.in != null)
@@ -579,15 +571,24 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         }
 
         @Override
-        public void updateServersList(List<String> serversWhereImNotAuthenticated) throws RemoteException {
-            serversWhereImNotAuthenticated = new ArrayList<>(serversWhereImNotAuthenticated);
+        public void updateServersList(List<String> servers) throws RemoteException {
+            serversWhereImNotAuthenticated = new ArrayList<>(servers);
             setChanged();
             notifyObservers();
         }
     }
     
     public List<String> getServersWhereImNotAuthenticated(){
-        return serversWhereImNotAuthenticated;
+        return new ArrayList<>(serversWhereImNotAuthenticated);
     }
+    
+    public void addObserver() throws RemoteException{
+        serviceRemote.addClientObserver(clientRemote, dataAddress);
+    }
+    
+    public void removeObserver() throws RemoteException{
+        serviceRemote.addClientObserver(clientRemote, dataAddress);
+    }
+    
     // </editor-fold>
 }
