@@ -1,13 +1,4 @@
 
-import Exceptions.ClientNotLoggedInException;
-import Exceptions.CopyFileException;
-import Exceptions.CreateAccountException;
-import Exceptions.GetFileContentException;
-import Exceptions.MakeDirException;
-import Exceptions.RemoveFileOrDirException;
-import Exceptions.ServerConnectionException;
-import Exceptions.UploadException;
-import Exceptions.UsernameOrPasswordIncorrectException;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,11 +21,13 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -132,7 +125,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jTextAreaMessages = new javax.swing.JTextArea();
         jButtonBroadcast = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jListServers = new javax.swing.JList();
+        jListServers = new javax.swing.JList<>();
         jScrollPane6 = new javax.swing.JScrollPane();
         jListClients = new javax.swing.JList();
         jButtonRefreshLists = new javax.swing.JButton();
@@ -140,7 +133,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jListRMIServers = new javax.swing.JList();
+        jListRMIServers = new javax.swing.JList<>();
         jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -180,11 +173,6 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         });
 
         jListServers.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        jListServers.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
         jListServers.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jListServersMouseClicked(evt);
@@ -819,6 +807,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         UpdateTree();
     }
     
+    @SuppressWarnings("unchecked")
     private void fillServersList() {
         if (client.getOnlineServers() == null ) return;
         this.onlineServer = new ArrayList<>(client.getOnlineServers());
@@ -830,6 +819,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
         jListServers.setModel(listServersModel);
     }
     
+    @SuppressWarnings("unchecked")
     private void fillClientsList() {
         if (client.getOnlineClients() == null ) return;
         this.onlineClient = new ArrayList<>(client.getOnlineClients());
@@ -846,6 +836,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             this.jTextAreaMessages.setText(this.jTextAreaMessages.getText() + "\n" + client.getMessage());
     }
     
+    @SuppressWarnings("unchecked")
     private void fillServersRMIList() {      
         DefaultListModel<String> listRMIServersModel = new DefaultListModel<>();
         for(String server : this.client.getServersWhereImNotAuthenticated()) {

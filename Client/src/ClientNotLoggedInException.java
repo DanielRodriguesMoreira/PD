@@ -1,5 +1,5 @@
 
-package Exceptions;
+
 
 /**
  * @author Daniel Moreira
@@ -7,12 +7,12 @@ package Exceptions;
  * @author Tiago Santos 
  */
 
-public class GetFileContentException extends Exception{
+public class ClientNotLoggedInException extends Exception{
 
     private String error;
     
-    public GetFileContentException(){
-        this.error = "Error getting the file content.\nTry again later!";
+    public ClientNotLoggedInException(){
+        this.error = "First you need to login!";
     }
     
     @Override

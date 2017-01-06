@@ -1,5 +1,5 @@
 
-package Exceptions;
+
 
 import java.io.File;
 
@@ -9,12 +9,12 @@ import java.io.File;
  * @author Tiago Santos 
  */
 
-public class DirectoryNotExistsException extends Exception{
+public class DirectoryPermissionsDeniedException extends Exception{
 
     private String error;
     
-    public DirectoryNotExistsException(File directory){
-        this.error = "Directory " + directory + " does not exist!";
+    public DirectoryPermissionsDeniedException(File directory){
+        this.error = "No write permissions in directory " + directory;
     }
     
     @Override

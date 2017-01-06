@@ -1,5 +1,5 @@
 
-package Exceptions;
+
 
 /**
  * @author Daniel Moreira
@@ -7,12 +7,12 @@ package Exceptions;
  * @author Tiago Santos 
  */
 
-public class ClientNotLoggedInException extends Exception{
+public class UploadException extends Exception{
 
     private String error;
     
-    public ClientNotLoggedInException(){
-        this.error = "First you need to login!";
+    public UploadException(){
+        this.error = "Error writting the file.\nTry again later!";
     }
     
     @Override

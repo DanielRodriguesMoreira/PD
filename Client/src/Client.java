@@ -1,14 +1,4 @@
 
-
-import Exceptions.ClientNotLoggedInException;
-import Exceptions.CopyFileException;
-import Exceptions.CreateAccountException;
-import Exceptions.GetFileContentException;
-import Exceptions.MakeDirException;
-import Exceptions.RemoveFileOrDirException;
-import Exceptions.ServerConnectionException;
-import Exceptions.UploadException;
-import Exceptions.UsernameOrPasswordIncorrectException;
 import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -124,9 +114,9 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             packet = new DatagramPacket(bOut.toByteArray(), bOut.size(), serverDirectoryAddr, serverDirectoryPort);
             dataSocket.send(packet);
             
-            System.out.println("[Client]Message Sended\n");
+            System.out.println("[Client] Message Sended\n");
         } catch (IOException ex) {
-            System.err.println("[Client]DirectoryServiceIP/Port IOException\n" + ex);
+            System.err.println("[Client] DirectoryServiceIP/Port IOException\n" + ex);
         }
     }
     
@@ -593,7 +583,10 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     public void removeObserver() throws RemoteException{
-        serviceRemote.addClientObserver(clientRemote, dataAddress);
+        serviceRemote.removeClientObserver(clientRemote);
+        serversWhereImNotAuthenticated.clear();
+        setChanged();
+        notifyObservers();
     }
     
     // </editor-fold>

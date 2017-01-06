@@ -1,5 +1,5 @@
 
-package Exceptions;
+
 
 /**
  * @author Daniel Moreira
@@ -7,12 +7,12 @@ package Exceptions;
  * @author Tiago Santos 
  */
 
-public class ServerConnectionException extends Exception{
+public class GetFileContentException extends Exception{
 
     private String error;
     
-    public ServerConnectionException(String error){
-        this.error = error;
+    public GetFileContentException(){
+        this.error = "Error getting the file content.\nTry again later!";
     }
     
     @Override

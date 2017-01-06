@@ -1,5 +1,5 @@
 
-package Exceptions;
+
 
 /**
  * @author Daniel Moreira
@@ -7,12 +7,12 @@ package Exceptions;
  * @author Tiago Santos 
  */
 
-public class UploadException extends Exception{
+public class ServerConnectionException extends Exception{
 
     private String error;
     
-    public UploadException(){
-        this.error = "Error writting the file.\nTry again later!";
+    public ServerConnectionException(String error){
+        this.error = error;
     }
     
     @Override

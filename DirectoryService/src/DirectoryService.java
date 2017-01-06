@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Daniel Moreira
@@ -65,7 +63,7 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
         try {
             // <editor-fold defaultstate="collapsed" desc=" Args ">
             if(args.length != 1){
-                System.out.println("Sintaxe: DirectoryService port");
+                System.out.println("[DirectoryService]Sintaxe: DirectoryService port");
                 return;
             }
             
@@ -84,7 +82,7 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
                 //Receber resposta
                 packet = new DatagramPacket(new byte[DATAGRAM_MAX_SIZE], DATAGRAM_MAX_SIZE);
                 socket.receive(packet);
-                System.out.println("<DIR> packet received");
+                System.out.println("[DirectoryService] packet received");
             
                 //Criar object inputStream
                 ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
@@ -271,7 +269,7 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
 
             socket.send(packet);
          } catch (IOException ex) {
-            System.out.println("IOException >> " + ex);
+            System.err.println("[DirectoryService] " + ex);
         }
     }
 

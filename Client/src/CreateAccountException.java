@@ -1,18 +1,17 @@
 
-package Exceptions;
+
 
 /**
  * @author Daniel Moreira
  * @author Hugo Santos
  * @author Tiago Santos 
  */
-
-public class MakeDirException extends Exception{
+public class CreateAccountException extends Exception{
 
     private String error;
     
-    public MakeDirException(){
-        this.error = "It's impossible to create that directory.\nTry again later.";
+    public CreateAccountException(){
+        this.error = "Error creating account. Try again later!";
     }
     
     @Override
