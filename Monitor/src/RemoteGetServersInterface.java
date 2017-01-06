@@ -1,0 +1,15 @@
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+
+/**
+ * @author Daniel Moreira
+ * @author Hugo Santos
+ * @author Tiago Santos 
+ */
+
+public interface RemoteGetServersInterface extends Remote{   
+    public void addMonitorObserver(RemoteMonitorObserverInterface monitorRef) throws RemoteException;
+    public void removeMonitorObserver(RemoteMonitorObserverInterface monitorRef) throws RemoteException;
+}
