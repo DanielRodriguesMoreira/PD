@@ -64,7 +64,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     private byte[] fileContent;
     private String fileName;
     
-    private boolean isLoggedIn = false;
+    Map<String, Boolean> mapLoggedServers = null;
     private List<String> serversWhereImNotAuthenticated;
     ClientRemote clientRemote = null;
     RemoteGetServersInterface serviceRemote = null;
@@ -81,6 +81,7 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         this.dataSocket = new DatagramSocket();
         this.dataSocket.setSoTimeout(HEARTBEAT+5000);
         this.dataAddress = new DataAddress(username, InetAddress.getLocalHost(), dataSocket.getLocalPort(), -1);
+        this.mapLoggedServers = new HashMap<>();
         // <editor-fold defaultstate="collapsed" desc=" REMOTE ">
         clientRemote = new ClientRemote();
         String url = "rmi://" + directoryServiceIP + "/RemoteGetServers";
@@ -479,15 +480,15 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
             message = (ClientServerMessage)in.readObject();
             switch(message.getRequest()){
                 case LOGIN: 
-                    this.isLoggedIn = message.getSuccess();
+                    this.mapLoggedServers.put(serverToSend.getName(), message.getSuccess());
                     if(message.getSuccess() != true) throw new UsernameOrPasswordIncorrectException();
                     break;
                 case LOGOUT:
-                    this.isLoggedIn = !message.getSuccess();
+                    if(message.getSuccess()) this.mapLoggedServers.remove(serverToSend.getName());
                     if(message.getSuccess() != true) throw new ClientNotLoggedInException();
                     break;
                 case CREATE_ACCOUNT:
-                    this.isLoggedIn = message.getSuccess();
+                    this.mapLoggedServers.put(serverToSend.getName(), message.getSuccess());
                     if(message.getSuccess() != true) throw new CreateAccountException();
                     break;
                 case MAKE_NEW_DIR:
@@ -520,8 +521,13 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         this.homePath = homePath;
     }
     
-    public boolean isLoggedIn(){
-        return this.isLoggedIn;
+    public boolean isLoggedIn(String serverName){
+        if(this.mapLoggedServers.isEmpty())
+            return false;
+        if(this.mapLoggedServers.get(serverName) == null)
+            return false;
+        else
+            return this.mapLoggedServers.get(serverName);
     }
     
     private Socket getServerTCPSocket(DataAddress server){

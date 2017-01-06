@@ -91,14 +91,14 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             } catch (SocketException ex) {
                 String error = "An error occurred with the UDP socket level:\n" + ex;
                 JOptionPane.showMessageDialog(null, error, "Socket Exception", JOptionPane.ERROR_MESSAGE);
-                this.client.exit(true);
+                System.exit(-1);
             } catch (UnknownHostException ex) {
                 String error = "Can't find directory service";
                 JOptionPane.showMessageDialog(null, error, "UnknownHost Exception", JOptionPane.ERROR_MESSAGE);
-                this.client.exit(true);
+                System.exit(-1);
             } catch (RemoteException | NotBoundException | MalformedURLException ex) {
                 JOptionPane.showMessageDialog(null, ex, "Exception", JOptionPane.ERROR_MESSAGE);
-                this.client.exit(true);
+                System.exit(-1);
             }
             // </editor-fold>
             
@@ -382,7 +382,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
             if (evt.getButton() == 3) {
                 // <editor-fold defaultstate="collapsed" desc=" Login Item (PopUpMenu) ">
                 itemLogin = new JMenuItem("Login");
-                itemLogin.setEnabled(!client.isLoggedIn());
+                itemLogin.setEnabled(!client.isLoggedIn(onlineServer.get(jListServers.getSelectedIndex()).getName()));
                 itemLogin.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -432,7 +432,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" New Account Item (PopUpMenu) ">
                 itemRegister = new JMenuItem("New account");
-                itemRegister.setEnabled(!client.isLoggedIn());
+                itemRegister.setEnabled(!client.isLoggedIn(onlineServer.get(jListServers.getSelectedIndex()).getName()));
                 itemRegister.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -488,7 +488,7 @@ public class ClientGUI extends JFrame implements Constants, Observer {
                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" Logout Item (PopUpMenu) ">
                 itemLogout =  new JMenuItem("Logout");
-                itemLogout.setEnabled(client.isLoggedIn());
+                itemLogout.setEnabled(client.isLoggedIn(onlineServer.get(jListServers.getSelectedIndex()).getName()));
                 itemLogout.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
