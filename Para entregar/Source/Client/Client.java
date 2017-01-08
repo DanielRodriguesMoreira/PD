@@ -88,8 +88,11 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
         return null;
     }
 
-    private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message){
-        this.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, usernameToSend, message);
+    private void sendMessageToServiceDirectory(DataAddress usernameToSend, String message, boolean isToAll){
+        if(isToAll)
+            this.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE_TOALL, usernameToSend, message);
+        else
+            this.sendMessageToServiceDirectory(CLIENT_SENDMESSAGE, usernameToSend, message);
     }
     
     private void sendMessageToServiceDirectory(String tipoPedidoAExecutar) {
@@ -144,13 +147,13 @@ public class Client extends Observable implements Constants, FilesInterface, Cli
     }
     
     public void sendMessageTo(DataAddress clientToSend, String messageToSend){
-        this.sendMessageToServiceDirectory(clientToSend, messageToSend);
+        this.sendMessageToServiceDirectory(clientToSend, messageToSend, false);
         setChanged();
         notifyObservers();
     }
     
     public void sendMessageToAll(String messageToSend){
-        this.sendMessageToServiceDirectory(null, messageToSend);
+        this.sendMessageToServiceDirectory(null, messageToSend, true);
         setChanged();
         notifyObservers();
     }

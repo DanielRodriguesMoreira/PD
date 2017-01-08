@@ -362,7 +362,9 @@ public class DirectoryService extends UnicastRemoteObject implements Constants, 
         
         // <editor-fold defaultstate="collapsed" desc=" Constroi mensagem ">
         for(DataAddress server: mapServers.keySet()){
-            msg += "Server Name: " + server.getName() + "\n";
+             msg += "Server Name: " + server.getName() + 
+                    "\nIP: " + server.getIp().getHostAddress() + 
+                    "\nTCP Port: " + server.getPort() + "\n";
             if(mapServers.get(server) != null){
                 for(DataAddress client: mapServers.get(server)){
                     msg += "\tClient Name: " + client.getName() + "\n";
